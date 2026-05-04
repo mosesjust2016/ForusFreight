@@ -1,0 +1,152 @@
+name: 🚀 Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main          # trigger on every push to main
+  workflow_dispatch:  # allow manual trigger from GitHub UI
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. BUILD
+  # ─────────────────────────────────────────────
+  build:
+    name: Build Laravel App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      # ── PHP ──────────────────────────────────
+      - name: 🐘 Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo, pdo_mysql, xml, curl, zip
+          coverage: none
+
+      - name: 📦 Install Composer dependencies
+        working-directory: website
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      # ── Node / Assets ─────────────────────────
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: 📦 Install NPM dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: 🏗️ Build frontend assets
+        working-directory: website
+        run: npm run build
+
+      # ── Prepare deployment artifact ───────────
+      - name: 🗜️ Create deployment archive
+        run: |
+          tar --exclude='website/node_modules' \
+              --exclude='website/.env' \
+              --exclude='website/vendor/.git' \
+              --exclude='.git' \
+              -czf deploy.tar.gz \
+              website/ Ecommerce/ TerraForm/ README.md
+
+      - name: 📤 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-package
+          path: deploy.tar.gz
+          retention-days: 3
+
+  # ─────────────────────────────────────────────
+  # 2. DEPLOY
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to cPanel Server
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production    # optional: add protection rules in GitHub
+
+    steps:
+      - name: ⬇️ Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-package
+
+      # ── Copy archive to server ────────────────
+      - name: 📡 Upload archive via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT }}
+          source: deploy.tar.gz
+          target: /tmp/
+
+      # ── SSH: extract + run Laravel tasks ─────
+      - name: 🛠️ SSH – Deploy & Run Migrations
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT }}
+          script: |
+            set -e
+
+            DEPLOY_PATH="${{ secrets.CPANEL_DEPLOY_PATH }}"
+            WEBSITE_PATH="$DEPLOY_PATH/website"
+
+            echo "──────────────────────────────────────"
+            echo "📂 Deploying to: $DEPLOY_PATH"
+            echo "──────────────────────────────────────"
+
+            # Extract archive
+            tar -xzf /tmp/deploy.tar.gz -C "$DEPLOY_PATH"
+            rm -f /tmp/deploy.tar.gz
+
+            cd "$WEBSITE_PATH"
+
+            # Ensure .env exists (never overwrite if present)
+            if [ ! -f .env ]; then
+              cp .env.example .env
+              echo "⚠️  .env not found – copied from .env.example. Please configure it!"
+            fi
+
+            # Maintenance mode ON
+            php artisan down --retry=10 || true
+
+            # Optimise framework
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+
+            # Run migrations (non-interactive)
+            php artisan migrate --force
+
+            # Symlink storage
+            php artisan storage:link || true
+
+            # Fix permissions
+            chmod -R 775 storage bootstrap/cache
+
+            # Maintenance mode OFF
+            php artisan up
+
+            echo "✅ Deployment complete!"
+
+      - name: 🎉 Notify success
+        if: success()
+        run: echo "Deployment to cPanel succeeded on $(date)."
+
+      - name: ❌ Notify failure
+        if: failure()
+        run: echo "Deployment FAILED. Check the logs above."
