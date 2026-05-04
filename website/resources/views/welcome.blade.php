@@ -1,0 +1,1486 @@
+@extends('layouts.app')
+
+@section('title', 'Forus Freight - Global Logistics Solutions')
+
+@section('styles')
+    <!-- GlobeJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        /* COLOR VARIABLES - YOUR BRAND COLORS */
+        :root {
+            --primary: rgb(0, 127, 127);    /* Main brand color */
+            --secondary: rgb(255, 98, 0);   /* Secondary brand color */
+            --tertiary: rgb(204, 204, 204); /* Tertiary color */
+            --dark: #0f172a;
+            --light: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+        }
+
+        /* Hero Section - USING PRIMARY COLOR */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, rgba(0, 150, 150, 0.9) 100%);
+        }
+
+        .hero-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 900px;
+            padding: 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid white;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 50px;
+            border: 2px solid white;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            padding-top: 0.5rem;
+        }
+
+        .scroll-dot {
+            width: 6px;
+            height: 12px;
+            background: white;
+            border-radius: 3px;
+            animation: scroll 2s infinite;
+        }
+
+        @keyframes scroll {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        /* Service Icons Strip */
+        .service-strip {
+            background: white;
+            padding: 3rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .service-strip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .service-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .service-icon-item:hover {
+            background: #f1f5f9;
+            transform: translateY(-5px);
+        }
+
+        .service-icon-item i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            transition: transform 0.3s;
+        }
+
+        .service-icon-item:hover i {
+            transform: scale(1.1);
+        }
+
+        .service-icon-item span {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Industries Section */
+        .industries-section {
+            padding: 5rem 0;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.125rem;
+            color: var(--text-light);
+        }
+
+        .industries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .industry-card {
+            position: relative;
+            height: 200px;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .industry-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Industry card backgrounds using brand colors */
+        .industry-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--primary);
+            transition: opacity 0.3s;
+        }
+
+        .industry-card:nth-child(2)::before { background: var(--secondary); }
+        .industry-card:nth-child(3)::before { background: var(--tertiary); }
+        .industry-card:nth-child(4)::before { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+        .industry-card:nth-child(5)::before { background: linear-gradient(135deg, var(--secondary) 0%, #ff6b00 100%); }
+        .industry-card:nth-child(6)::before { background: linear-gradient(135deg, var(--primary) 0%, #009999 100%); }
+        .industry-card:nth-child(7)::before { background: linear-gradient(135deg, var(--tertiary) 0%, #999 100%); }
+        .industry-card:nth-child(8)::before { background: linear-gradient(135deg, var(--secondary) 0%, #ff4500 100%); }
+
+        .industry-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            transition: background 0.3s;
+        }
+
+        .industry-card:hover::after {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .industry-card-content {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        /* Stats Section - USING PRIMARY COLOR */
+        .stats-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, var(--primary) 0%, rgba(0, 150, 150, 0.9) 100%);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Global Network */
+        .network-section {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .network-map {
+            background: rgba(0, 127, 127, 0.05);
+            border-radius: 24px;
+            padding: 4rem;
+            text-align: center;
+            margin-top: 3rem;
+            border: 2px solid rgba(0, 127, 127, 0.1);
+        }
+
+        /* 3D Globe Container */
+        .globe-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            padding: 2rem;
+        }
+
+        .globe-wrapper {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        #globeCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 60px rgba(0, 127, 127, 0.3),
+                inset 0 0 40px rgba(0, 127, 127, 0.2);
+        }
+
+        .globe-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .globe-control-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .globe-control-btn:hover {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        /* Country markers on globe */
+        .globe-marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--secondary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 15px rgba(255, 98, 0, 0.7);
+        }
+
+        .globe-marker::after {
+            content: attr(data-country);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .globe-marker:hover::after {
+            opacity: 1;
+        }
+
+        .globe-marker:hover {
+            animation: none;
+            transform: translate(-50%, -50%) scale(1.5);
+            background: var(--primary);
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 15px rgba(255, 98, 0, 0.7);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 0 0 25px rgba(255, 98, 0, 0.9);
+            }
+        }
+
+        /* Connection lines */
+        .globe-connection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            position: absolute;
+            background: var(--secondary);
+            height: 2px;
+            transform-origin: 0 0;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .connection-line.active {
+            opacity: 0.7;
+            background: var(--primary);
+        }
+
+        /* Country Info Panel */
+        .country-info {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            border: 2px solid rgba(0, 127, 127, 0.1);
+        }
+
+        .country-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .country-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 127, 127, 0.05);
+        }
+
+        .country-item:hover {
+            background: rgba(0, 127, 127, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .country-item.active {
+            background: rgba(0, 127, 127, 0.15);
+            border: 2px solid #007f7f;
+        }
+
+        .country-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .country-item h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .country-item p {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        /* Network Stats below globe */
+        .network-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .network-stat {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .network-stat:hover {
+            transform: translateY(-5px);
+        }
+
+        .network-stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #007f7f;
+            margin-bottom: 0.5rem;
+        }
+
+        .network-stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* News Section */
+        .news-section {
+            padding: 5rem 0;
+            background: #f8fafc;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0, 127, 127, 0.1);
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 127, 127, 0.15);
+            border-color: var(--primary);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--tertiary) 0%, #aaa 100%);
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .news-excerpt {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .news-link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .news-link:hover {
+            color: var(--secondary);
+        }
+
+        /* CTA Section - USING PRIMARY COLOR */
+        .cta-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a202c 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .btn-cta {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.125rem;
+            display: inline-block;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid var(--secondary);
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 98, 0, 0.4);
+            background: white;
+            color: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .industry-card-content {
+                font-size: 1.125rem;
+            }
+            
+            .globe-wrapper {
+                width: 400px;
+                height: 400px;
+            }
+            
+            .country-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .network-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .cta-title {
+                font-size: 1.75rem;
+            }
+            
+            .section-title h2 {
+                font-size: 1.75rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+            
+            .globe-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .network-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+@endsection
+
+@section('content')
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-pattern"></div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">Global Logistics Solutions</h1>
+            <p class="hero-subtitle">Worldwide freight solutions across Zambia & the SADC region</p>
+            <div class="hero-buttons">
+                <a href="{{ route('quote') }}" class="btn-primary">Request a Quote</a>
+                <a href="{{ route('services') }}" class="btn-secondary">Explore Services</a>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="scroll-dot"></div>
+        </div>
+    </section>
+
+    <!-- Service Icons Strip -->
+    <section class="service-strip">
+        <div class="container">
+            <div class="service-strip-grid">
+                <div class="service-icon-item">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Customs</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-truck"></i>
+                    <span>Road Freight</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-plane"></i>
+                    <span>Air Freight</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-ship"></i>
+                    <span>Sea Freight</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Express</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Warehousing</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-industry"></i>
+                    <span>Project Cargo</span>
+                </div>
+                <div class="service-icon-item">
+                    <i class="fas fa-cogs"></i>
+                    <span>Special Logistics</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industries Section -->
+    <section class="industries-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Logistics Solutions Tailored to Your Industry</h2>
+                <p>Specialized solutions designed for your specific sector needs</p>
+            </div>
+
+            <div class="industries-grid">
+                <div class="industry-card">
+                    <div class="industry-card-content">Healthcare & Pharmaceutical</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Automotive & Aviation</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Fashion & Retail</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Electronics & Technology</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Food & Beverage</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Construction & Industrial</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Mining & Resources</div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-card-content">Oil & Gas</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="section-title">
+                <h2 style="color: white;">Forus Freight in Numbers</h2>
+                <p style="color: rgba(255,255,255,0.8);">Growing with our clients for over a decade</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Fleet Vehicles</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">20+</div>
+                    <div class="stat-label">Warehouses</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">75K+</div>
+                    <div class="stat-label">Shipments Annually</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">SADC Countries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support Available</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Happy Clients</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Network -->
+    <section class="network-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Global Network Coverage</h2>
+                <p>Moving goods across Africa and beyond with direct presence</p>
+            </div>
+
+            <div class="network-map">
+                <div class="globe-container">
+                    <!-- 3D Globe Container -->
+                    <div class="globe-wrapper">
+                        <canvas id="globeCanvas"></canvas>
+                        
+                        <!-- Globe Controls -->
+                        <div class="globe-controls">
+                            <button class="globe-control-btn" id="zoomIn">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="globe-control-btn" id="zoomOut">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="globe-control-btn" id="resetView">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="globe-control-btn" id="rotateToggle">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Country Markers -->
+                        <div class="globe-markers">
+                            <!-- Markers will be added by JavaScript -->
+                        </div>
+                        
+                        <!-- Connection Lines -->
+                        <div class="globe-connection" id="connectionLines">
+                            <!-- Lines will be added by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Country Info Panel -->
+                    <div class="country-info">
+                        <div class="country-list">
+                            <div class="country-item active" data-country="Zambia">
+                                <div class="country-marker" style="background: #007f7f;"></div>
+                                <div>
+                                    <h4>Zambia</h4>
+                                    <p>Headquarters & Main Operations</p>
+                                </div>
+                            </div>
+                            <div class="country-item" data-country="South Africa">
+                                <div class="country-marker" style="background: #ff6200;"></div>
+                                <div>
+                                    <h4>South Africa</h4>
+                                    <p>Major Hub for Southern Africa</p>
+                                </div>
+                            </div>
+                            <div class="country-item" data-country="Tanzania">
+                                <div class="country-marker" style="background: #059669;"></div>
+                                <div>
+                                    <h4>Tanzania</h4>
+                                    <p>East Africa Gateway</p>
+                                </div>
+                            </div>
+                            <div class="country-item" data-country="Botswana">
+                                <div class="country-marker" style="background: #8b5cf6;"></div>
+                                <div>
+                                    <h4>Botswana</h4>
+                                    <p>Regional Distribution Center</p>
+                                </div>
+                            </div>
+                            <div class="country-item" data-country="Mozambique">
+                                <div class="country-marker" style="background: #f59e0b;"></div>
+                                <div>
+                                    <h4>Mozambique</h4>
+                                    <p>Port Operations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Network Stats -->
+                    <div class="network-stats">
+                        <div class="network-stat">
+                            <div class="network-stat-number">12+</div>
+                            <div class="network-stat-label">Countries Served</div>
+                        </div>
+                        <div class="network-stat">
+                            <div class="network-stat-number">50+</div>
+                            <div class="network-stat-label">Warehouses</div>
+                        </div>
+                        <div class="network-stat">
+                            <div class="network-stat-number">24/7</div>
+                            <div class="network-stat-label">Operations</div>
+                        </div>
+                        <div class="network-stat">
+                            <div class="network-stat-number">99%</div>
+                            <div class="network-stat-label">On-time Delivery</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Latest News & Updates</h2>
+                <p>Stay informed about our latest developments</p>
+            </div>
+
+            <div class="news-grid">
+                <div class="news-card">
+                    <div class="news-image"></div>
+                    <div class="news-content">
+                        <h3 class="news-title">Fleet Expansion Announcement</h3>
+                        <p class="news-excerpt">Forus Freight expands operations with 50 new trucks to serve the SADC region better.</p>
+                        <a href="#" class="news-link">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="news-card">
+                    <div class="news-image"></div>
+                    <div class="news-content">
+                        <h3 class="news-title">New Warehouse Opens in Lusaka</h3>
+                        <p class="news-excerpt">State-of-the-art 15,000 sqm facility now operational for enhanced storage solutions.</p>
+                        <a href="#" class="news-link">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="news-card">
+                    <div class="news-image"></div>
+                    <div class="news-content">
+                        <h3 class="news-title">Award-Winning Service Excellence</h3>
+                        <p class="news-excerpt">Recognized as Best Logistics Provider 2024 for outstanding customer service.</p>
+                        <a href="#" class="news-link">Read More →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to Ship with Us?</h2>
+            <p class="cta-subtitle">Get started today with a free, no-obligation quote</p>
+            <a href="{{ route('quote') }}" class="btn-cta">Request Free Quote</a>
+        </div>
+    </section>
+@endsection
+
+@section('scripts')
+    <script>
+        // 3D Globe Implementation
+        class InteractiveGlobe {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.globe = null;
+                this.rotationEnabled = true;
+                this.countryMarkers = [];
+                this.connectionLines = [];
+                
+                // Country coordinates (latitude, longitude)
+                this.countries = {
+                    'Zambia': [-13.1339, 27.8493],
+                    'South Africa': [-30.5595, 22.9375],
+                    'Tanzania': [-6.3690, 34.8888],
+                    'Botswana': [-22.3285, 24.6849],
+                    'Mozambique': [-18.6657, 35.5296],
+                    'Zimbabwe': [-19.0154, 29.1549],
+                    'DRC': [-4.0383, 21.7587],
+                    'Angola': [-11.2027, 17.8739],
+                    'Kenya': [1.2921, 36.8219],
+                    'Ethiopia': [9.1450, 40.4897]
+                };
+                
+                // Connections between countries
+                this.connections = [
+                    ['Zambia', 'South Africa'],
+                    ['Zambia', 'Tanzania'],
+                    ['Zambia', 'Botswana'],
+                    ['Zambia', 'Mozambique'],
+                    ['Zambia', 'Zimbabwe'],
+                    ['Zambia', 'DRC'],
+                    ['Zambia', 'Angola'],
+                    ['South Africa', 'Botswana'],
+                    ['Tanzania', 'Kenya'],
+                    ['Kenya', 'Ethiopia']
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                // Create scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0xf0f9f9);
+                
+                // Create camera
+                this.camera = new THREE.PerspectiveCamera(
+                    75,
+                    1, // aspect ratio will be updated
+                    0.1,
+                    1000
+                );
+                this.camera.position.z = 5;
+                
+                // Create renderer
+                const canvas = document.getElementById('globeCanvas');
+                this.renderer = new THREE.WebGLRenderer({ 
+                    canvas,
+                    antialias: true,
+                    alpha: true
+                });
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                
+                // Create controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.rotateSpeed = 0.5;
+                this.controls.minDistance = 2;
+                this.controls.maxDistance = 10;
+                
+                // Add lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                this.scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 3, 5);
+                this.scene.add(directionalLight);
+                
+                // Create globe
+                this.createGlobe();
+                
+                // Create country markers
+                this.createCountryMarkers();
+                
+                // Create connection lines
+                this.createConnectionLines();
+                
+                // Create HTML markers
+                this.createHTMLMarkers();
+                
+                // Handle window resize
+                window.addEventListener('resize', () => this.onWindowResize());
+                this.onWindowResize();
+                
+                // Start animation
+                this.animate();
+                
+                // Setup controls
+                this.setupControls();
+            }
+            
+            createGlobe() {
+                // Create globe geometry (sphere)
+                const geometry = new THREE.SphereGeometry(2, 64, 64);
+                
+                // Create earth texture material
+                const textureLoader = new THREE.TextureLoader();
+                const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
+                
+                // Alternative texture if above fails
+                earthTexture.onError = () => {
+                    // Fallback to procedural texture
+                    const material = new THREE.MeshPhongMaterial({
+                        color: 0x007f7f,
+                        specular: 0x222222,
+                        shininess: 50,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    this.globe = new THREE.Mesh(geometry, material);
+                    this.scene.add(this.globe);
+                };
+                
+                earthTexture.onLoad = () => {
+                    const material = new THREE.MeshPhongMaterial({
+                        map: earthTexture,
+                        specular: 0x222222,
+                        shininess: 50,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    this.globe = new THREE.Mesh(geometry, material);
+                    this.scene.add(this.globe);
+                };
+                
+                earthTexture.onProgress = () => {
+                    // Show loading state
+                    console.log('Loading earth texture...');
+                };
+            }
+            
+            createCountryMarkers() {
+                const markerGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+                const markerMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xff6200,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                Object.entries(this.countries).forEach(([country, coords]) => {
+                    const [lat, lon] = coords;
+                    const position = this.latLonToVector3(lat, lon, 2.05); // Slightly above globe surface
+                    
+                    const marker = new THREE.Mesh(markerGeometry, markerMaterial.clone());
+                    marker.position.copy(position);
+                    marker.userData = { country };
+                    
+                    this.scene.add(marker);
+                    this.countryMarkers.push(marker);
+                });
+            }
+            
+            createConnectionLines() {
+                this.connections.forEach(([from, to]) => {
+                    const fromCoords = this.countries[from];
+                    const toCoords = this.countries[to];
+                    
+                    if (fromCoords && toCoords) {
+                        const start = this.latLonToVector3(fromCoords[0], fromCoords[1], 2.1);
+                        const end = this.latLonToVector3(toCoords[0], toCoords[1], 2.1);
+                        
+                        const curve = new THREE.CatmullRomCurve3([start, end]);
+                        const points = curve.getPoints(50);
+                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                        
+                        const material = new THREE.LineBasicMaterial({ 
+                            color: 0xff6200,
+                            transparent: true,
+                            opacity: 0.3,
+                            linewidth: 2
+                        });
+                        
+                        const line = new THREE.Line(geometry, material);
+                        line.userData = { from, to };
+                        this.scene.add(line);
+                        this.connectionLines.push(line);
+                    }
+                });
+            }
+            
+            createHTMLMarkers() {
+                const markersContainer = document.querySelector('.globe-markers');
+                const connectionLinesContainer = document.getElementById('connectionLines');
+                
+                // Clear existing markers
+                markersContainer.innerHTML = '';
+                connectionLinesContainer.innerHTML = '';
+                
+                // Create HTML markers
+                Object.entries(this.countries).forEach(([country, coords]) => {
+                    const [lat, lon] = coords;
+                    const position = this.latLonToVector3(lat, lon, 2.05);
+                    
+                    // Convert 3D position to screen position
+                    const vector = position.clone();
+                    vector.project(this.camera);
+                    
+                    const x = (vector.x * 0.5 + 0.5) * this.renderer.domElement.width;
+                    const y = (vector.y * -0.5 + 0.5) * this.renderer.domElement.height;
+                    
+                    // Create marker element
+                    const marker = document.createElement('div');
+                    marker.className = 'globe-marker';
+                    marker.setAttribute('data-country', country);
+                    marker.style.left = x + 'px';
+                    marker.style.top = y + 'px';
+                    
+                    marker.addEventListener('click', () => {
+                        this.highlightCountry(country);
+                    });
+                    
+                    marker.addEventListener('mouseenter', () => {
+                        this.highlightCountry(country, true);
+                    });
+                    
+                    markersContainer.appendChild(marker);
+                });
+                
+                // Create connection lines
+                this.connections.forEach(([from, to]) => {
+                    const fromCoords = this.countries[from];
+                    const toCoords = this.countries[to];
+                    
+                    if (fromCoords && toCoords) {
+                        const start = this.latLonToVector3(fromCoords[0], fromCoords[1], 2.1);
+                        const end = this.latLonToVector3(toCoords[0], toCoords[1], 2.1);
+                        
+                        const startVector = start.clone().project(this.camera);
+                        const endVector = end.clone().project(this.camera);
+                        
+                        const x1 = (startVector.x * 0.5 + 0.5) * this.renderer.domElement.width;
+                        const y1 = (startVector.y * -0.5 + 0.5) * this.renderer.domElement.height;
+                        const x2 = (endVector.x * 0.5 + 0.5) * this.renderer.domElement.width;
+                        const y2 = (endVector.y * -0.5 + 0.5) * this.renderer.domElement.height;
+                        
+                        const dx = x2 - x1;
+                        const dy = y2 - y1;
+                        const length = Math.sqrt(dx * dx + dy * dy);
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        
+                        const line = document.createElement('div');
+                        line.className = 'connection-line';
+                        line.style.left = x1 + 'px';
+                        line.style.top = y1 + 'px';
+                        line.style.width = length + 'px';
+                        line.style.transform = `rotate(${angle}deg)`;
+                        line.setAttribute('data-connection', `${from}-${to}`);
+                        
+                        connectionLinesContainer.appendChild(line);
+                    }
+                });
+            }
+            
+            latLonToVector3(lat, lon, radius) {
+                const phi = (90 - lat) * (Math.PI / 180);
+                const theta = (lon + 180) * (Math.PI / 180);
+                
+                const x = -(radius * Math.sin(phi) * Math.cos(theta));
+                const y = radius * Math.cos(phi);
+                const z = radius * Math.sin(phi) * Math.sin(theta);
+                
+                return new THREE.Vector3(x, y, z);
+            }
+            
+            highlightCountry(country, hover = false) {
+                // Highlight 3D markers
+                this.countryMarkers.forEach(marker => {
+                    if (marker.userData.country === country) {
+                        marker.material.color.setHex(hover ? 0xff8c00 : 0x007f7f);
+                        marker.material.opacity = hover ? 1 : 0.9;
+                        marker.scale.setScalar(hover ? 1.5 : 1);
+                    } else {
+                        marker.material.color.setHex(0xff6200);
+                        marker.material.opacity = 0.9;
+                        marker.scale.setScalar(1);
+                    }
+                });
+                
+                // Highlight connection lines
+                this.connectionLines.forEach(line => {
+                    if (line.userData.from === country || line.userData.to === country) {
+                        line.material.color.setHex(hover ? 0xff8c00 : 0x007f7f);
+                        line.material.opacity = hover ? 0.6 : 0.5;
+                        line.material.linewidth = hover ? 3 : 2;
+                    } else {
+                        line.material.color.setHex(0xff6200);
+                        line.material.opacity = 0.3;
+                        line.material.linewidth = 2;
+                    }
+                });
+                
+                // Highlight HTML elements
+                const countryItems = document.querySelectorAll('.country-item');
+                countryItems.forEach(item => {
+                    if (item.getAttribute('data-country') === country) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // Update HTML connection lines
+                const htmlLines = document.querySelectorAll('.connection-line');
+                htmlLines.forEach(line => {
+                    const connection = line.getAttribute('data-connection');
+                    if (connection && connection.includes(country)) {
+                        line.classList.add('active');
+                    } else {
+                        line.classList.remove('active');
+                    }
+                });
+            }
+            
+            onWindowResize() {
+                const container = document.querySelector('.globe-wrapper');
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+                
+                // Update HTML markers
+                this.createHTMLMarkers();
+            }
+            
+            setupControls() {
+                document.getElementById('zoomIn').addEventListener('click', () => {
+                    this.camera.position.multiplyScalar(0.9);
+                });
+                
+                document.getElementById('zoomOut').addEventListener('click', () => {
+                    this.camera.position.multiplyScalar(1.1);
+                });
+                
+                document.getElementById('resetView').addEventListener('click', () => {
+                    this.camera.position.set(0, 0, 5);
+                    this.controls.reset();
+                });
+                
+                document.getElementById('rotateToggle').addEventListener('click', (e) => {
+                    this.rotationEnabled = !this.rotationEnabled;
+                    const icon = e.target.closest('button').querySelector('i');
+                    icon.className = this.rotationEnabled ? 'fas fa-pause' : 'fas fa-play';
+                });
+                
+                // Add country item click handlers
+                document.querySelectorAll('.country-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const country = item.getAttribute('data-country');
+                        this.highlightCountry(country);
+                        
+                        // Center globe on country
+                        const coords = this.countries[country];
+                        if (coords) {
+                            const position = this.latLonToVector3(coords[0], coords[1], 2.5);
+                            this.controls.target.copy(position);
+                        }
+                    });
+                });
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                if (this.rotationEnabled && this.globe) {
+                    this.globe.rotation.y += 0.001;
+                }
+                
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+                
+                // Update HTML markers position
+                this.createHTMLMarkers();
+            }
+        }
+        
+        // Initialize the globe when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Try to initialize globe
+            try {
+                const globe = new InteractiveGlobe();
+            } catch (error) {
+                console.error('Failed to initialize globe:', error);
+                // Fallback to static globe image
+                const globeCanvas = document.getElementById('globeCanvas');
+                globeCanvas.innerHTML = `
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #007f7f;">
+                        <div style="text-align: center;">
+                            <i class="fas fa-globe-africa" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                            <p>Interactive globe loading...</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Other animations and interactions
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+            
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe all sections
+            document.querySelectorAll('section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(section);
+            });
+            
+            // Add animation to stats on scroll
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                const statsObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const stats = entry.target.querySelectorAll('.stat-number');
+                            stats.forEach(stat => {
+                                const text = stat.textContent;
+                                const target = parseInt(text.replace('+', ''));
+                                let current = 0;
+                                const increment = target / 50;
+                                const timer = setInterval(() => {
+                                    current += increment;
+                                    if (current >= target) {
+                                        stat.textContent = text;
+                                        clearInterval(timer);
+                                    } else {
+                                        stat.textContent = Math.floor(current) + (text.includes('+') ? '+' : '');
+                                    }
+                                }, 30);
+                            });
+                            statsObserver.unobserve(entry.target);
+                        }
+                    });
+                });
+                statsObserver.observe(statsSection);
+            }
+        });
+    </script>
+@endsection
