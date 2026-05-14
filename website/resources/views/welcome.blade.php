@@ -3,9 +3,8 @@
 @section('title', 'Forus Freight - Global Logistics Solutions')
 
 @section('styles')
-    <!-- GlobeJS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <!-- Globe.gl Library -->
+    <script src="//unpkg.com/globe.gl"></script>
     
     <style>
         /* COLOR VARIABLES - YOUR BRAND COLORS */
@@ -325,13 +324,18 @@
             margin: 0 auto;
         }
 
-        #globeCanvas {
+        #globeViz {
             width: 100%;
             height: 100%;
             border-radius: 50%;
+            overflow: hidden;
             box-shadow: 
                 0 0 60px rgba(0, 127, 127, 0.3),
                 inset 0 0 40px rgba(0, 127, 127, 0.2);
+        }
+        
+        #globeViz canvas {
+            display: block;
         }
 
         .globe-controls {
@@ -863,7 +867,7 @@
                 <div class="globe-container">
                     <!-- 3D Globe Container -->
                     <div class="globe-wrapper">
-                        <canvas id="globeCanvas"></canvas>
+                        <div id="globeViz" style="width:100%;height:100%;"></div>
                         
                         <!-- Globe Controls -->
                         <div class="globe-controls">
@@ -879,16 +883,6 @@
                             <button class="globe-control-btn" id="rotateToggle">
                                 <i class="fas fa-play"></i>
                             </button>
-                        </div>
-                        
-                        <!-- Country Markers -->
-                        <div class="globe-markers">
-                            <!-- Markers will be added by JavaScript -->
-                        </div>
-                        
-                        <!-- Connection Lines -->
-                        <div class="globe-connection" id="connectionLines">
-                            <!-- Lines will be added by JavaScript -->
                         </div>
                     </div>
                     
@@ -1008,416 +1002,97 @@
 
 @section('scripts')
     <script>
-        // 3D Globe Implementation
-        class InteractiveGlobe {
-            constructor() {
-                this.scene = null;
-                this.camera = null;
-                this.renderer = null;
-                this.controls = null;
-                this.globe = null;
-                this.rotationEnabled = true;
-                this.countryMarkers = [];
-                this.connectionLines = [];
-                
-                // Country coordinates (latitude, longitude)
-                this.countries = {
-                    'Zambia': [-13.1339, 27.8493],
-                    'South Africa': [-30.5595, 22.9375],
-                    'Tanzania': [-6.3690, 34.8888],
-                    'Botswana': [-22.3285, 24.6849],
-                    'Mozambique': [-18.6657, 35.5296],
-                    'Zimbabwe': [-19.0154, 29.1549],
-                    'DRC': [-4.0383, 21.7587],
-                    'Angola': [-11.2027, 17.8739],
-                    'Kenya': [1.2921, 36.8219],
-                    'Ethiopia': [9.1450, 40.4897]
-                };
-                
-                // Connections between countries
-                this.connections = [
-                    ['Zambia', 'South Africa'],
-                    ['Zambia', 'Tanzania'],
-                    ['Zambia', 'Botswana'],
-                    ['Zambia', 'Mozambique'],
-                    ['Zambia', 'Zimbabwe'],
-                    ['Zambia', 'DRC'],
-                    ['Zambia', 'Angola'],
-                    ['South Africa', 'Botswana'],
-                    ['Tanzania', 'Kenya'],
-                    ['Kenya', 'Ethiopia']
-                ];
-                
-                this.init();
-            }
-            
-            init() {
-                // Create scene
-                this.scene = new THREE.Scene();
-                this.scene.background = new THREE.Color(0xf0f9f9);
-                
-                // Create camera
-                this.camera = new THREE.PerspectiveCamera(
-                    75,
-                    1, // aspect ratio will be updated
-                    0.1,
-                    1000
-                );
-                this.camera.position.z = 5;
-                
-                // Create renderer
-                const canvas = document.getElementById('globeCanvas');
-                this.renderer = new THREE.WebGLRenderer({ 
-                    canvas,
-                    antialias: true,
-                    alpha: true
-                });
-                this.renderer.setPixelRatio(window.devicePixelRatio);
-                
-                // Create controls
-                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-                this.controls.enableDamping = true;
-                this.controls.dampingFactor = 0.05;
-                this.controls.rotateSpeed = 0.5;
-                this.controls.minDistance = 2;
-                this.controls.maxDistance = 10;
-                
-                // Add lighting
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-                this.scene.add(ambientLight);
-                
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(5, 3, 5);
-                this.scene.add(directionalLight);
-                
-                // Create globe
-                this.createGlobe();
-                
-                // Create country markers
-                this.createCountryMarkers();
-                
-                // Create connection lines
-                this.createConnectionLines();
-                
-                // Create HTML markers
-                this.createHTMLMarkers();
-                
-                // Handle window resize
-                window.addEventListener('resize', () => this.onWindowResize());
-                this.onWindowResize();
-                
-                // Start animation
-                this.animate();
-                
-                // Setup controls
-                this.setupControls();
-            }
-            
-            createGlobe() {
-                // Create globe geometry (sphere)
-                const geometry = new THREE.SphereGeometry(2, 64, 64);
-                
-                // Create earth texture material
-                const textureLoader = new THREE.TextureLoader();
-                const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
-                
-                // Alternative texture if above fails
-                earthTexture.onError = () => {
-                    // Fallback to procedural texture
-                    const material = new THREE.MeshPhongMaterial({
-                        color: 0x007f7f,
-                        specular: 0x222222,
-                        shininess: 50,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-                    this.globe = new THREE.Mesh(geometry, material);
-                    this.scene.add(this.globe);
-                };
-                
-                earthTexture.onLoad = () => {
-                    const material = new THREE.MeshPhongMaterial({
-                        map: earthTexture,
-                        specular: 0x222222,
-                        shininess: 50,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-                    this.globe = new THREE.Mesh(geometry, material);
-                    this.scene.add(this.globe);
-                };
-                
-                earthTexture.onProgress = () => {
-                    // Show loading state
-                    console.log('Loading earth texture...');
-                };
-            }
-            
-            createCountryMarkers() {
-                const markerGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-                const markerMaterial = new THREE.MeshBasicMaterial({ 
-                    color: 0xff6200,
-                    transparent: true,
-                    opacity: 0.9
-                });
-                
-                Object.entries(this.countries).forEach(([country, coords]) => {
-                    const [lat, lon] = coords;
-                    const position = this.latLonToVector3(lat, lon, 2.05); // Slightly above globe surface
-                    
-                    const marker = new THREE.Mesh(markerGeometry, markerMaterial.clone());
-                    marker.position.copy(position);
-                    marker.userData = { country };
-                    
-                    this.scene.add(marker);
-                    this.countryMarkers.push(marker);
-                });
-            }
-            
-            createConnectionLines() {
-                this.connections.forEach(([from, to]) => {
-                    const fromCoords = this.countries[from];
-                    const toCoords = this.countries[to];
-                    
-                    if (fromCoords && toCoords) {
-                        const start = this.latLonToVector3(fromCoords[0], fromCoords[1], 2.1);
-                        const end = this.latLonToVector3(toCoords[0], toCoords[1], 2.1);
-                        
-                        const curve = new THREE.CatmullRomCurve3([start, end]);
-                        const points = curve.getPoints(50);
-                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                        
-                        const material = new THREE.LineBasicMaterial({ 
-                            color: 0xff6200,
-                            transparent: true,
-                            opacity: 0.3,
-                            linewidth: 2
-                        });
-                        
-                        const line = new THREE.Line(geometry, material);
-                        line.userData = { from, to };
-                        this.scene.add(line);
-                        this.connectionLines.push(line);
-                    }
-                });
-            }
-            
-            createHTMLMarkers() {
-                const markersContainer = document.querySelector('.globe-markers');
-                const connectionLinesContainer = document.getElementById('connectionLines');
-                
-                // Clear existing markers
-                markersContainer.innerHTML = '';
-                connectionLinesContainer.innerHTML = '';
-                
-                // Create HTML markers
-                Object.entries(this.countries).forEach(([country, coords]) => {
-                    const [lat, lon] = coords;
-                    const position = this.latLonToVector3(lat, lon, 2.05);
-                    
-                    // Convert 3D position to screen position
-                    const vector = position.clone();
-                    vector.project(this.camera);
-                    
-                    const x = (vector.x * 0.5 + 0.5) * this.renderer.domElement.width;
-                    const y = (vector.y * -0.5 + 0.5) * this.renderer.domElement.height;
-                    
-                    // Create marker element
-                    const marker = document.createElement('div');
-                    marker.className = 'globe-marker';
-                    marker.setAttribute('data-country', country);
-                    marker.style.left = x + 'px';
-                    marker.style.top = y + 'px';
-                    
-                    marker.addEventListener('click', () => {
-                        this.highlightCountry(country);
-                    });
-                    
-                    marker.addEventListener('mouseenter', () => {
-                        this.highlightCountry(country, true);
-                    });
-                    
-                    markersContainer.appendChild(marker);
-                });
-                
-                // Create connection lines
-                this.connections.forEach(([from, to]) => {
-                    const fromCoords = this.countries[from];
-                    const toCoords = this.countries[to];
-                    
-                    if (fromCoords && toCoords) {
-                        const start = this.latLonToVector3(fromCoords[0], fromCoords[1], 2.1);
-                        const end = this.latLonToVector3(toCoords[0], toCoords[1], 2.1);
-                        
-                        const startVector = start.clone().project(this.camera);
-                        const endVector = end.clone().project(this.camera);
-                        
-                        const x1 = (startVector.x * 0.5 + 0.5) * this.renderer.domElement.width;
-                        const y1 = (startVector.y * -0.5 + 0.5) * this.renderer.domElement.height;
-                        const x2 = (endVector.x * 0.5 + 0.5) * this.renderer.domElement.width;
-                        const y2 = (endVector.y * -0.5 + 0.5) * this.renderer.domElement.height;
-                        
-                        const dx = x2 - x1;
-                        const dy = y2 - y1;
-                        const length = Math.sqrt(dx * dx + dy * dy);
-                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                        
-                        const line = document.createElement('div');
-                        line.className = 'connection-line';
-                        line.style.left = x1 + 'px';
-                        line.style.top = y1 + 'px';
-                        line.style.width = length + 'px';
-                        line.style.transform = `rotate(${angle}deg)`;
-                        line.setAttribute('data-connection', `${from}-${to}`);
-                        
-                        connectionLinesContainer.appendChild(line);
-                    }
-                });
-            }
-            
-            latLonToVector3(lat, lon, radius) {
-                const phi = (90 - lat) * (Math.PI / 180);
-                const theta = (lon + 180) * (Math.PI / 180);
-                
-                const x = -(radius * Math.sin(phi) * Math.cos(theta));
-                const y = radius * Math.cos(phi);
-                const z = radius * Math.sin(phi) * Math.sin(theta);
-                
-                return new THREE.Vector3(x, y, z);
-            }
-            
-            highlightCountry(country, hover = false) {
-                // Highlight 3D markers
-                this.countryMarkers.forEach(marker => {
-                    if (marker.userData.country === country) {
-                        marker.material.color.setHex(hover ? 0xff8c00 : 0x007f7f);
-                        marker.material.opacity = hover ? 1 : 0.9;
-                        marker.scale.setScalar(hover ? 1.5 : 1);
-                    } else {
-                        marker.material.color.setHex(0xff6200);
-                        marker.material.opacity = 0.9;
-                        marker.scale.setScalar(1);
-                    }
-                });
-                
-                // Highlight connection lines
-                this.connectionLines.forEach(line => {
-                    if (line.userData.from === country || line.userData.to === country) {
-                        line.material.color.setHex(hover ? 0xff8c00 : 0x007f7f);
-                        line.material.opacity = hover ? 0.6 : 0.5;
-                        line.material.linewidth = hover ? 3 : 2;
-                    } else {
-                        line.material.color.setHex(0xff6200);
-                        line.material.opacity = 0.3;
-                        line.material.linewidth = 2;
-                    }
-                });
-                
-                // Highlight HTML elements
-                const countryItems = document.querySelectorAll('.country-item');
-                countryItems.forEach(item => {
-                    if (item.getAttribute('data-country') === country) {
-                        item.classList.add('active');
-                    } else {
-                        item.classList.remove('active');
-                    }
-                });
-                
-                // Update HTML connection lines
-                const htmlLines = document.querySelectorAll('.connection-line');
-                htmlLines.forEach(line => {
-                    const connection = line.getAttribute('data-connection');
-                    if (connection && connection.includes(country)) {
-                        line.classList.add('active');
-                    } else {
-                        line.classList.remove('active');
-                    }
-                });
-            }
-            
-            onWindowResize() {
-                const container = document.querySelector('.globe-wrapper');
-                const width = container.clientWidth;
-                const height = container.clientHeight;
-                
-                this.camera.aspect = width / height;
-                this.camera.updateProjectionMatrix();
-                this.renderer.setSize(width, height);
-                
-                // Update HTML markers
-                this.createHTMLMarkers();
-            }
-            
-            setupControls() {
-                document.getElementById('zoomIn').addEventListener('click', () => {
-                    this.camera.position.multiplyScalar(0.9);
-                });
-                
-                document.getElementById('zoomOut').addEventListener('click', () => {
-                    this.camera.position.multiplyScalar(1.1);
-                });
-                
-                document.getElementById('resetView').addEventListener('click', () => {
-                    this.camera.position.set(0, 0, 5);
-                    this.controls.reset();
-                });
-                
-                document.getElementById('rotateToggle').addEventListener('click', (e) => {
-                    this.rotationEnabled = !this.rotationEnabled;
-                    const icon = e.target.closest('button').querySelector('i');
-                    icon.className = this.rotationEnabled ? 'fas fa-pause' : 'fas fa-play';
-                });
-                
-                // Add country item click handlers
-                document.querySelectorAll('.country-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const country = item.getAttribute('data-country');
-                        this.highlightCountry(country);
-                        
-                        // Center globe on country
-                        const coords = this.countries[country];
-                        if (coords) {
-                            const position = this.latLonToVector3(coords[0], coords[1], 2.5);
-                            this.controls.target.copy(position);
-                        }
-                    });
-                });
-            }
-            
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                if (this.rotationEnabled && this.globe) {
-                    this.globe.rotation.y += 0.001;
-                }
-                
-                this.controls.update();
-                this.renderer.render(this.scene, this.camera);
-                
-                // Update HTML markers position
-                this.createHTMLMarkers();
-            }
-        }
-        
-        // Initialize the globe when page loads
+        // Globe.gl Implementation
         document.addEventListener('DOMContentLoaded', () => {
-            // Try to initialize globe
-            try {
-                const globe = new InteractiveGlobe();
-            } catch (error) {
-                console.error('Failed to initialize globe:', error);
-                // Fallback to static globe image
-                const globeCanvas = document.getElementById('globeCanvas');
-                globeCanvas.innerHTML = `
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #007f7f;">
-                        <div style="text-align: center;">
-                            <i class="fas fa-globe-africa" style="font-size: 4rem; margin-bottom: 1rem;"></i>
-                            <p>Interactive globe loading...</p>
-                        </div>
-                    </div>
-                `;
-            }
-            
+            const container = document.getElementById('globeViz');
+
+            const countries = {
+                'Zambia':       { lat: -13.1339, lng: 27.8493, color: '#007f7f', size: 0.7 },
+                'South Africa': { lat: -30.5595, lng: 22.9375, color: '#ff6200', size: 0.5 },
+                'Tanzania':     { lat:  -6.3690, lng: 34.8888, color: '#059669', size: 0.5 },
+                'Botswana':     { lat: -22.3285, lng: 24.6849, color: '#8b5cf6', size: 0.5 },
+                'Mozambique':   { lat: -18.6657, lng: 35.5296, color: '#f59e0b', size: 0.5 },
+                'Zimbabwe':     { lat: -19.0154, lng: 29.1549, color: '#007f7f', size: 0.4 },
+                'DRC':          { lat:  -4.0383, lng: 21.7587, color: '#ff6200', size: 0.4 },
+                'Angola':       { lat: -11.2027, lng: 17.8739, color: '#007f7f', size: 0.4 },
+                'Kenya':        { lat:   1.2921, lng: 36.8219, color: '#059669', size: 0.4 },
+                'Ethiopia':     { lat:   9.1450, lng: 40.4897, color: '#f59e0b', size: 0.4 },
+            };
+
+            const connections = [
+                ['Zambia','South Africa'],['Zambia','Tanzania'],['Zambia','Botswana'],
+                ['Zambia','Mozambique'],['Zambia','Zimbabwe'],['Zambia','DRC'],
+                ['Zambia','Angola'],['South Africa','Botswana'],
+                ['Tanzania','Kenya'],['Kenya','Ethiopia'],
+            ];
+
+            const points = Object.entries(countries).map(([name, d]) => ({
+                name, lat: d.lat, lng: d.lng, color: d.color, size: d.size,
+            }));
+
+            const arcs = connections.map(([from, to]) => ({
+                startLat: countries[from].lat, startLng: countries[from].lng,
+                endLat:   countries[to].lat,   endLng:   countries[to].lng,
+                color: ['rgba(0,127,127,0.6)', 'rgba(0,127,127,0.6)'],
+            }));
+
+            const myGlobe = Globe()
+                .width(container.clientWidth)
+                .height(container.clientHeight)
+                .backgroundColor('rgba(0,0,0,0)')
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+                .pointsData(points)
+                .pointColor(d => d.color)
+                .pointAltitude(0.02)
+                .pointRadius(d => d.size)
+                .pointLabel(d => `<span style="padding:4px 8px;background:rgba(0,0,0,0.8);color:#fff;border-radius:6px;font-size:12px;font-weight:700;">${d.name}</span>`)
+                .arcsData(arcs)
+                .arcColor('color')
+                .arcDashLength(0.5)
+                .arcDashGap(0.15)
+                .arcDashAnimateTime(2200)
+                .arcStroke(0.6)
+                (container);
+
+            myGlobe.pointOfView({ lat: -15, lng: 28, altitude: 1.8 });
+            myGlobe.controls().autoRotate = true;
+            myGlobe.controls().autoRotateSpeed = 0.4;
+
+            let rotating = true;
+
+            document.getElementById('zoomIn').addEventListener('click', () => {
+                const pov = myGlobe.pointOfView();
+                myGlobe.pointOfView({ ...pov, altitude: Math.max(0.5, pov.altitude * 0.8) }, 400);
+            });
+            document.getElementById('zoomOut').addEventListener('click', () => {
+                const pov = myGlobe.pointOfView();
+                myGlobe.pointOfView({ ...pov, altitude: Math.min(5, pov.altitude * 1.25) }, 400);
+            });
+            document.getElementById('resetView').addEventListener('click', () => {
+                myGlobe.pointOfView({ lat: -15, lng: 28, altitude: 1.8 }, 700);
+            });
+            document.getElementById('rotateToggle').addEventListener('click', (e) => {
+                rotating = !rotating;
+                myGlobe.controls().autoRotate = rotating;
+                e.target.closest('button').querySelector('i').className =
+                    rotating ? 'fas fa-pause' : 'fas fa-play';
+            });
+
+            document.querySelectorAll('.country-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const name = item.getAttribute('data-country');
+                    const d = countries[name];
+                    if (d) myGlobe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 1.2 }, 800);
+                    document.querySelectorAll('.country-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                myGlobe.width(container.clientWidth).height(container.clientHeight);
+            });
+
             // Other animations and interactions
             // Smooth scroll for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
