@@ -4,7 +4,10 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
+use App\Mail\EmailVerificationOtp;
+use App\Services\SmsService;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -12,17 +15,16 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public string $name = '';
     public string $email = '';
+    public string $phone = '';
     public string $password = '';
     public string $password_confirmation = '';
 
-    /**
-     * Handle an incoming registration request.
-     */
     public function register(): void
     {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'string', 'max:20'],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -30,70 +32,136 @@ new #[Layout('layouts.guest')] class extends Component
 
         $user = User::create($validated);
 
-        // Fire email verification notification
+        // Generate & send email OTP
+        $emailOtp = $user->generateEmailOtp();
+        Mail::to($user->email)->send(new EmailVerificationOtp($user, $emailOtp));
+
+        // Generate & send phone OTP
+        $phoneOtp = $user->generatePhoneOtp();
+        app(SmsService::class)->sendOtp($user->phone, $phoneOtp);
+
         event(new Registered($user));
 
-        // Do NOT auto-login until verified
-        session()->flash('success', 'Registration successful! Please check your email to verify your account.');
-        $this->redirect(route('login'), navigate: true);
+        // Auto-login so they can access verification pages
+        Auth::login($user);
+
+        session()->flash('success', 'Account created! Please verify your email and phone number.');
+        $this->redirect(route('verification.notice'), navigate: true);
     }
 }; 
 ?>
 
-<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
-    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">Create an Account</h2>
+<div>
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Create Account</h2>
+        <p class="mt-3 text-sm text-slate-500">
+            Join Forus Freight global network
+        </p>
+    </div>
 
     @if (session()->has('success'))
-        <div class="bg-green-100 text-green-800 p-3 rounded mb-4 text-center">
+        <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-sm font-medium text-center animate-fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
             {{ session('success') }}
         </div>
     @endif
 
-    <form wire:submit="register" class="space-y-4">
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-green-600 dark:bg-gray-700 dark:text-gray-100" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-500" />
-        </div>
+    <div class="bg-white p-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100 transition-all duration-300">
+        <form wire:submit="register" class="space-y-5">
 
-        <!-- Email -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-green-600 dark:bg-gray-700 dark:text-gray-100" type="email" name="email" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500" />
-        </div>
+            <!-- Name -->
+            <div>
+                <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <input wire:model="name" id="name"
+                        class="form-control pl-11"
+                        type="text" name="name" required autofocus autocomplete="name" placeholder="John Doe" />
+                </div>
+                <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-green-600 dark:bg-gray-700 dark:text-gray-100" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500" />
-        </div>
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <input wire:model="email" id="email"
+                        class="form-control pl-11"
+                        type="email" name="email" required autocomplete="username" placeholder="john@example.com" />
+                </div>
+                <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
 
-        <!-- Confirm Password -->
-        <div>
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-green-600 dark:bg-gray-700 dark:text-gray-100" type="password" name="password_confirmation" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-500" />
-        </div>
+            <!-- Phone -->
+            <div>
+                <label for="phone" class="block text-sm font-bold text-slate-700 mb-2">Mobile Number</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-mobile-screen"></i>
+                    </div>
+                    <input wire:model="phone" id="phone"
+                        class="form-control pl-11"
+                        type="tel" name="phone" required autocomplete="tel" placeholder="+260 96 123 4567" />
+                </div>
+                <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
 
-        <!-- Actions -->
-        <div class="flex items-center justify-between mt-4">
-            <a href="{{ route('login') }}" class="text-sm font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300">
-                {{ __('Already registered? Log in') }}
-            </a>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-bold text-slate-700 mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input wire:model="password" id="password"
+                            class="form-control pl-11"
+                            type="password" name="password" required autocomplete="new-password" placeholder="••••••••" />
+                    </div>
+                    <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500 text-xs font-medium" />
+                </div>
 
-            <x-primary-button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold">
-                {{ __('Register') }}
-            </x-primary-button>
+                <!-- Confirm Password -->
+                <div>
+                    <label for="password_confirmation" class="block text-sm font-bold text-slate-700 mb-2">Confirm</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+                        <input wire:model="password_confirmation" id="password_confirmation"
+                            class="form-control pl-11"
+                            type="password" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••" />
+                    </div>
+                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-500 text-xs font-medium" />
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="pt-4">
+                <button type="submit" class="btn-auth flex items-center justify-center gap-2 group">
+                    <span wire:loading.remove wire:target="register">Create Account</span>
+                    <span wire:loading wire:target="register" class="flex items-center gap-2">
+                        <i class="fas fa-circle-notch animate-spin"></i>
+                        Setting up...
+                    </span>
+                    <i wire:loading.remove wire:target="register" class="fas fa-user-plus text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+        </form>
+
+        <div class="mt-8 pt-8 border-top border-slate-100 text-center">
+            <p class="text-sm text-slate-500">
+                Already have an account?
+                <a href="{{ route('login') }}" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors" wire:navigate>
+                    Sign in here
+                </a>
+            </p>
         </div>
-    </form>
+    </div>
 </div>
-
-<style>
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.5); /* green focus */
-}
-</style>

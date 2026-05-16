@@ -100,6 +100,24 @@
             color: var(--primary);
         }
 
+        .btn-tertiary {
+            background: transparent;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-tertiary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
         .scroll-indicator {
             position: absolute;
             bottom: 2rem;
@@ -732,7 +750,7 @@
             <p class="hero-subtitle">Worldwide freight solutions across Zambia & the SADC region</p>
             <div class="hero-buttons">
                 <a href="{{ route('quote') }}" class="btn-primary">Request a Quote</a>
-                <a href="{{ route('services') }}" class="btn-secondary">Explore Services</a>
+                <a href="{{ route('services') }}" class="btn-tertiary">Explore Services</a>
             </div>
         </div>
 
@@ -996,6 +1014,9 @@
             <h2 class="cta-title">Ready to Ship with Us?</h2>
             <p class="cta-subtitle">Get started today with a free, no-obligation quote</p>
             <a href="{{ route('quote') }}" class="btn-cta">Request Free Quote</a>
+            @guest
+                <a href="{{ route('login') }}" class="btn-cta" style="background: white; color: var(--secondary);">Login to Account</a>
+            @endguest
         </div>
     </section>
 @endsection

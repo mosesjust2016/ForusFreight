@@ -37,25 +37,49 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Reset Password</h2>
+        <p class="mt-3 text-sm text-slate-500">
+            Enter your email to receive a reset link
+        </p>
     </div>
 
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-auth-session-status class="mb-6" :status="session('status')" />
 
-    <form wire:submit="sendPasswordResetLink">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <div class="bg-white p-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100 transition-all duration-300">
+        <form wire:submit="sendPasswordResetLink" class="space-y-6">
+            <!-- Email Address -->
+            <div>
+                <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <input wire:model="email" id="email" 
+                        class="form-control pl-11" 
+                        type="email" name="email" required autofocus placeholder="name@company.com" />
+                </div>
+                <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+            <div class="pt-2">
+                <button type="submit" class="btn-auth flex items-center justify-center gap-2 group">
+                    <span wire:loading.remove wire:target="sendPasswordResetLink">Send Reset Link</span>
+                    <span wire:loading wire:target="sendPasswordResetLink" class="flex items-center gap-2">
+                        <i class="fas fa-circle-notch animate-spin"></i>
+                        Sending...
+                    </span>
+                    <i wire:loading.remove wire:target="sendPasswordResetLink" class="fas fa-paper-plane text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-8 pt-8 border-top border-slate-100 text-center">
+            <a href="{{ route('login') }}" class="text-sm font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors inline-flex items-center gap-2" wire:navigate>
+                <i class="fas fa-arrow-left text-xs"></i>
+                Back to login
+            </a>
         </div>
-    </form>
+    </div>
 </div>

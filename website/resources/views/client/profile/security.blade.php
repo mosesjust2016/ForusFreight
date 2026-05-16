@@ -106,7 +106,7 @@
             <h3>Update Password</h3>
         </div>
 
-        <form action="{{ route('client.password.update') }}" method="POST">
+        <form action="{{ Auth::user()->is_admin ? route('admin.password.update') : route('client.password.update') }}" method="POST">
             @csrf
             @method('PUT')
             

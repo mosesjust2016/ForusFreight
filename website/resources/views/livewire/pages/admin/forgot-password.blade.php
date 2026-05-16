@@ -36,36 +36,53 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <h2 style="color: var(--primary-green);">Admin Password Recovery</h2>
-    <p class="subtitle" style="margin-bottom: 1.5rem;">
-        Enter your administrative email to receive a reset link.
-    </p>
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider mb-4 border border-slate-200">
+            <i class="fas fa-shield-alt text-[rgb(255,98,0)]"></i>
+            Management Recovery
+        </div>
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Admin Recovery</h2>
+        <p class="mt-3 text-sm text-slate-500">
+            Request an administrative password reset
+        </p>
+    </div>
 
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-auth-session-status class="mb-6" :status="session('status')" />
 
-    <form wire:submit="sendPasswordResetLink" class="auth-form">
-        <!-- Email Address -->
-        <div>
-            <input wire:model="email" id="email" 
-                   type="email" name="email" 
-                   placeholder="Admin Email Address"
-                   class="auth-input"
-                   required autofocus />
-            @error('email')
-                <div class="auth-error">{{ $message }}</div>
-            @enderror
-        </div>
+    <div class="bg-white p-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100 transition-all duration-300">
+        <form wire:submit="sendPasswordResetLink" class="space-y-6">
+            <!-- Email Address -->
+            <div>
+                <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Admin Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <input wire:model="email" id="email" 
+                        class="form-control pl-11" 
+                        type="email" name="email" required autofocus placeholder="admin@forusfl.co.zm" />
+                </div>
+                <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
 
-        <button type="submit" class="auth-btn-primary" style="background: var(--primary-green);">
-            <span wire:loading.remove wire:target="sendPasswordResetLink">Send Recovery Link</span>
-            <span wire:loading wire:target="sendPasswordResetLink">Sending...</span>
-        </button>
+            <div class="pt-2">
+                <button type="submit" class="btn-auth flex items-center justify-center gap-2 group">
+                    <span wire:loading.remove wire:target="sendPasswordResetLink">Send Recovery Link</span>
+                    <span wire:loading wire:target="sendPasswordResetLink" class="flex items-center gap-2">
+                        <i class="fas fa-circle-notch animate-spin"></i>
+                        Processing...
+                    </span>
+                    <i wire:loading.remove wire:target="sendPasswordResetLink" class="fas fa-paper-plane text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </form>
 
-        <div style="text-align: center; margin-top: 1.5rem;">
-            <a href="{{ route('admin.login') }}" wire:navigate style="color: var(--text-gray); font-size: 0.85rem; text-decoration: none; font-weight: 600;">
-                <i class="fas fa-arrow-left"></i> Back to Login
+        <div class="mt-8 pt-8 border-top border-slate-100 text-center">
+            <a href="{{ route('admin.login') }}" class="text-sm font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors inline-flex items-center gap-2" wire:navigate>
+                <i class="fas fa-arrow-left text-xs"></i>
+                Back to Admin Login
             </a>
         </div>
-    </form>
+    </div>
 </div>

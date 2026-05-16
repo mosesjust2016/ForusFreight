@@ -130,6 +130,54 @@
             width: 100%;
         }
 
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 127, 127, 0.25);
+        }
+
+        .nav-btn-outline {
+            background: white;
+            color: var(--primary);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .nav-btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 127, 127, 0.25);
+        }
+
         /* Buttons */
         .btn-primary {
             background: var(--primary);
@@ -677,7 +725,12 @@
                 <li><a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
                 <li><a href="{{ route('tracking') }}" class="nav-link {{ request()->routeIs('tracking') ? 'active' : '' }}">Track</a></li>
                 <li><a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a></li>
-                <li><a href="{{ route('quote') }}" class="btn-primary">Get Quote</a></li>
+                <li><a href="{{ route('quote') }}" class="nav-btn-outline">Get Quote</a></li>
+                @auth
+                    <li><a href="{{ route('dashboard') }}" class="nav-btn">Dashboard</a></li>
+                @else
+                    <li><a href="{{ route('login') }}" class="nav-btn">Login</a></li>
+                @endauth
             </ul>
 
             <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -693,7 +746,12 @@
                 <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
                 <li><a href="{{ route('tracking') }}" class="{{ request()->routeIs('tracking') ? 'active' : '' }}">Track</a></li>
                 <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a></li>
-                <li><a href="{{ route('quote') }}" class="btn-primary" style="justify-content: center;">Get Quote</a></li>
+                <li><a href="{{ route('quote') }}" class="nav-btn-outline" style="justify-content: center;">Get Quote</a></li>
+                @auth
+                    <li><a href="{{ route('dashboard') }}" class="nav-btn" style="justify-content: center;">Dashboard</a></li>
+                @else
+                    <li><a href="{{ route('login') }}" class="nav-btn" style="justify-content: center;">Login</a></li>
+                @endauth
             </ul>
         </div>
     </nav>

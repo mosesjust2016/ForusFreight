@@ -54,8 +54,8 @@ class TrackingController extends Controller
                 ->with('info', 'Please login to view your shipment details.');
         }
 
-        // If user is logged in, redirect to the protected tracking page
-        return redirect()->route('tracking.show', ['tracking_number' => $request->tracking_number]);
+        // If user is logged in, redirect to the dashboard with tracking
+        return redirect()->route('dashboard', ['tracking_number' => $request->tracking_number]);
     }
 
     /**

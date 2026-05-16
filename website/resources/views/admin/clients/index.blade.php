@@ -242,6 +242,40 @@
     </div>
 </div>
 
+<!-- Status Filter Tabs -->
+<div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+    <a href="{{ route('admin.clients') }}"
+       style="padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;
+       {{ $currentStatus === 'all' ? 'background: #1e293b; color: white; box-shadow: 0 4px 12px rgba(30,41,59,0.25);' : 'background: white; color: #64748b; border: 1.5px solid #e2e8f0;' }}">
+        <i class="fas fa-users" style="margin-right: 0.4rem;"></i> All
+        <span style="{{ $currentStatus === 'all' ? 'background: rgba(255,255,255,0.2);' : 'background: #f1f5f9;' }} padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.7rem; margin-left: 0.4rem;">{{ $statusCounts['all'] }}</span>
+    </a>
+    <a href="{{ route('admin.clients', ['status' => 'lead']) }}"
+       style="padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;
+       {{ $currentStatus === 'lead' ? 'background: #f59e0b; color: white; box-shadow: 0 4px 12px rgba(245,158,11,0.25);' : 'background: white; color: #64748b; border: 1.5px solid #e2e8f0;' }}">
+        <i class="fas fa-circle" style="margin-right: 0.4rem; font-size: 0.5rem; vertical-align: middle;"></i> Leads
+        <span style="{{ $currentStatus === 'lead' ? 'background: rgba(255,255,255,0.25);' : 'background: #fffbeb; color: #b45309;' }} padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.7rem; margin-left: 0.4rem;">{{ $statusCounts['lead'] }}</span>
+    </a>
+    <a href="{{ route('admin.clients', ['status' => 'active']) }}"
+       style="padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;
+       {{ $currentStatus === 'active' ? 'background: #22c55e; color: white; box-shadow: 0 4px 12px rgba(34,197,94,0.25);' : 'background: white; color: #64748b; border: 1.5px solid #e2e8f0;' }}">
+        <i class="fas fa-circle" style="margin-right: 0.4rem; font-size: 0.5rem; vertical-align: middle;"></i> Active
+        <span style="{{ $currentStatus === 'active' ? 'background: rgba(255,255,255,0.25);' : 'background: #f0fdf4; color: #15803d;' }} padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.7rem; margin-left: 0.4rem;">{{ $statusCounts['active'] }}</span>
+    </a>
+    <a href="{{ route('admin.clients', ['status' => 'high_value']) }}"
+       style="padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;
+       {{ $currentStatus === 'high_value' ? 'background: #8b5cf6; color: white; box-shadow: 0 4px 12px rgba(139,92,246,0.25);' : 'background: white; color: #64748b; border: 1.5px solid #e2e8f0;' }}">
+        <i class="fas fa-gem" style="margin-right: 0.4rem;"></i> High Value
+        <span style="{{ $currentStatus === 'high_value' ? 'background: rgba(255,255,255,0.25);' : 'background: #f5f3ff; color: #6d28d9;' }} padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.7rem; margin-left: 0.4rem;">{{ $statusCounts['high_value'] }}</span>
+    </a>
+    <a href="{{ route('admin.clients', ['status' => 'blocked']) }}"
+       style="padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;
+       {{ $currentStatus === 'blocked' ? 'background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.25);' : 'background: white; color: #64748b; border: 1.5px solid #e2e8f0;' }}">
+        <i class="fas fa-ban" style="margin-right: 0.4rem;"></i> Blocked
+        <span style="{{ $currentStatus === 'blocked' ? 'background: rgba(255,255,255,0.25);' : 'background: #fef2f2; color: #991b1b;' }} padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.7rem; margin-left: 0.4rem;">{{ $statusCounts['blocked'] }}</span>
+    </a>
+</div>
+
 <div class="admin-client-grid">
     <table class="client-table">
         <thead>
@@ -345,8 +379,12 @@
                 <tr>
                     <td colspan="6" style="text-align: center; padding: 5rem 0; color: var(--text-gray);">
                         <i class="fas fa-users-slash" style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.2;"></i>
-                        <h3 style="font-weight: 800;">No Clients Registered</h3>
-                        <p style="font-size: 0.9rem;">Start by inviting or registering your first logistics client.</p>
+                        <h3 style="font-weight: 800;">
+                            {{ $currentStatus !== 'all' ? 'No ' . ucfirst(str_replace('_', ' ', $currentStatus)) . ' Clients' : 'No Clients Registered' }}
+                        </h3>
+                        <p style="font-size: 0.9rem;">
+                            {{ $currentStatus !== 'all' ? 'There are no clients with this status in the system.' : 'Start by inviting or registering your first logistics client.' }}
+                        </p>
                     </td>
                 </tr>
             @endforelse
