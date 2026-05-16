@@ -5,88 +5,87 @@
 @section('styles')
 <style>
     .form-container {
-        max-width: 1280px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding-bottom: 5rem;
     }
 
     .form-card {
         background: white;
-        border-radius: 30px;
-        padding: 4rem;
-        box-shadow: var(--shadow);
+        border-radius: 32px;
+        padding: 3rem;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.04);
         border: 1px solid #f1f5f9;
-        margin-top: 2rem;
+        margin-top: 1rem;
     }
 
     .form-section {
-        margin-bottom: 4rem;
+        margin-bottom: 3rem;
     }
 
     .form-section-header {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        margin-bottom: 2.5rem;
-        padding-bottom: 1.25rem;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
         border-bottom: 2px solid #f8fafc;
     }
 
     .form-section-header i {
-        width: 45px;
-        height: 45px;
-        background: var(--primary-green-light);
-        color: var(--primary-green);
+        width: 40px;
+        height: 40px;
+        background: #e8f5e9;
+        color: #4caf50;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
+        font-size: 1.1rem;
     }
 
     .form-section-header h3 {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 800;
-        color: var(--text-dark);
-        margin: 0;
+        color: #1e293b;
     }
 
     .input-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
     }
 
     .form-group {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.6rem;
     }
 
     .form-group label {
         font-size: 0.75rem;
         font-weight: 800;
-        color: var(--text-gray);
+        color: #64748b;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.025em;
     }
 
     .form-control {
         width: 100%;
-        padding: 0.85rem 1.25rem;
+        padding: 0.9rem 1.25rem;
         border: 2px solid #f1f5f9;
-        border-radius: 12px;
+        border-radius: 14px;
         font-size: 0.95rem;
         font-weight: 600;
         transition: all 0.3s;
-        background: #fcfdfe;
+        background: #f8fafc;
+        color: #1e293b;
     }
 
     .form-control:focus {
         outline: none;
-        border-color: var(--primary-green);
+        border-color: #007f7f;
         background: white;
-        box-shadow: 0 0 0 4px var(--primary-green-light);
+        box-shadow: 0 0 0 4px rgba(0, 127, 127, 0.05);
     }
 
     .upload-zone {
@@ -100,16 +99,16 @@
     }
 
     .upload-zone:hover {
-        border-color: var(--primary-green);
-        background: var(--primary-green-light);
+        border-color: #007f7f;
+        background: #f0f9f9;
     }
 
     .btn-submit {
-        background: var(--primary-green);
+        background: #007f7f;
         color: white;
-        padding: 1.25rem 3rem;
+        padding: 1rem 2.5rem;
         border: none;
-        border-radius: 15px;
+        border-radius: 16px;
         font-weight: 800;
         font-size: 1rem;
         cursor: pointer;
@@ -117,20 +116,16 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        box-shadow: 0 10px 20px rgba(76, 175, 80, 0.2);
+        box-shadow: 0 10px 20px rgba(0, 127, 127, 0.2);
     }
 
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(76, 175, 80, 0.3);
-        background: #3d8b40;
+        box-shadow: 0 15px 30px rgba(0, 127, 127, 0.3);
+        background: #006666;
     }
 
-    @media (max-width: 1024px) {
-        .input-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
         .input-grid { grid-template-columns: 1fr; }
         .form-card { padding: 1.5rem; }
     }
@@ -138,21 +133,19 @@
 @endsection
 
 @section('content')
-<div class="welcome-section">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;">New Shipment Request</h1>
-            <p style="color: var(--text-gray); font-size: 0.9rem;">Initiate a new cargo transit by selecting your route and cargo details.</p>
-        </div>
-        <a href="{{ route('client.shipments') }}" style="text-decoration: none; color: var(--text-gray); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-arrow-left"></i> Back to List
-        </a>
+<div class="welcome-section" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1 style="font-size: 2rem; font-weight: 900; color: #1e293b; letter-spacing: -0.5px;">New Shipment</h1>
+        <p style="color: #64748b; font-weight: 500; margin-top: 0.5rem;">Fill in the details to request a new cargo transit.</p>
     </div>
+    <a href="{{ route('client.shipments') }}" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
 </div>
 
 <div class="form-container">
     @if($errors->any())
-        <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="background: #fef2f2; border: 1px solid #fee2e2; padding: 1.25rem; border-radius: 16px; margin-bottom: 2rem;">
             <ul style="margin: 0; padding-left: 1.5rem; color: #991b1b; font-size: 0.85rem; font-weight: 600;">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -168,14 +161,14 @@
             <!-- Step 1: Logistics -->
             <div class="form-section">
                 <div class="form-section-header">
-                    <i class="fas fa-map-location-dot"></i>
-                    <h3>Route & Logistics</h3>
+                    <i class="fas fa-route"></i>
+                    <h3>Route Details</h3>
                 </div>
                 <div class="input-grid">
                     <div class="form-group">
                         <label>Origin Country</label>
                         <select name="origin_country" id="origin_country" class="form-control" onchange="updateCities('origin')" required>
-                            <option value="" disabled selected>Select Origin Country...</option>
+                            <option value="" disabled selected>Select country...</option>
                             <option value="Zambia">Zambia (HQ)</option>
                             <option value="South Africa">South Africa</option>
                             <option value="Zimbabwe">Zimbabwe</option>
@@ -190,13 +183,13 @@
                     <div class="form-group">
                         <label>Origin City</label>
                         <select name="origin_city" id="origin_city" class="form-control" required disabled>
-                            <option value="">Select Country First...</option>
+                            <option value="">Select country first...</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Destination Country</label>
                         <select name="destination_country" id="destination_country" class="form-control" onchange="updateCities('destination')" required>
-                            <option value="" disabled selected>Select Destination Country...</option>
+                            <option value="" disabled selected>Select country...</option>
                             <option value="Zambia">Zambia</option>
                             <option value="South Africa">South Africa</option>
                             <option value="Zimbabwe">Zimbabwe</option>
@@ -211,7 +204,7 @@
                     <div class="form-group">
                         <label>Destination City</label>
                         <select name="destination_city" id="destination_city" class="form-control" required disabled>
-                            <option value="">Select Country First...</option>
+                            <option value="">Select country first...</option>
                         </select>
                     </div>
                 </div>
@@ -220,47 +213,47 @@
             <!-- Step 2: Cargo -->
             <div class="form-section">
                 <div class="form-section-header">
-                    <i class="fas fa-box-open"></i>
-                    <h3>Cargo Information</h3>
+                    <i class="fas fa-box"></i>
+                    <h3>Cargo Details</h3>
                 </div>
-                <div class="input-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="input-grid">
                     <div class="form-group">
-                        <label>Cargo Classification</label>
-                        <select name="cargo_type" class="form-control">
-                            <option value="General Cargo">General Cargo</option>
-                            <option value="Mining Equipment">Mining Equipment</option>
-                            <option value="Hazardous Materials">Hazardous Materials</option>
-                            <option value="Agricultural Products">Agricultural Products</option>
-                            <option value="Fragile / Electronics">Fragile / Electronics</option>
+                        <label>Service Type</label>
+                        <select name="service_type" class="form-control" required>
+                            <option value="Road Freight">Road Freight</option>
+                            <option value="Air Freight">Air Freight</option>
+                            <option value="Sea Freight">Sea Freight</option>
+                            <option value="Express Delivery">Express Delivery</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Estimated Weight (KG)</label>
-                        <input type="number" name="weight" class="form-control" placeholder="e.g. 2500" value="{{ old('weight') }}">
+                        <input type="number" name="weight" class="form-control" placeholder="e.g. 500" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Cargo Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Describe the contents of your shipment..."></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Step 3: Documents -->
-            <div class="form-section" style="margin-bottom: 2rem;">
+            <div class="form-section">
                 <div class="form-section-header">
-                    <i class="fas fa-file-shield"></i>
-                    <h3>Shipping Documents</h3>
+                    <i class="fas fa-file-invoice"></i>
+                    <h3>Documentation</h3>
                 </div>
-                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-cloud-arrow-up" style="font-size: 2.5rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
-                    <h4 style="font-weight: 800; margin-bottom: 0.5rem; color: var(--text-dark);">Upload Documentation</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-gray); margin-bottom: 0;">Drag & Drop Bill of Lading, Invoices, or Permits</p>
+                <div class="upload-zone" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                    <h4 style="font-weight: 800; color: #1e293b; margin-bottom: 0.5rem;">Upload Shipping Docs</h4>
+                    <p style="font-size: 0.85rem; color: #64748b;">Drag & drop files or click to browse</p>
                     <input type="file" name="documents[]" id="fileInput" style="display: none;" multiple>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 2rem; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f8fafc;">
-                <span style="font-size: 0.8rem; color: var(--text-gray); font-weight: 600;">
-                    <i class="fas fa-info-circle"></i> Verification will be handled by regional dispatch.
-                </span>
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 2rem; margin-top: 2rem;">
                 <button type="submit" class="btn-submit">
-                    Submit Request <i class="fas fa-paper-plane"></i>
+                    Send Request <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         </form>
@@ -295,12 +288,23 @@
                 option.textContent = city;
                 citySelect.appendChild(option);
             });
-            // Add "Other" option
             const otherOption = document.createElement('option');
             otherOption.value = 'Other';
-            otherOption.textContent = 'Other (Specify in notes)';
+            otherOption.textContent = 'Other';
             citySelect.appendChild(otherOption);
         }
     }
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', () => {
+        if(fileInput.files.length > 0) {
+            dropZone.style.borderColor = '#007f7f';
+            dropZone.querySelector('p').textContent = fileInput.files.length + ' files selected';
+        }
+    });
 </script>
 @endsection

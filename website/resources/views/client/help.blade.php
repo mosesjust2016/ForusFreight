@@ -7,15 +7,15 @@
     .help-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-        margin-bottom: 4rem;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
 
     .help-card {
         background: white;
         border-radius: 24px;
         padding: 2.5rem;
-        box-shadow: var(--shadow);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         border: 1px solid #f1f5f9;
         text-align: center;
         transition: all 0.3s;
@@ -24,15 +24,16 @@
 
     .help-card:hover {
         transform: translateY(-5px);
-        border-color: var(--primary-green);
+        border-color: #007f7f;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
 
     .help-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
-        background: var(--primary-green-light);
-        color: var(--primary-green);
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        background: #f0f9f9;
+        color: #007f7f;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -43,21 +44,21 @@
     .help-card h3 {
         font-size: 1.1rem;
         font-weight: 800;
-        color: var(--text-dark);
+        color: #1e293b;
         margin-bottom: 0.75rem;
     }
 
     .help-card p {
         font-size: 0.85rem;
-        color: var(--text-gray);
+        color: #64748b;
         line-height: 1.5;
     }
 
     .faq-section {
         background: white;
-        border-radius: 30px;
+        border-radius: 24px;
         padding: 3rem;
-        box-shadow: var(--shadow);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         border: 1px solid #f1f5f9;
     }
 
@@ -76,71 +77,73 @@
     .faq-item h4 {
         font-size: 1rem;
         font-weight: 800;
-        color: var(--text-dark);
-        margin-bottom: 1rem;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
     }
 
-    .faq-item h4 i { color: var(--primary-green); }
+    .faq-item h4 i { color: #007f7f; }
 
     .faq-item p {
         font-size: 0.9rem;
-        color: var(--text-gray);
+        color: #64748b;
         line-height: 1.6;
         padding-left: 1.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .help-grid { grid-template-columns: 1fr; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="welcome-section" style="margin-bottom: 3.5rem;">
-    <div>
-        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;">Help & Support Center</h1>
-        <p style="color: var(--text-gray); font-size: 0.9rem;">Need assistance with your cargo or account? We are here to help 24/7.</p>
-    </div>
+<div class="welcome-section">
+    <h1 style="font-size: 2rem; font-weight: 900; color: #1e293b; letter-spacing: -0.5px;">Help Center</h1>
+    <p style="color: #64748b; font-weight: 500; margin-top: 0.5rem;">Need assistance? We're here to help you 24/7.</p>
 </div>
 
 <div class="help-grid">
     <a href="#" class="help-card">
-        <div class="help-icon"><i class="fas fa-book"></i></div>
-        <h3>Knowledge Base</h3>
-        <p>Explore our guides on shipping regulations, documentation, and border protocols.</p>
+        <div class="help-icon"><i class="fas fa-book-open"></i></div>
+        <h3>Guides & FAQ</h3>
+        <p>Explore our detailed guides on logistics, border protocols, and shipping regulations.</p>
     </a>
     <a href="#" class="help-card">
-        <div class="help-icon" style="background: #eff6ff; color: #2563eb;"><i class="fas fa-message"></i></div>
-        <h3>Live Chat</h3>
-        <p>Speak directly with our dispatch team for real-time updates on your cargo.</p>
+        <div class="help-icon" style="background: #eef2ff; color: #4f46e5;"><i class="fas fa-comments"></i></div>
+        <h3>Live Support</h3>
+        <p>Chat with our dedicated dispatch team for real-time updates and urgent inquiries.</p>
     </a>
-    <a href="mailto:support@forusfl.co.zm" class="help-card">
-        <div class="help-icon" style="background: #fff7ed; color: #c2410c;"><i class="fas fa-envelope"></i></div>
-        <h3>Email Support</h3>
-        <p>Send us a detailed inquiry and get a response within 2 working hours.</p>
+    <a href="mailto:support@forusfreight.com" class="help-card">
+        <div class="help-icon" style="background: #fff7ed; color: #ea580c;"><i class="fas fa-envelope-open-text"></i></div>
+        <h3>Email Ticket</h3>
+        <p>Open a support ticket via email and our regional managers will respond within 2 hours.</p>
     </a>
 </div>
 
 <div class="faq-section">
-    <h3 style="font-size: 1.25rem; font-weight: 900; margin-bottom: 2.5rem; color: var(--text-dark);">Frequently Asked Questions</h3>
+    <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 2.5rem; color: #1e293b;">Common Questions</h3>
     
     <div class="faq-item">
-        <h4><i class="fas fa-circle-question"></i> How do I track my shipment in real-time?</h4>
-        <p>You can use the "Real-time Tracking" link in your sidebar. Our system uses live telemetry to show your cargo's exact location and border status.</p>
+        <h4><i class="fas fa-circle-question"></i> How do I track my shipment?</h4>
+        <p>Go to "Real-time Tracking" in your sidebar and enter your tracking number. You'll see live location data and current border status updates.</p>
     </div>
 
     <div class="faq-item">
-        <h4><i class="fas fa-circle-question"></i> What documents are required for international freight?</h4>
-        <p>Typically, you will need a Commercial Invoice, Packing List, and Bill of Lading. You can upload these directly when creating a new shipment request.</p>
+        <h4><i class="fas fa-circle-question"></i> What documents do I need to upload?</h4>
+        <p>For most regional shipments, you'll need the Bill of Lading, Commercial Invoice, and Packing List. You can upload these when creating a request.</p>
     </div>
 
     <div class="faq-item">
-        <h4><i class="fas fa-circle-question"></i> How long does border clearance usually take?</h4>
-        <p>Clearance times vary by border. On average, regional borders like Kasumbalesa or Chirundu take 12-24 hours for standard general cargo.</p>
+        <h4><i class="fas fa-circle-question"></i> How can I settle outstanding invoices?</h4>
+        <p>Visit the "Invoices & Payments" section. You can view all pending balances and pay directly using our integrated payment gateway.</p>
     </div>
 
     <div class="faq-item">
-        <h4><i class="fas fa-circle-question"></i> Can I change my delivery destination after dispatch?</h4>
-        <p>Yes, but please contact our support team immediately. Changes made after the vehicle has passed the final border may incur additional logistics fees.</p>
+        <h4><i class="fas fa-circle-question"></i> What areas do you operate in?</h4>
+        <p>We provide freight solutions across Zambia and the entire SADC region, including South Africa, DRC, Zimbabwe, and Tanzania.</p>
     </div>
 </div>
 @endsection

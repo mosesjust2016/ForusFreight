@@ -167,6 +167,8 @@ return [
         /*
          * Package Service Providers...
          */
+        Livewire\LivewireServiceProvider::class,
+        Livewire\Volt\VoltServiceProvider::class,
 
         /*
          * Application Service Providers...

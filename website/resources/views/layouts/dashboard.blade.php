@@ -396,6 +396,10 @@
                     <i class="fas fa-chart-line"></i>
                     System Reports
                 </a>
+                <a href="{{ route('admin.exchange-rates') }}" class="nav-item {{ request()->routeIs('admin.exchange-rates*') ? 'active' : '' }}">
+                    <i class="fas fa-coins"></i>
+                    Exchange Rates
+                </a>
             @else
                 <!-- Main Navigation -->
                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 1.5rem 0 0.5rem 1.25rem; letter-spacing: 0.05em;">Main Navigation</div>
@@ -485,8 +489,7 @@
                 <button id="mobileToggle" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dark);">
                     <i class="fas fa-bars"></i>
                 </button>
-                <form action="{{ route('track.check') }}" method="POST" class="search-box">
-                    @csrf
+                <form action="{{ route('dashboard') }}" method="GET" class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" name="tracking_number" placeholder="Enter tracking number..." required>
                 </form>
@@ -514,14 +517,25 @@
                             <p style="font-size: 0.7rem; color: var(--text-gray); font-weight: 600;">{{ Auth::user()->email }}</p>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="{{ route('client.profile') }}" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i>
-                            My Profile
-                        </a>
-                        <a href="{{ route('client.settings') }}" class="dropdown-item">
-                            <i class="fas fa-sliders"></i>
-                            Account Settings
-                        </a>
+                        @if(Auth::user()->is_admin)
+                            <a href="{{ route('admin.profile') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                My Profile
+                            </a>
+                            <a href="{{ route('admin.settings') }}" class="dropdown-item">
+                                <i class="fas fa-sliders"></i>
+                                Account Settings
+                            </a>
+                        @else
+                            <a href="{{ route('client.profile') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                My Profile
+                            </a>
+                            <a href="{{ route('client.settings') }}" class="dropdown-item">
+                                <i class="fas fa-sliders"></i>
+                                Account Settings
+                            </a>
+                        @endif
                         <div class="dropdown-divider"></div>
                         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item" style="color: #ef4444;">
                             <i class="fas fa-sign-out-alt"></i>

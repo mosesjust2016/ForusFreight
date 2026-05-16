@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Forms\LoginForm;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -21,61 +22,99 @@ new #[Layout('layouts.guest')] class extends Component
             return;
         }
 
+        $user = Auth::user();
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->generateEmailOtp();
+            $this->redirect(route('verification.notice'), navigate: true);
+            return;
+        }
+
+        if (! $user->hasVerifiedPhone()) {
+            $user->generatePhoneOtp();
+            $this->redirect(route('verification.phone'), navigate: true);
+            return;
+        }
+
         $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: true);
     }
 }; 
 ?>
 
 <div>
-    <h2 style="color: var(--primary-green);">Admin Portal</h2>
-    <p class="subtitle">
-        Secure Management Access
-    </p>
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider mb-4 border border-slate-200">
+            <i class="fas fa-lock text-[rgb(255,98,0)]"></i>
+            Management Access
+        </div>
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Admin Portal</h2>
+        <p class="mt-3 text-sm text-slate-500">
+            Authorized personnel only
+        </p>
+    </div>
 
+    <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="login" class="auth-form">
-        <!-- Email -->
-        <div>
-            <input wire:model="form.email"
-                   id="email" type="email" name="email"
-                   placeholder="Admin Email"
-                   class="auth-input"
-                   required autofocus autocomplete="username" />
-            @error('form.email')
-                <div class="auth-error">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <!-- Password -->
-        <div>
-            <input wire:model="form.password"
-                   id="password" type="password" name="password"
-                   placeholder="Password"
-                   class="auth-input"
-                   required autocomplete="current-password" />
-            @error('form.password')
-                <div class="auth-error">{{ $message }}</div>
-            @enderror
-            @if (Route::has('admin.password.request'))
-                <div class="auth-link-right">
-                    <a href="{{ route('admin.password.request') }}" wire:navigate>Forgot password?</a>
+    <div class="bg-white p-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100 transition-all duration-300">
+        <form wire:submit="login" class="space-y-6">
+            <!-- Email Address -->
+            <div>
+                <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Admin Email</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <input wire:model="form.email" id="email" 
+                        class="form-control pl-11" 
+                        type="email" name="email" required autofocus autocomplete="username" placeholder="admin@forusfl.co.zm" />
                 </div>
-            @endif
+                <x-input-error :messages="$errors->get('form.email')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
+
+            <!-- Password -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <label for="password" class="block text-sm font-bold text-slate-700">Password</label>
+                    @if (Route::has('admin.password.request'))
+                        <a href="{{ route('admin.password.request') }}" class="text-xs font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors duration-200" wire:navigate>
+                            Forgot?
+                        </a>
+                    @endif
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <input wire:model="form.password" id="password" 
+                        class="form-control pl-11"
+                        type="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+                </div>
+                <x-input-error :messages="$errors->get('form.password')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-2">
+                <button type="submit" class="btn-auth flex items-center justify-center gap-2">
+                    <span wire:loading.remove wire:target="login">Login to Dashboard</span>
+                    <span wire:loading wire:target="login" class="flex items-center gap-2">
+                        <i class="fas fa-circle-notch animate-spin"></i>
+                        Verifying...
+                    </span>
+                    <i wire:loading.remove wire:target="login" class="fas fa-shield-check text-xs opacity-50 group-hover:scale-110 transition-transform"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-8 pt-8 border-top border-slate-100 flex flex-col gap-4">
+            <a href="{{ url('/') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:border-slate-200 transition-all">
+                <i class="fas fa-arrow-left text-xs"></i>
+                Back to Main Website
+            </a>
+            
+            <p class="text-center text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                All access is monitored and logged
+            </p>
         </div>
-
-        <!-- Submit -->
-        <button type="submit" class="auth-btn-primary" style="background: #00706f; background: var(--primary-green); margin-bottom: 1rem; height: 50px; display: flex; align-items: center; justify-content: center;">
-            <span wire:loading.remove>Login to Dashboard</span>
-            <span wire:loading>Authenticating...</span>
-        </button>
-
-        <a href="{{ url('/') }}" class="auth-btn-secondary" style="display: flex; align-items: center; justify-content: center; text-decoration: none; border: 2px solid #e2e8f0; color: #64748b; padding: 0.85rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; transition: all 0.3s;">
-            <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Website
-        </a>
-
-        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: #64748b;">
-            Authorized personnel only. All access is logged.
-        </p>
-    </form>
+    </div>
 </div>

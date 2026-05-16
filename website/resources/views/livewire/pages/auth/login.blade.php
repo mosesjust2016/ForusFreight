@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Forms\LoginForm;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -15,10 +16,24 @@ new #[Layout('layouts.guest')] class extends Component
     public function login(): void
     {
         $this->validate();
-
         $this->form->authenticate();
-
         Session::regenerate();
+
+        $user = Auth::user();
+
+        // Check email verification
+        if (! $user->hasVerifiedEmail()) {
+            $user->generateEmailOtp();
+            $this->redirect(route('verification.notice'), navigate: true);
+            return;
+        }
+
+        // Check phone verification
+        if (! $user->hasVerifiedPhone()) {
+            $user->generatePhoneOtp();
+            $this->redirect(route('verification.phone'), navigate: true);
+            return;
+        }
 
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
@@ -27,72 +42,80 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Sign in to your account</h2>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Or
-            <a href="{{ route('register') }}" class="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200" wire:navigate>
-                create a new account
-            </a>
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Sign in</h2>
+        <p class="mt-3 text-sm text-slate-500">
+            Securely manage your global shipments
         </p>
     </div>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <div class="bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-gray-100 dark:border-gray-700 transition-all duration-300">
+    <div class="bg-white p-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100 transition-all duration-300">
         <form wire:submit="login" class="space-y-6">
             <!-- Email Address -->
             <div>
-                <x-input-label for="email" value="Email address" class="text-sm font-semibold text-gray-700 dark:text-gray-300" />
-                <div class="mt-2">
-                    <x-text-input wire:model="form.email" id="email" 
-                        class="block w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5 transition-all duration-300 ease-in-out" 
-                        type="email" name="email" required autofocus autocomplete="username" placeholder="you@company.com" />
+                <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <input wire:model="form.email" id="email" 
+                        class="form-control pl-11" 
+                        type="email" name="email" required autofocus autocomplete="username" placeholder="name@company.com" />
                 </div>
-                <x-input-error :messages="$errors->get('form.email')" class="mt-2 text-red-500 text-sm font-medium" />
+                <x-input-error :messages="$errors->get('form.email')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>
 
             <!-- Password -->
             <div>
-                <div class="flex items-center justify-between">
-                    <x-input-label for="password" value="Password" class="text-sm font-semibold text-gray-700 dark:text-gray-300" />
+                <div class="flex items-center justify-between mb-2">
+                    <label for="password" class="block text-sm font-bold text-slate-700">Password</label>
                     @if (Route::has('password.request'))
-                        <div class="text-sm">
-                            <a href="{{ route('password.request') }}" class="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200" wire:navigate>
-                                Forgot password?
-                            </a>
-                        </div>
+                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors duration-200" wire:navigate>
+                            Forgot?
+                        </a>
                     @endif
                 </div>
-                <div class="mt-2">
-                    <x-text-input wire:model="form.password" id="password" 
-                        class="block w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5 transition-all duration-300 ease-in-out"
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <input wire:model="form.password" id="password" 
+                        class="form-control pl-11"
                         type="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
                 </div>
-                <x-input-error :messages="$errors->get('form.password')" class="mt-2 text-red-500 text-sm font-medium" />
+                <x-input-error :messages="$errors->get('form.password')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>
 
             <!-- Remember Me -->
-            <div class="flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-900 transition duration-150 ease-in-out cursor-pointer" name="remember">
-                <label for="remember" class="ml-3 block text-sm font-medium leading-6 text-gray-700 dark:text-gray-300 cursor-pointer">
-                    Remember me
+            <div class="flex items-center justify-between">
+                <label class="flex items-center cursor-pointer group">
+                    <input wire:model="form.remember" id="remember" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-[rgb(0,127,127)] focus:ring-[rgb(0,127,127)] transition duration-150 ease-in-out cursor-pointer" name="remember">
+                    <span class="ml-2 text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Remember me</span>
                 </label>
             </div>
 
             <!-- Actions -->
             <div class="pt-2">
-                <button type="submit" class="group flex w-full justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-600 px-3 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:from-indigo-500 hover:to-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transform transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50">
-                    <span wire:loading.remove wire:target="login">Sign in</span>
-                    <span wire:loading wire:target="login" class="flex items-center">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Optimizing Logistics...
+                <button type="submit" class="btn-auth flex items-center justify-center gap-2">
+                    <span wire:loading.remove wire:target="login">Sign In</span>
+                    <span wire:loading wire:target="login" class="flex items-center gap-2">
+                        <i class="fas fa-circle-notch animate-spin"></i>
+                        Authenticating...
                     </span>
+                    <i wire:loading.remove wire:target="login" class="fas fa-arrow-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
                 </button>
             </div>
         </form>
+
+        <div class="mt-8 pt-8 border-top border-slate-100 text-center">
+            <p class="text-sm text-slate-500">
+                New to Forus Freight?
+                <a href="{{ route('register') }}" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors" wire:navigate>
+                    Create an account
+                </a>
+            </p>
+        </div>
     </div>
 </div>

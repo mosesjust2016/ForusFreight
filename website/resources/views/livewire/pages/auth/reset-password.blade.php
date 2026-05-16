@@ -70,36 +70,69 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <form wire:submit="resetPassword">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Set New Password</h2>
+        <p class="mt-3 text-sm text-slate-500">
+            Secure your account with a new password
+        </p>
+    </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+    <div class="bg-white p-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100 transition-all duration-300">
+        <form wire:submit="resetPassword" class="space-y-6">
+            <!-- Email Address -->
+            <div>
+                <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <input wire:model="email" id="email" 
+                        class="form-control pl-11" 
+                        type="email" name="email" required autofocus autocomplete="username" />
+                </div>
+                <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
+            </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <!-- Password -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="password" class="block text-sm font-bold text-slate-700 mb-2">New Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input wire:model="password" id="password" 
+                            class="form-control pl-11"
+                            type="password" name="password" required autocomplete="new-password" placeholder="••••••••" />
+                    </div>
+                    <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500 text-xs font-medium" />
+                </div>
 
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                          type="password"
-                          name="password_confirmation" required autocomplete="new-password" />
+                <!-- Confirm Password -->
+                <div>
+                    <label for="password_confirmation" class="block text-sm font-bold text-slate-700 mb-2">Confirm Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+                        <input wire:model="password_confirmation" id="password_confirmation" 
+                            class="form-control pl-11"
+                            type="password" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••" />
+                    </div>
+                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-500 text-xs font-medium" />
+                </div>
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
+            <div class="pt-2">
+                <button type="submit" class="btn-auth flex items-center justify-center gap-2 group">
+                    <span wire:loading.remove wire:target="resetPassword">Reset Password</span>
+                    <span wire:loading wire:target="resetPassword" class="flex items-center gap-2">
+                        <i class="fas fa-circle-notch animate-spin"></i>
+                        Updating...
+                    </span>
+                    <i wire:loading.remove wire:target="resetPassword" class="fas fa-key text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
