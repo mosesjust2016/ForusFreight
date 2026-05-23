@@ -81,7 +81,7 @@ new #[Layout('layouts.guest')] class extends Component
             </div>
 
             <!-- Password -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6">
                 <div>
                     <label for="password" class="block text-sm font-bold text-slate-700 mb-2">New Password</label>
                     <div class="input-wrapper">

@@ -63,7 +63,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 80px;
+            height: 100px;
         }
 
         .logo {
@@ -713,10 +713,7 @@
     <nav class="navbar">
         <div class="container navbar-container">
             <a href="{{ route('home') }}" class="logo">
-                <div class="logo-icon">
-                    <img src="{{ asset('images/logo.png') }}" alt="Forus Freight" class="h-10 w-auto" width=80" height="80">
-                </div>
-                <span class="logo-text">Forus Freight</span>
+                <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" style="height: 88px; width: auto; display: block;">
             </a>
 
             <ul class="nav-menu">
@@ -767,11 +764,8 @@
             <div class="footer-grid">
                 <!-- Company Info -->
                 <div>
-                    <div class="logo" style="margin-bottom: 1.5rem;">
-                        <div class="logo-icon">
-                            <i class="fas fa-truck-fast"></i>
-                        </div>
-                        <span class="logo-text" style="-webkit-text-fill-color: white;">Forus Freight</span>
+                    <div style="margin-bottom: 1.5rem;">
+                        <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" style="height: 56px; width: auto; display: block;">
                     </div>
                     <p style="color: #94a3b8; margin-bottom: 1.5rem;">Fast, reliable & affordable logistics solutions across Zambia and the SADC region.</p>
                     <div class="social-links">

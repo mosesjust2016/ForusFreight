@@ -109,7 +109,7 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="grid grid-cols-1 gap-5">
                 <!-- Password -->
                 <div>
                     <label for="password" class="block text-sm font-bold text-slate-700 mb-2">Password</label>
