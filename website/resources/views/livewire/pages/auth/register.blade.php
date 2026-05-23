@@ -18,19 +18,23 @@ new #[Layout('layouts.guest')] class extends Component
     public string $phone = '';
     public string $password = '';
     public string $password_confirmation = '';
+    public bool $agree_terms = false;
 
     public function register(): void
     {
         $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'phone' => ['required', 'string', 'max:20'],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'name'        => ['required', 'string', 'max:255'],
+            'email'       => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'phone'       => ['required', 'string', 'max:20'],
+            'password'    => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'agree_terms' => ['accepted'],
+        ], [
+            'agree_terms.accepted' => 'You must accept the Terms & Conditions to create an account.',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
-        $user = User::create($validated);
+        $user = User::create(\Illuminate\Support\Arr::except($validated, ['agree_terms']));
 
         // Generate & send email OTP
         $emailOtp = $user->generateEmailOtp();
@@ -72,12 +76,10 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Name -->
             <div>
                 <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i class="fas fa-user"></i>
-                    </div>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-user"></i></span>
                     <input wire:model="name" id="name"
-                        class="form-control pl-11"
+                        class="form-control has-icon"
                         type="text" name="name" required autofocus autocomplete="name" placeholder="John Doe" />
                 </div>
                 <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -86,12 +88,10 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i class="fas fa-envelope"></i>
-                    </div>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-envelope"></i></span>
                     <input wire:model="email" id="email"
-                        class="form-control pl-11"
+                        class="form-control has-icon"
                         type="email" name="email" required autocomplete="username" placeholder="john@example.com" />
                 </div>
                 <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -100,12 +100,10 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Phone -->
             <div>
                 <label for="phone" class="block text-sm font-bold text-slate-700 mb-2">Mobile Number</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i class="fas fa-mobile-screen"></i>
-                    </div>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-mobile-screen"></i></span>
                     <input wire:model="phone" id="phone"
-                        class="form-control pl-11"
+                        class="form-control has-icon"
                         type="tel" name="phone" required autocomplete="tel" placeholder="+260 96 123 4567" />
                 </div>
                 <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -115,12 +113,10 @@ new #[Layout('layouts.guest')] class extends Component
                 <!-- Password -->
                 <div>
                     <label for="password" class="block text-sm font-bold text-slate-700 mb-2">Password</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="fas fa-lock"></i>
-                        </div>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
                         <input wire:model="password" id="password"
-                            class="form-control pl-11"
+                            class="form-control has-icon"
                             type="password" name="password" required autocomplete="new-password" placeholder="••••••••" />
                     </div>
                     <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -129,16 +125,30 @@ new #[Layout('layouts.guest')] class extends Component
                 <!-- Confirm Password -->
                 <div>
                     <label for="password_confirmation" class="block text-sm font-bold text-slate-700 mb-2">Confirm</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="fas fa-shield-check"></i>
-                        </div>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-shield-check"></i></span>
                         <input wire:model="password_confirmation" id="password_confirmation"
-                            class="form-control pl-11"
+                            class="form-control has-icon"
                             type="password" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••" />
                     </div>
                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-500 text-xs font-medium" />
                 </div>
+            </div>
+
+            <!-- Terms Agreement -->
+            <div>
+                <div class="flex items-start gap-3 pt-1">
+                    <input wire:model="agree_terms" type="checkbox" id="agree_terms"
+                        class="mt-1 h-4 w-4 rounded border-slate-300 text-[rgb(0,127,127)] focus:ring-[rgb(0,127,127)] cursor-pointer flex-shrink-0">
+                    <label for="agree_terms" class="text-sm text-slate-600 leading-snug cursor-pointer">
+                        I have read and agree to the
+                        <a href="{{ route('terms') }}" target="_blank" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors underline underline-offset-2">
+                            Terms &amp; Conditions
+                        </a>
+                        of Forus Freight Limited.
+                    </label>
+                </div>
+                <x-input-error :messages="$errors->get('agree_terms')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>
 
             <!-- Submit -->
@@ -155,7 +165,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         </form>
 
-        <div class="mt-8 pt-8 border-top border-slate-100 text-center">
+        <div class="mt-8 pt-8 border-t border-slate-100 text-center">
             <p class="text-sm text-slate-500">
                 Already have an account?
                 <a href="{{ route('login') }}" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors" wire:navigate>

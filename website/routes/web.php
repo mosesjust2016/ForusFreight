@@ -31,6 +31,9 @@ Route::post('/quote/submit', [QuoteController::class, 'submit'])->name('quote.su
 // Contact route
 Route::get('/contact', fn() => view('contact'))->name('contact');
 
+// Legal
+Route::get('/terms', fn() => view('terms'))->name('terms');
+
 // Tracking routes
 Route::get('/track', [TrackingController::class, 'show'])->name('track');
 Route::get('/tracking', [TrackingController::class, 'show'])->name('tracking'); // Add this line
