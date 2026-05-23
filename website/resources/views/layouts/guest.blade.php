@@ -133,9 +133,8 @@
                 
                 <div class="relative z-10 text-center max-w-md">
                     <a href="/" class="mb-8 inline-block transform hover:scale-105 transition-transform duration-300">
-                        <div class="flex items-center gap-3 justify-center mb-4">
-                            <i class="fas fa-truck-fast text-5xl"></i>
-                            <span class="text-4xl font-extrabold tracking-tight">Forus Freight</span>
+                        <div class="bg-white rounded-2xl px-6 py-4 inline-block shadow-lg">
+                            <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" class="h-20 w-auto mx-auto">
                         </div>
                     </a>
                     <h1 class="text-4xl font-bold mb-6">Your Global Logistics Partner</h1>
@@ -176,9 +175,8 @@
             <div class="flex flex-col justify-center px-6 py-12 bg-slate-50 relative">
                 <!-- Mobile Logo -->
                 <div class="lg:hidden flex justify-center mb-8">
-                    <a href="/" class="flex items-center gap-2">
-                        <i class="fas fa-truck-fast text-3xl text-[rgb(0,127,127)]"></i>
-                        <span class="text-2xl font-bold text-slate-800">Forus Freight</span>
+                    <a href="/">
+                        <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" class="h-14 w-auto">
                     </a>
                 </div>
                 

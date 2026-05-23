@@ -61,7 +61,7 @@
         }
 
         .sidebar-logo img {
-            height: 32px;
+            height: 52px;
             width: auto;
         }
 
@@ -350,8 +350,7 @@
     <aside class="sidebar" id="sidebar">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <a href="{{ Auth::user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="sidebar-logo" style="margin-bottom: 0;">
-                <img src="{{ asset('images/logo.png') }}" alt="Forus Freight">
-                <span>forus</span>
+                <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight">
             </a>
             <button id="closeSidebar" style="display: none; background: none; border: none; font-size: 1.25rem; color: var(--text-gray); cursor: pointer;">
                 <i class="fas fa-times"></i>
