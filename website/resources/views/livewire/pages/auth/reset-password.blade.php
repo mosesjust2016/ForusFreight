@@ -82,12 +82,10 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Email Address -->
             <div>
                 <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <input wire:model="email" id="email" 
-                        class="form-control pl-11" 
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                    <input wire:model="email" id="email"
+                        class="form-control has-icon"
                         type="email" name="email" required autofocus autocomplete="username" />
                 </div>
                 <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -97,12 +95,10 @@ new #[Layout('layouts.guest')] class extends Component
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="password" class="block text-sm font-bold text-slate-700 mb-2">New Password</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <input wire:model="password" id="password" 
-                            class="form-control pl-11"
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input wire:model="password" id="password"
+                            class="form-control has-icon"
                             type="password" name="password" required autocomplete="new-password" placeholder="••••••••" />
                     </div>
                     <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -111,12 +107,10 @@ new #[Layout('layouts.guest')] class extends Component
                 <!-- Confirm Password -->
                 <div>
                     <label for="password_confirmation" class="block text-sm font-bold text-slate-700 mb-2">Confirm Password</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="fas fa-shield-check"></i>
-                        </div>
-                        <input wire:model="password_confirmation" id="password_confirmation" 
-                            class="form-control pl-11"
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-shield-check"></i></span>
+                        <input wire:model="password_confirmation" id="password_confirmation"
+                            class="form-control has-icon"
                             type="password" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••" />
                     </div>
                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-500 text-xs font-medium" />

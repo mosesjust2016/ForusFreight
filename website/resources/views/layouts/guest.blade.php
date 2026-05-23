@@ -52,16 +52,21 @@
             }
 
             .btn-auth {
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 background: var(--primary);
                 color: white;
-                padding: 1rem 2rem;
+                padding: 0.875rem 2rem;
                 border-radius: 50px;
                 font-weight: 700;
+                font-size: 0.9375rem;
                 transition: all 0.3s ease;
                 border: 2px solid var(--primary);
                 box-shadow: 0 4px 15px rgba(0, 127, 127, 0.3);
                 width: 100%;
                 cursor: pointer;
+                text-decoration: none;
             }
 
             .btn-auth:hover {
@@ -71,29 +76,59 @@
                 box-shadow: 0 8px 25px rgba(0, 127, 127, 0.4);
             }
 
-            .form-control {
-                border-radius: 12px;
-                border: 2px solid var(--tertiary);
-                padding: 0.75rem 1rem;
-                transition: all 0.3s ease;
+            /* Override @tailwindcss/forms resets for .form-control inputs */
+            .input-wrapper {
+                position: relative;
+                display: block;
                 width: 100%;
             }
 
-            .form-control:focus {
-                border-color: var(--primary);
-                outline: none;
-                box-shadow: 0 0 0 4px rgba(0, 127, 127, 0.1);
+            .input-icon {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                display: flex;
+                align-items: center;
+                padding-left: 1rem;
+                pointer-events: none;
+                color: #94a3b8;
+                z-index: 1;
             }
 
-            .form-control.pl-11 {
-                padding-left: 2.75rem;
+            .form-control {
+                display: block;
+                width: 100%;
+                border-radius: 12px;
+                border: 2px solid var(--tertiary) !important;
+                padding: 0.75rem 1rem !important;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+                background-color: #ffffff;
+                font-size: 0.9375rem;
+                line-height: 1.5;
+                color: #1e293b;
+                box-sizing: border-box;
+            }
+
+            .form-control.has-icon {
+                padding-left: 2.75rem !important;
+            }
+
+            .form-control:focus {
+                border-color: var(--primary) !important;
+                outline: none;
+                box-shadow: 0 0 0 4px rgba(0, 127, 127, 0.1) !important;
+            }
+
+            .form-control::placeholder {
+                color: #94a3b8;
             }
         </style>
     </head>
     <body class="antialiased h-full">
-        <div class="flex min-h-screen">
+        <div class="min-h-screen flex flex-col lg:grid lg:grid-cols-2">
             <!-- Left Side - Branding & Design -->
-            <div class="hidden lg:flex lg:w-1/2 auth-hero items-center justify-center p-12 text-white relative">
+            <div class="hidden lg:flex auth-hero items-center justify-center p-12 text-white relative">
                 <div class="auth-pattern"></div>
                 
                 <div class="relative z-10 text-center max-w-md">
@@ -138,7 +173,7 @@
             </div>
 
             <!-- Right Side - Form Container -->
-            <div class="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 bg-slate-50 relative">
+            <div class="flex flex-col justify-center px-6 py-12 bg-slate-50 relative">
                 <!-- Mobile Logo -->
                 <div class="lg:hidden flex justify-center mb-8">
                     <a href="/" class="flex items-center gap-2">

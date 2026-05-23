@@ -61,12 +61,10 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Email Address -->
             <div>
                 <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Admin Email</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <input wire:model="form.email" id="email" 
-                        class="form-control pl-11" 
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-user-shield"></i></span>
+                    <input wire:model="form.email" id="email"
+                        class="form-control has-icon"
                         type="email" name="email" required autofocus autocomplete="username" placeholder="admin@forusfl.co.zm" />
                 </div>
                 <x-input-error :messages="$errors->get('form.email')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -82,12 +80,10 @@ new #[Layout('layouts.guest')] class extends Component
                         </a>
                     @endif
                 </div>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <input wire:model="form.password" id="password" 
-                        class="form-control pl-11"
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-key"></i></span>
+                    <input wire:model="form.password" id="password"
+                        class="form-control has-icon"
                         type="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
                 </div>
                 <x-input-error :messages="$errors->get('form.password')" class="mt-2 text-red-500 text-xs font-medium" />
@@ -106,7 +102,7 @@ new #[Layout('layouts.guest')] class extends Component
             </div>
         </form>
 
-        <div class="mt-8 pt-8 border-top border-slate-100 flex flex-col gap-4">
+        <div class="mt-8 pt-8 border-t border-slate-100 flex flex-col gap-4">
             <a href="{{ url('/') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:border-slate-200 transition-all">
                 <i class="fas fa-arrow-left text-xs"></i>
                 Back to Main Website
