@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'molo' => [
+        'email'      => env('MOLO_EMAIL'),
+        'password'   => env('MOLO_PASSWORD'),
+        'originator' => env('MOLO_SMS_ORIGINATOR', 'FORUSFL'),
+        'url'        => env('MOLO_SMS_URL', 'https://api.molomarketing.cloud'),
+    ],
+
 ];
