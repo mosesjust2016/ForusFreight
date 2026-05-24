@@ -1,0 +1,83 @@
+services:
+
+  # ── Backend API ──────────────────────────────────────────────
+  api:
+    build: ./forus-digital-api
+    container_name: forus-api
+    env_file: ./forus-digital-api/.env
+    ports:
+      - "5005:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - forus-net
+
+  # ── Celery Worker ────────────────────────────────────────────
+  worker:
+    build: ./forus-digital-api
+    container_name: forus-worker
+    env_file: ./forus-digital-api/.env
+    entrypoint: []
+    command: ["celery", "-A", "core.celery_app.celery", "worker", "--loglevel=info"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - forus-net
+
+  # ── PostgreSQL ───────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: forus-db
+    environment:
+      POSTGRES_DB: forus_digitaldb
+      POSTGRES_USER: forususer
+      POSTGRES_PASSWORD: foruspassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forususer -d forus_digitaldb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - forus-net
+
+  # ── Redis ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: forus-redis
+    restart: unless-stopped
+    networks:
+      - forus-net
+
+  # ── Admin Portal (nginx SPA) ─────────────────────────────────
+  portal:
+    build:
+      context: ./forus-digital-admin-portal
+      args:
+        VITE_API_URL: http://localhost:5005
+        VITE_APP_NAME: "Forus Digital Portal"
+    container_name: forus-portal
+    ports:
+      - "8085:8085"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - forus-net
+
+networks:
+  forus-net:
+    driver: bridge
+
+volumes:
+  pgdata:
