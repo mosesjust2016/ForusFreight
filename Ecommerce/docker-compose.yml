@@ -59,23 +59,6 @@ services:
     networks:
       - forus-net
 
-  # ── Storefront (nginx SPA) ───────────────────────────────────
-  storefront:
-    build:
-      context: ./forus-digital-storefront
-      args:
-        VITE_API_URL: http://localhost:5005
-        VITE_APP_NAME: "Forus Digital Vision"
-        VITE_PORTAL_URL: http://localhost:8085
-    container_name: forus-storefront
-    ports:
-      - "8090:8090"
-    depends_on:
-      - api
-    restart: unless-stopped
-    networks:
-      - forus-net
-
   # ── Admin Portal (nginx SPA) ─────────────────────────────────
   portal:
     build:
