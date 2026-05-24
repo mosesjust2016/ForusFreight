@@ -22,12 +22,10 @@ class EnsureFullyVerified
         }
 
         if (! $user->hasVerifiedEmail()) {
-            $user->generateEmailOtp();
             return redirect()->route('verification.notice');
         }
 
         if (! $user->hasVerifiedPhone()) {
-            $user->generatePhoneOtp();
             return redirect()->route('verification.phone');
         }
 
