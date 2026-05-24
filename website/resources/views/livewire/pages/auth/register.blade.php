@@ -2,11 +2,11 @@
 
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
-use App\Mail\EmailVerificationOtp;
+use App\Services\BrevoMailService;
 use App\Services\SmsService;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -34,11 +34,11 @@ new #[Layout('layouts.guest')] class extends Component
 
         $validated['password'] = Hash::make($validated['password']);
 
-        $user = User::create(\Illuminate\Support\Arr::except($validated, ['agree_terms']));
+        $user = User::create(Arr::except($validated, ['agree_terms']));
 
-        // Generate & send email OTP
+        // Generate & send email OTP via Brevo
         $emailOtp = $user->generateEmailOtp();
-        Mail::to($user->email)->send(new EmailVerificationOtp($user, $emailOtp));
+        app(BrevoMailService::class)->sendOtpEmail($user->email, $user->name, $emailOtp);
 
         // Generate & send phone OTP
         $phoneOtp = $user->generatePhoneOtp();

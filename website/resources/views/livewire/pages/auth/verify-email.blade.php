@@ -1,9 +1,8 @@
 <?php
 
 use App\Livewire\Actions\Logout;
-use App\Mail\EmailVerificationOtp;
+use App\Services\BrevoMailService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -48,7 +47,7 @@ new #[Layout('layouts.guest')] class extends Component
         $user = Auth::user();
         $otp = $user->generateEmailOtp();
 
-        Mail::to($user->email)->send(new EmailVerificationOtp($user, $otp));
+        app(BrevoMailService::class)->sendOtpEmail($user->email, $user->name, $otp);
 
         $this->resent = true;
         $this->otp = '';

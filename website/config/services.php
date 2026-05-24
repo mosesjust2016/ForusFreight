@@ -35,6 +35,10 @@ return [
         ],
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
     'molo' => [
         'email'      => env('MOLO_EMAIL'),
         'password'   => env('MOLO_PASSWORD'),
