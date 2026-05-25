@@ -7,6 +7,14 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExchangeRateController;
+use App\Http\Controllers\CrmContactController;
+use App\Http\Controllers\CrmSalesController;
+use App\Http\Controllers\CrmMarketingController;
+use App\Http\Controllers\CrmSupportController;
+use App\Http\Controllers\CrmReportController;
+use App\Http\Controllers\BulkCommunicationsController;
+use App\Http\Controllers\PublicContentController;
+use App\Http\Controllers\CmsAdminController;
 use Livewire\Volt\Volt;
 
 // Admin auth routes (must be before the admin prefix group)
@@ -36,8 +44,16 @@ Route::get('/terms', fn() => view('terms'))->name('terms');
 
 // Tracking routes
 Route::get('/track', [TrackingController::class, 'show'])->name('track');
-Route::get('/tracking', [TrackingController::class, 'show'])->name('tracking'); // Add this line
+Route::get('/tracking', [TrackingController::class, 'show'])->name('tracking');
 Route::post('/track/check', [TrackingController::class, 'check'])->name('track.check');
+
+// Public Knowledge Base
+Route::get('/kb', [PublicContentController::class, 'knowledgeBaseHome'])->name('public.kb.index');
+Route::get('/kb/{slug}', [PublicContentController::class, 'knowledgeBaseArticle'])->name('public.kb.article');
+
+// Public Landing Pages
+Route::get('/lp/{slug}', [PublicContentController::class, 'landingPage'])->name('public.lp.page');
+Route::post('/lp/{slug}/submit', [PublicContentController::class, 'landingPageSubmit'])->name('public.lp.submit');
 
 // Public exchange rate API
 Route::get('/api/exchange-rate/current', [ExchangeRateController::class, 'currentRate'])->name('api.exchange-rate.current');
@@ -66,45 +82,191 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::put('/client/profile', [ProfileController::class, 'update'])->name('client.profile.update');
 });
 
-// Admin routes (require authentication, full verification, and admin role)
-Route::middleware(['auth', 'fully_verified'])->prefix('admin')->group(function () {
-    // Admin dashboard
+// Admin routes (require authentication, full verification, and at least a staff role)
+Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix('admin')->group(function () {
+    // Dashboard — accessible to all staff roles
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    
-    // Shipments management
-    Route::get('/shipments', [AdminController::class, 'shipments'])->name('admin.shipments');
-    Route::get('/shipments/create', [AdminController::class, 'createShipment'])->name('admin.shipments.create');
-    Route::post('/shipments', [AdminController::class, 'storeShipment'])->name('admin.shipments.store');
-    Route::get('/shipments/{shipment}/edit', [AdminController::class, 'editShipment'])->name('admin.shipments.edit');
-    Route::put('/shipments/{shipment}', [AdminController::class, 'updateShipment'])->name('admin.shipments.update');
-    
-    // Clients management
-    Route::get('/clients', [AdminController::class, 'clients'])->name('admin.clients');
-    Route::get('/clients/create', [AdminController::class, 'createClient'])->name('admin.clients.create');
-    Route::post('/clients', [AdminController::class, 'clients'])->name('admin.clients.store');
-    Route::get('/clients/{user}', [AdminController::class, 'showClient'])->name('admin.clients.show');
-    Route::get('/clients/{user}/edit', [AdminController::class, 'editClient'])->name('admin.clients.edit');
-    Route::put('/clients/{user}', [AdminController::class, 'editClient'])->name('admin.clients.update');
-    Route::post('/clients/send-message', [AdminController::class, 'clients'])->name('admin.clients.send-message');
-    
-    // Reports
-    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
-    Route::get('/reports/export', [AdminController::class, 'reports'])->name('admin.reports.export');
 
-    // Exchange Rates & Hedging
-    Route::get('/exchange-rates', [ExchangeRateController::class, 'index'])->name('admin.exchange-rates');
-    Route::post('/exchange-rates/sync', [ExchangeRateController::class, 'sync'])->name('admin.exchange-rates.sync');
-    Route::get('/exchange-rates/hedge/create', [ExchangeRateController::class, 'createHedge'])->name('admin.exchange-rates.hedge.create');
-    Route::post('/exchange-rates/hedge', [ExchangeRateController::class, 'storeHedge'])->name('admin.exchange-rates.hedge.store');
-    Route::post('/exchange-rates/hedge/{hedge}/cancel', [ExchangeRateController::class, 'cancelHedge'])->name('admin.exchange-rates.hedge.cancel');
+    // Shipments — admin_staff and super-admin only
+    Route::middleware('permission:admin.shipments.manage')->group(function () {
+        Route::get('/shipments/create', [AdminController::class, 'createShipment'])->name('admin.shipments.create');
+        Route::post('/shipments', [AdminController::class, 'storeShipment'])->name('admin.shipments.store');
+    });
+    Route::middleware('permission:admin.shipments.view')->group(function () {
+        Route::get('/shipments', [AdminController::class, 'shipments'])->name('admin.shipments');
+        Route::get('/shipments/{shipment}/edit', [AdminController::class, 'editShipment'])->name('admin.shipments.edit');
+        Route::put('/shipments/{shipment}', [AdminController::class, 'updateShipment'])->name('admin.shipments.update');
+        Route::post('/shipments/{shipment}/events', [AdminController::class, 'editShipment'])->name('admin.shipments.events.store');
+        Route::delete('/shipments/{shipment}/events/{event}', fn() => back())->name('admin.shipments.events.destroy');
+    });
 
-    // Shipment tracking events
-    Route::post('/shipments/{shipment}/events', [AdminController::class, 'editShipment'])->name('admin.shipments.events.store');
-    Route::delete('/shipments/{shipment}/events/{event}', function () {
-        return back();
-    })->name('admin.shipments.events.destroy');
+    // Clients — admin_staff and super-admin only
+    // Note: specific routes (/create, /send-message) come before wildcards (/{user}) to avoid capture
+    Route::middleware('permission:admin.clients.manage')->group(function () {
+        Route::get('/clients/create', [AdminController::class, 'createClient'])->name('admin.clients.create');
+        Route::post('/clients', [AdminController::class, 'clients'])->name('admin.clients.store');
+    });
+    Route::middleware('permission:admin.clients.view')->group(function () {
+        Route::get('/clients', [AdminController::class, 'clients'])->name('admin.clients');
+        Route::post('/clients/send-message', [AdminController::class, 'clients'])->name('admin.clients.send-message');
+        Route::get('/clients/{user}', [AdminController::class, 'showClient'])->name('admin.clients.show');
+    });
+    Route::middleware('permission:admin.clients.manage')->group(function () {
+        Route::get('/clients/{user}/edit', [AdminController::class, 'editClient'])->name('admin.clients.edit');
+        Route::put('/clients/{user}', [AdminController::class, 'editClient'])->name('admin.clients.update');
+    });
 
-    // Account & Settings
+    // System Reports — admin_staff and super-admin only
+    Route::middleware('permission:admin.reports.view')->group(function () {
+        Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+        Route::get('/reports/export', [AdminController::class, 'reports'])->name('admin.reports.export');
+    });
+
+    // Exchange Rates — admin_staff and super-admin only
+    Route::middleware('permission:admin.exchange_rates.manage')->group(function () {
+        Route::get('/exchange-rates', [ExchangeRateController::class, 'index'])->name('admin.exchange-rates');
+        Route::post('/exchange-rates/sync', [ExchangeRateController::class, 'sync'])->name('admin.exchange-rates.sync');
+        Route::get('/exchange-rates/hedge/create', [ExchangeRateController::class, 'createHedge'])->name('admin.exchange-rates.hedge.create');
+        Route::post('/exchange-rates/hedge', [ExchangeRateController::class, 'storeHedge'])->name('admin.exchange-rates.hedge.store');
+        Route::post('/exchange-rates/hedge/{hedge}/cancel', [ExchangeRateController::class, 'cancelHedge'])->name('admin.exchange-rates.hedge.cancel');
+    });
+
+    // User & Role Management — super-admin only
+    Route::middleware('permission:admin.users.manage')->group(function () {
+        Route::get('/staff', [\App\Http\Controllers\UserManagementController::class, 'index'])->name('admin.staff.index');
+        Route::post('/staff/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'assignRole'])->name('admin.staff.roles.assign');
+        Route::delete('/staff/{user}/roles/{role}', [\App\Http\Controllers\UserManagementController::class, 'removeRole'])->name('admin.staff.roles.remove');
+    });
+
+    // ─────────── CRM ───────────
+    // Contact Management
+    Route::middleware('permission:crm.companies.view,crm.contacts.view')->group(function () {
+        Route::get('/crm/companies', [CrmContactController::class, 'companies'])->name('admin.crm.companies');
+        Route::get('/crm/contacts/{user}/360', [CrmContactController::class, 'contact360'])->name('admin.crm.contacts.360');
+    });
+    Route::middleware('permission:crm.companies.manage')->group(function () {
+        Route::get('/crm/companies/create', [CrmContactController::class, 'createCompany'])->name('admin.crm.companies.create');
+        Route::post('/crm/companies', [CrmContactController::class, 'storeCompany'])->name('admin.crm.companies.store');
+        Route::get('/crm/companies/{company}/edit', [CrmContactController::class, 'editCompany'])->name('admin.crm.companies.edit');
+        Route::put('/crm/companies/{company}', [CrmContactController::class, 'updateCompany'])->name('admin.crm.companies.update');
+        Route::post('/crm/companies/{company}/link-contact', [CrmContactController::class, 'linkContact'])->name('admin.crm.companies.link-contact');
+        Route::delete('/crm/companies/{company}/unlink-contact/{user}', [CrmContactController::class, 'unlinkContact'])->name('admin.crm.companies.unlink-contact');
+    });
+    Route::middleware('permission:crm.companies.view,crm.contacts.view')->group(function () {
+        Route::get('/crm/companies/{company}', [CrmContactController::class, 'showCompany'])->name('admin.crm.companies.show');
+    });
+    Route::middleware('permission:crm.contacts.manage')->group(function () {
+        Route::post('/crm/contacts/{user}/notes', [CrmContactController::class, 'storeNote'])->name('admin.crm.contacts.notes.store');
+    });
+
+    // Sales Automation & Pipeline
+    Route::middleware('permission:crm.pipeline.view')->group(function () {
+        Route::get('/crm/pipeline', [CrmSalesController::class, 'pipeline'])->name('admin.crm.pipeline');
+        Route::get('/crm/stages', [CrmSalesController::class, 'stages'])->name('admin.crm.stages');
+    });
+    Route::middleware('permission:crm.deals.manage')->group(function () {
+        Route::get('/crm/deals/create', [CrmSalesController::class, 'createDeal'])->name('admin.crm.deals.create');
+        Route::post('/crm/deals', [CrmSalesController::class, 'storeDeal'])->name('admin.crm.deals.store');
+        Route::put('/crm/deals/{deal}/stage', [CrmSalesController::class, 'updateDealStage'])->name('admin.crm.deals.stage');
+    });
+    Route::middleware('permission:crm.pipeline.view')->group(function () {
+        Route::get('/crm/deals/{deal}', [CrmSalesController::class, 'showDeal'])->name('admin.crm.deals.show');
+    });
+    Route::middleware('permission:crm.tasks.manage')->group(function () {
+        Route::get('/crm/tasks', [CrmSalesController::class, 'tasks'])->name('admin.crm.tasks');
+        Route::post('/crm/tasks', [CrmSalesController::class, 'storeTask'])->name('admin.crm.tasks.store');
+        Route::put('/crm/tasks/{task}/complete', [CrmSalesController::class, 'completeTask'])->name('admin.crm.tasks.complete');
+    });
+    Route::middleware('permission:crm.documents.manage')->group(function () {
+        Route::get('/crm/documents', [CrmSalesController::class, 'documents'])->name('admin.crm.documents');
+        Route::post('/crm/documents', [CrmSalesController::class, 'storeDocument'])->name('admin.crm.documents.store');
+        Route::put('/crm/documents/{document}/send', [CrmSalesController::class, 'sendDocument'])->name('admin.crm.documents.send');
+    });
+    Route::middleware('permission:crm.forecast.view')->group(function () {
+        Route::get('/crm/forecast', [CrmSalesController::class, 'forecast'])->name('admin.crm.forecast');
+    });
+    Route::middleware('permission:crm.leads.manage')->group(function () {
+        Route::get('/crm/leads', [CrmSalesController::class, 'leads'])->name('admin.crm.leads');
+        Route::put('/crm/leads/{user}/assign', [CrmSalesController::class, 'assignLead'])->name('admin.crm.leads.assign');
+    });
+    Route::middleware('permission:crm.stages.manage')->group(function () {
+        Route::post('/crm/stages', [CrmSalesController::class, 'storeStage'])->name('admin.crm.stages.store');
+    });
+
+    // Marketing Automation
+    Route::middleware('permission:crm.campaigns.manage')->group(function () {
+        Route::get('/crm/campaigns', [CrmMarketingController::class, 'campaigns'])->name('admin.crm.campaigns');
+        Route::post('/crm/campaigns', [CrmMarketingController::class, 'storeCampaign'])->name('admin.crm.campaigns.store');
+        Route::put('/crm/campaigns/{campaign}', [CrmMarketingController::class, 'updateCampaign'])->name('admin.crm.campaigns.update');
+    });
+    Route::middleware('permission:crm.landing_pages.manage')->group(function () {
+        Route::get('/crm/landing-pages', [CrmMarketingController::class, 'landingPages'])->name('admin.crm.landing-pages');
+        Route::post('/crm/landing-pages', [CrmMarketingController::class, 'storeLandingPage'])->name('admin.crm.landing-pages.store');
+        Route::put('/crm/landing-pages/{page}/status', [CrmMarketingController::class, 'updateLandingPageStatus'])->name('admin.crm.landing-pages.status');
+    });
+
+    // Bulk Communications (SMS & WhatsApp)
+    Route::middleware('permission:crm.communications.manage')->group(function () {
+        Route::get('/crm/communications/sms', [BulkCommunicationsController::class, 'sms'])->name('admin.crm.communications.sms');
+        Route::post('/crm/communications/sms/send', [BulkCommunicationsController::class, 'sendSms'])->name('admin.crm.communications.sms.send');
+        Route::get('/crm/communications/download-sample-csv', [BulkCommunicationsController::class, 'downloadSampleCsv'])->name('admin.crm.communications.download-sample-csv');
+        Route::get('/crm/communications/export-contacts-csv', [BulkCommunicationsController::class, 'exportContactsCsv'])->name('admin.crm.communications.export-contacts-csv');
+
+        // WhatsApp
+        Route::get('/crm/communications/whatsapp', [BulkCommunicationsController::class, 'whatsapp'])->name('admin.crm.communications.whatsapp');
+        Route::post('/crm/communications/whatsapp/send', [BulkCommunicationsController::class, 'sendWhatsapp'])->name('admin.crm.communications.whatsapp.send');
+        Route::post('/crm/communications/whatsapp/upload-recipients', [BulkCommunicationsController::class, 'uploadWhatsappRecipients'])->name('admin.crm.communications.whatsapp.upload-recipients');
+        Route::get('/crm/communications/whatsapp/qr', [BulkCommunicationsController::class, 'whatsappQr'])->name('admin.crm.communications.whatsapp.qr');
+        Route::get('/crm/communications/whatsapp/status', [BulkCommunicationsController::class, 'whatsappStatus'])->name('admin.crm.communications.whatsapp.status');
+        Route::get('/crm/communications/whatsapp/receive', [BulkCommunicationsController::class, 'whatsappReceive'])->name('admin.crm.communications.whatsapp.receive');
+        Route::post('/crm/communications/whatsapp/clear-queue', [BulkCommunicationsController::class, 'whatsappClearQueue'])->name('admin.crm.communications.whatsapp.clear-queue');
+
+        // Campaign management
+        Route::get('/crm/communications/whatsapp/campaigns/{campaign}', [BulkCommunicationsController::class, 'showCampaign'])->name('admin.crm.communications.whatsapp.campaigns.show');
+        Route::get('/crm/communications/whatsapp/compare', [BulkCommunicationsController::class, 'compareCampaigns'])->name('admin.crm.communications.whatsapp.compare');
+        Route::post('/crm/communications/whatsapp/campaigns/{campaign}/pause', [BulkCommunicationsController::class, 'pauseCampaign'])->name('admin.crm.communications.whatsapp.campaigns.pause');
+        Route::post('/crm/communications/whatsapp/campaigns/{campaign}/resume', [BulkCommunicationsController::class, 'resumeCampaign'])->name('admin.crm.communications.whatsapp.campaigns.resume');
+        Route::post('/crm/communications/whatsapp/campaigns/{campaign}/cancel', [BulkCommunicationsController::class, 'cancelCampaign'])->name('admin.crm.communications.whatsapp.campaigns.cancel');
+
+        // Templates
+        Route::post('/crm/communications/templates', [BulkCommunicationsController::class, 'storeTemplate'])->name('admin.crm.communications.templates.store');
+        Route::put('/crm/communications/templates/{template}', [BulkCommunicationsController::class, 'updateTemplate'])->name('admin.crm.communications.templates.update');
+        Route::delete('/crm/communications/templates/{template}', [BulkCommunicationsController::class, 'destroyTemplate'])->name('admin.crm.communications.templates.destroy');
+    });
+
+    // Customer Service & Support
+    Route::middleware('permission:crm.tickets.manage')->group(function () {
+        Route::get('/crm/tickets', [CrmSupportController::class, 'tickets'])->name('admin.crm.tickets');
+        Route::post('/crm/tickets', [CrmSupportController::class, 'storeTicket'])->name('admin.crm.tickets.store');
+        Route::get('/crm/tickets/{ticket}', [CrmSupportController::class, 'showTicket'])->name('admin.crm.tickets.show');
+        Route::post('/crm/tickets/{ticket}/reply', [CrmSupportController::class, 'replyTicket'])->name('admin.crm.tickets.reply');
+        Route::put('/crm/tickets/{ticket}/status', [CrmSupportController::class, 'updateTicketStatus'])->name('admin.crm.tickets.status');
+        Route::put('/crm/tickets/{ticket}/assign', [CrmSupportController::class, 'assignTicket'])->name('admin.crm.tickets.assign');
+    });
+    Route::middleware('permission:crm.knowledge_base.manage')->group(function () {
+        Route::get('/crm/knowledge-base', [CrmSupportController::class, 'knowledgeBase'])->name('admin.crm.knowledge-base');
+        Route::post('/crm/knowledge-base', [CrmSupportController::class, 'storeArticle'])->name('admin.crm.knowledge-base.store');
+        Route::put('/crm/knowledge-base/{article}', [CrmSupportController::class, 'updateArticle'])->name('admin.crm.knowledge-base.update');
+    });
+
+    // Reporting & Analytics
+    Route::middleware('permission:crm.reports.view')->group(function () {
+        Route::get('/crm/reports', [CrmReportController::class, 'dashboard'])->name('admin.crm.reports');
+        Route::get('/crm/analytics', [CrmReportController::class, 'analytics'])->name('admin.crm.analytics');
+    });
+
+    // Website CMS — admin_staff and super-admin only
+    Route::middleware('permission:admin.cms.manage')->group(function () {
+        Route::get('/cms/pages', [CmsAdminController::class, 'index'])->name('admin.cms.pages.index');
+        Route::get('/cms/pages/create', [CmsAdminController::class, 'create'])->name('admin.cms.pages.create');
+        Route::post('/cms/pages', [CmsAdminController::class, 'store'])->name('admin.cms.pages.store');
+        Route::post('/cms/upload', [CmsAdminController::class, 'uploadImage'])->name('admin.cms.upload');
+        Route::get('/cms/pages/{page}/edit', [CmsAdminController::class, 'edit'])->name('admin.cms.pages.edit');
+        Route::put('/cms/pages/{page}', [CmsAdminController::class, 'update'])->name('admin.cms.pages.update');
+        Route::delete('/cms/pages/{page}', [CmsAdminController::class, 'destroy'])->name('admin.cms.pages.destroy');
+    });
+
+    // Account & Settings — accessible to all staff
     Route::get('/profile', [ProfileController::class, 'index'])->name('admin.profile');
     Route::get('/security', [ProfileController::class, 'security'])->name('admin.security');
     Route::put('/security/password', [ProfileController::class, 'updatePassword'])->name('admin.password.update');

@@ -1,6 +1,10 @@
+@php
+$page = \App\Models\CmsPage::where('slug', 'terms')->first();
+$sections = $page?->sections ?? [];
+@endphp
 @extends('layouts.app')
 
-@section('title', 'Terms & Conditions - Forus Freight')
+@section('title', ($page?->title ?? 'Terms & Conditions') . ' - Forus Freight')
 
 @section('content')
 
@@ -11,9 +15,9 @@
             <div style="display:inline-flex; align-items:center; gap:.5rem; background:rgba(255,255,255,.15); padding:.4rem 1rem; border-radius:50px; font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:1.5rem;">
                 <i class="fas fa-file-contract"></i> Legal
             </div>
-            <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 1rem; line-height:1.15;">Terms &amp; Conditions</h1>
+            <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 1rem; line-height:1.15;">{{ $sections['title'] ?? 'Terms & Conditions' }}</h1>
             <p style="opacity:.85; font-size:1.05rem;">
-                These terms govern the use of Forus Freight Limited's services. Please read them carefully before booking a shipment.
+                {{ $sections['subtitle'] ?? 'These terms govern the use of Forus Freight Limited\'s services. Please read them carefully before booking a shipment.' }}
             </p>
             <p style="opacity:.65; font-size:.85rem; margin-top:1rem;">Last updated: {{ date('F j, Y') }}</p>
         </div>
@@ -59,9 +63,9 @@
             <!-- Main Content -->
             <article style="background: #fff; border-radius: 24px; padding: 3rem; box-shadow: 0 4px 24px rgba(0,0,0,.07); border: 1px solid #e2e8f0; color: #334155; line-height: 1.8; font-size: .97rem;">
 
-                <p style="color:#64748b; margin-bottom:2.5rem;">
-                    Welcome to <strong>Forus Freight Limited</strong> ("Forus Freight", "we", "us", or "our"), a logistics and freight company registered in Zambia. By booking, using, or accessing any of our services — whether online, by phone, or in person — you ("the Client", "Shipper", or "you") agree to be bound by these Terms and Conditions. If you do not agree, do not use our services.
-                </p>
+                {!! $sections['content'] ?? '<p style="color:#64748b; margin-bottom:2.5rem;">
+                    Welcome to <strong>Forus Freight Limited</strong> ("Forus Freight", "we", "us", or "our"), a logistics and freight company registered in Zambia. By booking, using, or accessing any of our services you agree to be bound by these Terms and Conditions.
+                </p>' !!}
 
                 {{-- 1. Definitions --}}
                 <div id="definitions" style="margin-bottom:3rem;">

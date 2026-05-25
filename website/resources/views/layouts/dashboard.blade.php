@@ -50,6 +50,26 @@
             flex-direction: column;
             border-right: 1px solid rgba(0,0,0,0.05);
             z-index: 100;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(76, 175, 80, 0.3) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(76, 175, 80, 0.3);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(76, 175, 80, 0.5);
         }
 
         .sidebar-logo {
@@ -358,48 +378,215 @@
         </div>
 
         <nav class="nav-group">
-            @if(Auth::user()->is_admin)
+            @php
+                $u = Auth::user();
+                $isAdmin = $u->is_admin;
+                $isStaff = $isAdmin || $u->hasAnyRole(['admin_staff', 'sales']);
+                $canContacts = $u->hasPermission('crm.contacts.view');
+                $canCompanies = $u->hasPermission('crm.companies.view');
+                $canPipeline = $u->hasPermission('crm.pipeline.view');
+                $canDeals = $u->hasPermission('crm.deals.manage');
+                $canTasks = $u->hasPermission('crm.tasks.manage');
+                $canDocs = $u->hasPermission('crm.documents.manage');
+                $canForecast = $u->hasPermission('crm.forecast.view');
+                $canLeads = $u->hasPermission('crm.leads.manage');
+                $canCampaigns = $u->hasPermission('crm.campaigns.manage');
+                $canLanding = $u->hasPermission('crm.landing_pages.manage');
+                $canTickets = $u->hasPermission('crm.tickets.manage');
+                $canKB = $u->hasPermission('crm.knowledge_base.manage');
+                $canCRMReports = $u->hasPermission('crm.reports.view');
+                $canCommunications = $u->hasPermission('crm.communications.manage');
+                $canShipments = $u->hasPermission('admin.shipments.view');
+                $canSysReports = $u->hasPermission('admin.reports.view');
+                $canExchange = $u->hasPermission('admin.exchange_rates.manage');
+                $canCMS = $u->hasPermission('admin.cms.manage');
+                $canUserMgmt = $isAdmin; // only super-admin manages roles
+            @endphp
+
+            @if($isAdmin || $u->hasAnyPermission(['admin.shipments.view','admin.reports.view','admin.exchange_rates.manage']))
                 <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-th-large"></i>
                     Admin Home
                 </a>
+                @if($canShipments)
                 <a href="{{ route('admin.shipments') }}" class="nav-item {{ request()->routeIs('admin.shipments') ? 'active' : '' }}">
                     <i class="fas fa-location-crosshairs"></i>
                     All Shipments
                 </a>
-                <div class="nav-item-collapsible {{ request()->routeIs('admin.clients*') || request()->has('status') ? 'expanded' : '' }}">
-                    <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.clients') && !request()->has('status') ? 'active' : '' }}">
-                        <i class="fas fa-users"></i>
-                        <span>Clients</span>
-                        <i class="fas fa-chevron-down chevron"></i>
-                    </a>
-                    <div class="nav-sub-group">
-                        <a href="{{ route('admin.clients') }}" class="sub-nav-item {{ request()->routeIs('admin.clients') && !request()->has('status') ? 'active' : '' }}">
-                             All Directory
-                        </a>
-                        <a href="{{ route('admin.clients', ['status' => 'lead']) }}" class="sub-nav-item {{ request()->status === 'lead' ? 'active' : '' }}">
-                            <i class="fas fa-circle"></i> Leads
-                        </a>
-                        <a href="{{ route('admin.clients', ['status' => 'active']) }}" class="sub-nav-item {{ request()->status === 'active' ? 'active' : '' }}">
-                            <i class="fas fa-circle"></i> Active
-                        </a>
-                        <a href="{{ route('admin.clients', ['status' => 'high_value']) }}" class="sub-nav-item {{ request()->status === 'high_value' ? 'active' : '' }}">
-                            <i class="fas fa-circle"></i> High Value
-                        </a>
-                        <a href="{{ route('admin.clients', ['status' => 'blocked']) }}" class="sub-nav-item {{ request()->status === 'blocked' ? 'active' : '' }}">
-                            <i class="fas fa-circle"></i> Blocked
-                        </a>
-                    </div>
-                </div>
+                @endif
+                @if($canSysReports)
                 <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                     <i class="fas fa-chart-line"></i>
                     System Reports
                 </a>
+                @endif
+                @if($canExchange)
                 <a href="{{ route('admin.exchange-rates') }}" class="nav-item {{ request()->routeIs('admin.exchange-rates*') ? 'active' : '' }}">
                     <i class="fas fa-coins"></i>
                     Exchange Rates
                 </a>
-            @else
+                @endif
+            @endif
+
+            <!-- CRM Hub -->
+            @if($isAdmin || $u->hasAnyPermission(['crm.contacts.view','crm.companies.view','crm.pipeline.view','crm.deals.manage','crm.tasks.manage','crm.documents.manage','crm.forecast.view','crm.leads.manage','crm.campaigns.manage','crm.landing_pages.manage','crm.tickets.manage','crm.knowledge_base.manage','crm.reports.view','crm.communications.manage']))
+            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 1.5rem 0 0.5rem 1.25rem; letter-spacing: 0.05em;">CRM Hub</div>
+
+            @if($canContacts || $canCompanies)
+            <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.companies*') || request()->routeIs('admin.crm.contacts*') || request()->routeIs('admin.clients*') || request()->has('status') ? 'expanded' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.companies*') || request()->routeIs('admin.crm.contacts*') || request()->routeIs('admin.clients*') ? 'active' : '' }}">
+                    <i class="fas fa-address-book"></i>
+                    <span>Contact Management</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </a>
+                <div class="nav-sub-group">
+                    @if($canCompanies)
+                    <a href="{{ route('admin.crm.companies') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.companies*') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Companies
+                    </a>
+                    @endif
+                    @if($canContacts)
+                    <a href="{{ route('admin.clients') }}" class="sub-nav-item {{ request()->routeIs('admin.clients*') || request()->has('status') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Contacts
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            @if($canPipeline || $canDeals || $canTasks || $canDocs || $canForecast || $canLeads)
+            <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.pipeline') || request()->routeIs('admin.crm.deals*') || request()->routeIs('admin.crm.tasks') || request()->routeIs('admin.crm.documents') || request()->routeIs('admin.crm.forecast') || request()->routeIs('admin.crm.leads') || request()->routeIs('admin.crm.stages') ? 'expanded' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.pipeline') || request()->routeIs('admin.crm.deals*') || request()->routeIs('admin.crm.tasks') || request()->routeIs('admin.crm.documents') || request()->routeIs('admin.crm.forecast') || request()->routeIs('admin.crm.leads') || request()->routeIs('admin.crm.stages') ? 'active' : '' }}">
+                    <i class="fas fa-funnel-dollar"></i>
+                    <span>Sales Automation</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </a>
+                <div class="nav-sub-group">
+                    @if($canPipeline)
+                    <a href="{{ route('admin.crm.pipeline') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.pipeline') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Pipeline
+                    </a>
+                    @endif
+                    @if($canLeads)
+                    <a href="{{ route('admin.crm.leads') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.leads') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Lead Routing
+                    </a>
+                    @endif
+                    @if($canTasks)
+                    <a href="{{ route('admin.crm.tasks') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.tasks') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Tasks
+                    </a>
+                    @endif
+                    @if($canDocs)
+                    <a href="{{ route('admin.crm.documents') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.documents') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Quotes & Proposals
+                    </a>
+                    @endif
+                    @if($canForecast)
+                    <a href="{{ route('admin.crm.forecast') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.forecast') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Forecasting
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            @if($canCampaigns || $canLanding)
+            <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.campaigns') || request()->routeIs('admin.crm.landing-pages') ? 'expanded' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.campaigns') || request()->routeIs('admin.crm.landing-pages') ? 'active' : '' }}">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Marketing</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </a>
+                <div class="nav-sub-group">
+                    @if($canCampaigns)
+                    <a href="{{ route('admin.crm.campaigns') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.campaigns') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Campaigns
+                    </a>
+                    @endif
+                    @if($canLanding)
+                    <a href="{{ route('admin.crm.landing-pages') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.landing-pages') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Landing Pages
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            @if($canCommunications)
+            <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.communications*') ? 'expanded' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.communications*') ? 'active' : '' }}">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Communications</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </a>
+                <div class="nav-sub-group">
+                    <a href="{{ route('admin.crm.communications.sms') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.communications.sms*') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Bulk SMS
+                    </a>
+                    <a href="{{ route('admin.crm.communications.whatsapp') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.communications.whatsapp*') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Bulk WhatsApp
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            @if($canTickets || $canKB)
+            <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.tickets*') || request()->routeIs('admin.crm.knowledge-base*') ? 'expanded' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.tickets*') || request()->routeIs('admin.crm.knowledge-base*') ? 'active' : '' }}">
+                    <i class="fas fa-headset"></i>
+                    <span>Customer Support</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </a>
+                <div class="nav-sub-group">
+                    @if($canTickets)
+                    <a href="{{ route('admin.crm.tickets') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.tickets*') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Tickets
+                    </a>
+                    @endif
+                    @if($canKB)
+                    <a href="{{ route('admin.crm.knowledge-base') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.knowledge-base*') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Knowledge Base
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            @if($canCRMReports)
+            <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.reports') || request()->routeIs('admin.crm.analytics') ? 'expanded' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.reports') || request()->routeIs('admin.crm.analytics') ? 'active' : '' }}">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reporting & AI</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </a>
+                <div class="nav-sub-group">
+                    <a href="{{ route('admin.crm.reports') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.reports') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> CRM Dashboard
+                    </a>
+                    <a href="{{ route('admin.crm.analytics') }}" class="sub-nav-item {{ request()->routeIs('admin.crm.analytics') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Analytics
+                    </a>
+                </div>
+            </div>
+            @endif
+            @endif
+
+            @if($canCMS)
+            <a href="{{ route('admin.cms.pages.index') }}" class="nav-item {{ request()->routeIs('admin.cms.pages*') ? 'active' : '' }}">
+                <i class="fas fa-globe"></i>
+                <span>Website CMS</span>
+            </a>
+            @endif
+
+            @if($canUserMgmt)
+            <a href="{{ route('admin.staff.index') }}" class="nav-item {{ request()->routeIs('admin.staff*') ? 'active' : '' }}">
+                <i class="fas fa-users-gear"></i>
+                <span>Staff & Roles</span>
+            </a>
+            @endif
+
+            @if(!Auth::user()->is_admin && !Auth::user()->hasAnyPermission(['crm.contacts.view','crm.companies.view','crm.pipeline.view','crm.deals.manage','crm.tasks.manage','crm.documents.manage','crm.forecast.view','crm.leads.manage','crm.campaigns.manage','crm.landing_pages.manage','crm.tickets.manage','crm.knowledge_base.manage','crm.reports.view','admin.shipments.view','admin.reports.view','admin.exchange_rates.manage']))
                 <!-- Main Navigation -->
                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 1.5rem 0 0.5rem 1.25rem; letter-spacing: 0.05em;">Main Navigation</div>
                 <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -432,7 +619,7 @@
 
             <!-- Shared Account Section -->
             <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 1.5rem 0 0.5rem 1.25rem; letter-spacing: 0.05em;">Account & Settings</div>
-            @if(Auth::user()->is_admin)
+            @if($isStaff)
                 <a href="{{ route('admin.profile') }}" class="nav-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
                     <i class="fas fa-user-circle"></i>
                     My Profile

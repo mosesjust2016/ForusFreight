@@ -759,6 +759,10 @@
     </main>
 
     <!-- Footer -->
+    @php
+    $footerPage = \App\Models\CmsPage::where('slug', 'footer')->where('status', 'published')->first();
+    $footer = $footerPage?->sections ?? [];
+    @endphp
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -767,12 +771,12 @@
                     <div style="margin-bottom: 1.5rem;">
                         <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" style="height: 56px; width: auto; display: block;">
                     </div>
-                    <p style="color: #94a3b8; margin-bottom: 1.5rem;">Fast, reliable & affordable logistics solutions across Zambia and the SADC region.</p>
+                    <p style="color: #94a3b8; margin-bottom: 1.5rem;">{{ $footer['description'] ?? 'Fast, reliable & affordable logistics solutions across Zambia and the SADC region.' }}</p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        @if(!empty($footer['social_facebook']))<a href="{{ $footer['social_facebook'] }}"><i class="fab fa-facebook-f"></i></a>@endif
+                        @if(!empty($footer['social_twitter']))<a href="{{ $footer['social_twitter'] }}"><i class="fab fa-twitter"></i></a>@endif
+                        @if(!empty($footer['social_linkedin']))<a href="{{ $footer['social_linkedin'] }}"><i class="fab fa-linkedin-in"></i></a>@endif
+                        @if(!empty($footer['social_instagram']))<a href="{{ $footer['social_instagram'] }}"><i class="fab fa-instagram"></i></a>@endif
                     </div>
                 </div>
 
@@ -780,10 +784,16 @@
                 <div>
                     <h3 class="footer-title">Our Services</h3>
                     <ul class="footer-links">
-                        <li><a href="{{ route('services') }}#same-day"><i class="fas fa-arrow-right"></i> Same-Day Delivery</a></li>
-                        <li><a href="{{ route('services') }}#cross-border"><i class="fas fa-arrow-right"></i> Cross-Border Shipping</a></li>
-                        <li><a href="{{ route('services') }}#warehousing"><i class="fas fa-arrow-right"></i> Warehousing</a></li>
-                        <li><a href="{{ route('services') }}#bulk-cargo"><i class="fas fa-arrow-right"></i> Bulk Cargo</a></li>
+                        @if(!empty($footer['services_links']))
+                            @foreach($footer['services_links'] as $link)
+                            <li><a href="{{ $link['url'] ?? '#' }}"><i class="fas fa-arrow-right"></i> {{ $link['title'] ?? '' }}</a></li>
+                            @endforeach
+                        @else
+                            <li><a href="{{ route('services') }}#same-day"><i class="fas fa-arrow-right"></i> Same-Day Delivery</a></li>
+                            <li><a href="{{ route('services') }}#cross-border"><i class="fas fa-arrow-right"></i> Cross-Border Shipping</a></li>
+                            <li><a href="{{ route('services') }}#warehousing"><i class="fas fa-arrow-right"></i> Warehousing</a></li>
+                            <li><a href="{{ route('services') }}#bulk-cargo"><i class="fas fa-arrow-right"></i> Bulk Cargo</a></li>
+                        @endif
                     </ul>
                 </div>
 
@@ -791,10 +801,16 @@
                 <div>
                     <h3 class="footer-title">Company</h3>
                     <ul class="footer-links">
-                        <li><a href="{{ route('about') }}"><i class="fas fa-arrow-right"></i> About Us</a></li>
-                        <li><a href="{{ route('services') }}"><i class="fas fa-arrow-right"></i> Services</a></li>
-                        <li><a href="{{ route('quote') }}"><i class="fas fa-arrow-right"></i> Get Quote</a></li>
-                        <li><a href="{{ route('tracking') }}"><i class="fas fa-arrow-right"></i> Track Shipment</a></li>
+                        @if(!empty($footer['company_links']))
+                            @foreach($footer['company_links'] as $link)
+                            <li><a href="{{ $link['url'] ?? '#' }}"><i class="fas fa-arrow-right"></i> {{ $link['title'] ?? '' }}</a></li>
+                            @endforeach
+                        @else
+                            <li><a href="{{ route('about') }}"><i class="fas fa-arrow-right"></i> About Us</a></li>
+                            <li><a href="{{ route('services') }}"><i class="fas fa-arrow-right"></i> Services</a></li>
+                            <li><a href="{{ route('quote') }}"><i class="fas fa-arrow-right"></i> Get Quote</a></li>
+                            <li><a href="{{ route('tracking') }}"><i class="fas fa-arrow-right"></i> Track Shipment</a></li>
+                        @endif
                     </ul>
                 </div>
 
@@ -804,36 +820,42 @@
                     <div class="footer-contact">
                         <i class="fas fa-phone"></i>
                         <div>
-                            <span style="display: block; font-weight: 600;">+260 572 7886857</span>
-                            <span style="display: block; font-weight: 600;">+260 766 193059</span>
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">24/7 Support</span>
+                            @if(!empty($footer['contact_phones']))
+                                @foreach($footer['contact_phones'] as $phone)
+                                <span style="display: block; font-weight: 600;">{{ $phone['number'] ?? '' }}</span>
+                                @endforeach
+                            @else
+                                <span style="display: block; font-weight: 600;">+260 572 7886857</span>
+                                <span style="display: block; font-weight: 600;">+260 766 193059</span>
+                            @endif
+                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_support_label'] ?? '24/7 Support' }}</span>
                         </div>
                     </div>
                     <div class="footer-contact">
                         <i class="fas fa-envelope"></i>
                         <div>
-                            <span style="display: block; font-weight: 600;">info@forusfl.co.zm</span>
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">Email Us</span>
+                            <span style="display: block; font-weight: 600;">{{ $footer['contact_email'] ?? 'info@forusfl.co.zm' }}</span>
+                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_email_label'] ?? 'Email Us' }}</span>
                         </div>
                     </div>
                     <div class="footer-contact">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            <span style="display: block; font-weight: 600;">Forus Freight Ltd METROLUX PLAZA Plot No. 401A/8 Kafue Road</span>
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">Lusaka, Zambia</span>
+                            <span style="display: block; font-weight: 600;">{{ $footer['contact_address'] ?? 'Forus Freight Ltd METROLUX PLAZA Plot No. 401A/8 Kafure Road' }}</span>
+                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_city'] ?? 'Lusaka, Zambia' }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} Forus Freight. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
+                <p>@php echo str_replace('{year}', date('Y'), $footer['copyright_text'] ?? '© {year} Forus Freight. All rights reserved.'); @endphp | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
             </div>
         </div>
     </footer>
 
     <!-- WhatsApp Float Button -->
-    <a href="https://wa.me/260961234567?text=Hi%20Forus%20Freight,%20I%20need%20a%20quote%20for%20logistics%20services" target="_blank" class="whatsapp-float">
+    <a href="https://wa.me/{{ $footer['whatsapp_number'] ?? '260961234567' }}?text={{ urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services') }}" target="_blank" class="whatsapp-float">
         <i class="fab fa-whatsapp"></i>
     </a>
 

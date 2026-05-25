@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Forus Freight - Global Logistics Solutions')
+@php
+$page = \App\Models\CmsPage::where('slug', 'home')->first();
+$sections = $page?->sections ?? [];
+@endphp
+@section('title', ($page?->title ?? 'Forus Freight') . ' - Global Logistics Solutions')
 
 @section('styles')
     <!-- Globe.gl Library -->
@@ -67,6 +71,7 @@
             color: white;
             margin-bottom: 1.5rem;
             line-height: 1.2;
+            min-height: 1.2em;
         }
 
         .hero-subtitle {
@@ -74,6 +79,7 @@
             color: rgba(255, 255, 255, 0.9);
             margin-bottom: 2.5rem;
             font-weight: 300;
+            min-height: 1.5em;
         }
 
         .hero-buttons {
@@ -746,11 +752,11 @@
         <div class="hero-pattern"></div>
         
         <div class="hero-content">
-            <h1 class="hero-title">Global Logistics Solutions</h1>
-            <p class="hero-subtitle">Worldwide freight solutions across Zambia & the SADC region</p>
+            <h1 class="hero-title">{{ $sections['hero_title'] ?? 'Global Logistics Solutions' }}</h1>
+            <p class="hero-subtitle">{{ $sections['hero_subtitle'] ?? 'Worldwide freight solutions across Zambia & the SADC region' }}</p>
             <div class="hero-buttons">
-                <a href="{{ route('quote') }}" class="btn-primary">Request a Quote</a>
-                <a href="{{ route('services') }}" class="btn-tertiary">Explore Services</a>
+                <a href="{{ $sections['hero_cta_link'] ?? route('quote') }}" class="btn btn-primary">{{ $sections['hero_cta_text'] ?? 'Get a Free Quote' }}</a>
+                <a href="{{ route('about') }}" class="btn btn-outline">Learn More</a>
             </div>
         </div>
 
@@ -845,22 +851,12 @@
             </div>
 
             <div class="stats-grid">
+                @foreach($sections['stats'] ?? [['number'=>'150+','label'=>'Fleet Vehicles'],['number'=>'20+','label'=>'Warehouses'],['number'=>'75K+','label'=>'Shipments Annually'],['number'=>'12','label'=>'SADC Countries']] as $stat)
                 <div class="stat-item">
-                    <div class="stat-number">150+</div>
-                    <div class="stat-label">Fleet Vehicles</div>
+                    <div class="stat-number">{{ $stat['number'] }}</div>
+                    <div class="stat-label">{{ $stat['label'] }}</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">20+</div>
-                    <div class="stat-label">Warehouses</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">75K+</div>
-                    <div class="stat-label">Shipments Annually</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">12</div>
-                    <div class="stat-label">SADC Countries</div>
-                </div>
+                @endforeach
                 <div class="stat-item">
                     <div class="stat-number">24/7</div>
                     <div class="stat-label">Support Available</div>

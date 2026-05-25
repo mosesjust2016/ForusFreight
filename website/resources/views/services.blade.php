@@ -1,15 +1,19 @@
+@php
+$page = \App\Models\CmsPage::where('slug', 'services')->first();
+$sections = $page?->sections ?? [];
+@endphp
 @extends('layouts.app')
 
-@section('title', 'Our Services - Comprehensive Logistics Solutions')
+@section('title', ($page?->title ?? 'Our Services') . ' - Forus Freight')
 
 @section('content')
     <!-- Hero Section -->
     <section style="position: relative; padding: 6rem 0; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%);">
         <div class="container" style="position: relative; z-index: 10;">
             <div style="max-width: 800px; margin: 0 auto; text-align: center; color: white;">
-                <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem;">Our Comprehensive Services</h1>
+                <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem;">{{ $sections['title'] ?? 'Our Comprehensive Services' }}</h1>
                 <p style="font-size: 1.25rem; color: rgba(255,255,255,0.9);">
-                    Tailored logistics solutions for businesses of all sizes
+                    {{ $sections['subtitle'] ?? 'Tailored logistics solutions for businesses of all sizes' }}
                 </p>
             </div>
         </div>

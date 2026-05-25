@@ -22,8 +22,8 @@ class BrevoMailService
             'Content-Type' => 'application/json',
         ])->post($this->apiUrl, [
             'sender' => [
-                'name'  => config('app.name'),
-                'email' => config('mail.from.address'),
+                'name'  => config('services.brevo.sender_name'),
+                'email' => config('services.brevo.sender_email'),
             ],
             'to' => [
                 ['email' => $toEmail, 'name' => $toName],

@@ -11,59 +11,33 @@ use Illuminate\Support\Carbon;
 
 class AdminController extends Controller
 {
-    /**
-     * Check if user is admin
-     */
-    private function checkAdmin()
-    {
-        if (!Auth::check() || !Auth::user()->is_admin) {
-            return redirect()->route('dashboard')->with('error', 'Access denied. Admin privileges required.');
-        }
-        return null;
-    }
-
-    /**
-     * Admin Dashboard
-     */
     public function dashboard()
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
+        $user = Auth::user();
 
-        $shipments = Shipment::with('user')->latest()->get();
-        
+        $shipments = ($user->is_admin || $user->hasPermission('admin.shipments.view'))
+            ? Shipment::with('user')->latest()->get()
+            : collect();
+
         return view('admin.dashboard', compact('shipments'));
     }
 
-    /**
-     * List all shipments
-     */
     public function shipments()
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         $shipments = Shipment::with('user')->latest()->paginate(20);
-        
+
         return view('admin.shipments.index', compact('shipments'));
     }
 
-    /**
-     * Show form to create new shipment
-     */
     public function createShipment()
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         $clients = User::where('is_admin', false)->get();
-        
+
         return view('admin.shipments.create', compact('clients'));
     }
 
-    /**
-     * Store new shipment
-     */
     public function storeShipment(Request $request)
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
 
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -93,13 +67,8 @@ class AdminController extends Controller
         return redirect()->route('admin.shipments')->with('success', 'Shipment created successfully!');
     }
 
-    /**
-     * Show form to edit shipment
-     */
     public function editShipment(Shipment $shipment)
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         $clients = User::where('is_admin', false)->get();
         $statuses = [
             'Order Placed',
@@ -115,13 +84,8 @@ class AdminController extends Controller
         return view('admin.shipments.edit', compact('shipment', 'clients', 'statuses'));
     }
 
-    /**
-     * Update shipment
-     */
     public function updateShipment(Request $request, Shipment $shipment)
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         $validated = $request->validate([
             'status' => 'required|string',
             'estimated_delivery' => 'nullable|date',
@@ -133,14 +97,9 @@ class AdminController extends Controller
         return redirect()->route('admin.shipments')->with('success', 'Shipment updated successfully!');
     }
 
-    /**
-     * List all clients
-     */
     public function clients(Request $request)
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
-        $query = User::where('is_admin', false)->withCount('shipments');
+        $query = User::whereDoesntHave('roles')->where('is_admin', false)->withCount('shipments');
 
         // Apply CRM status filter from sidebar
         if ($request->has('status') && in_array($request->status, ['lead', 'active', 'high_value', 'blocked'])) {
@@ -149,13 +108,13 @@ class AdminController extends Controller
 
         $clients = $query->latest()->paginate(20);
 
-        // Counts for filter badges
+        $base = User::whereDoesntHave('roles')->where('is_admin', false);
         $statusCounts = [
-            'all'        => User::where('is_admin', false)->count(),
-            'lead'       => User::where('is_admin', false)->where('crm_status', 'lead')->count(),
-            'active'     => User::where('is_admin', false)->where('crm_status', 'active')->count(),
-            'high_value' => User::where('is_admin', false)->where('crm_status', 'high_value')->count(),
-            'blocked'    => User::where('is_admin', false)->where('crm_status', 'blocked')->count(),
+            'all'        => (clone $base)->count(),
+            'lead'       => (clone $base)->where('crm_status', 'lead')->count(),
+            'active'     => (clone $base)->where('crm_status', 'active')->count(),
+            'high_value' => (clone $base)->where('crm_status', 'high_value')->count(),
+            'blocked'    => (clone $base)->where('crm_status', 'blocked')->count(),
         ];
 
         $currentStatus = $request->get('status', 'all');
@@ -163,44 +122,26 @@ class AdminController extends Controller
         return view('admin.clients.index', compact('clients', 'statusCounts', 'currentStatus'));
     }
 
-    /**
-     * Show form to create new client
-     */
     public function createClient()
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         return view('admin.clients.create');
     }
 
-    /**
-     * Show client details
-     */
     public function showClient(User $user)
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         $shipments = $user->shipments()->latest()->get();
-        
-        return view('admin.clients.show', compact('user', 'shipments'));
+        $communicationLogs = $user->communicationLogs()->latest()->get();
+
+        return view('admin.clients.show', compact('user', 'shipments', 'communicationLogs'));
     }
 
-    /**
-     * Show form to edit client
-     */
     public function editClient(User $user)
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
-
         return view('admin.clients.edit', compact('user'));
     }
 
-    /**
-     * Show reports
-     */
     public function reports()
     {
-        if ($redirect = $this->checkAdmin()) return $redirect;
 
         $totalShipments = Shipment::count();
         $activeShipments = Shipment::whereIn('status', ['In Transit', 'Out for Delivery'])->count();

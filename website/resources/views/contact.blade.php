@@ -1,6 +1,10 @@
+@php
+$page = \App\Models\CmsPage::where('slug', 'contact')->first();
+$sections = $page?->sections ?? [];
+@endphp
 @extends('layouts.app')
 
-@section('title', 'Contact Us - Forus Freight')
+@section('title', ($page?->title ?? 'Contact Us') . ' - Forus Freight')
 
 @section('content')
 
@@ -9,10 +13,10 @@
     <div class="container">
         <div style="max-width: 760px; margin: auto; text-align: center; color: rgb(255,255,255);">
             <h1 style="font-size: 3.2rem; font-weight: 900; margin-bottom: 1rem;">
-                Contact Forus Freight
+                {{ $sections['title'] ?? 'Contact Forus Freight' }}
             </h1>
             <p style="opacity: .9; font-size: 1.1rem;">
-                We’re here to move your cargo — safely, quickly and professionally.
+                {{ $sections['subtitle'] ?? 'We\'re here to move your cargo — safely, quickly and professionally.' }}
             </p>
         </div>
     </div>
@@ -96,22 +100,23 @@
                 </h3>
 
                 <div style="margin-bottom:2rem;">
-                    <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Zambia HQ</h4>
-                    <p style="opacity:.9">Lusaka, Zambia</p>
-                    <p style="opacity:.9">info@forusfreight.com</p>
-                    <p style="opacity:.9">+260 97 000 0000</p>
+                    <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Address</h4>
+                    <p style="opacity:.9">{{ $sections['address'] ?? 'Lusaka, Zambia' }}</p>
                 </div>
 
                 <div style="margin-bottom:2rem;">
-                    <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">South Africa</h4>
-                    <p style="opacity:.9">Johannesburg</p>
-                    <p style="opacity:.9">sa@forusfreight.com</p>
+                    <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Phone</h4>
+                    <p style="opacity:.9">{{ $sections['phone'] ?? '+260 97 123 4567' }}</p>
+                </div>
+
+                <div style="margin-bottom:2rem;">
+                    <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Email</h4>
+                    <p style="opacity:.9">{{ $sections['email'] ?? 'info@forusfl.co.zm' }}</p>
                 </div>
 
                 <div style="margin-bottom:2rem;">
                     <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Operating Hours</h4>
-                    <p style="opacity:.9">Monday – Friday</p>
-                    <p style="opacity:.9">08:00 – 17:30</p>
+                    <p style="opacity:.9">{{ $sections['hours'] ?? 'Mon-Fri: 8:00 AM - 5:00 PM' }}</p>
                 </div>
 
                 <!-- CTA -->

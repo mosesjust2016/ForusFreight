@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -27,6 +29,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'company_name',
         'address',
         'password',
+        'is_admin',
+        'crm_status',
+        'assigned_agent',
+        'lead_score',
+        'last_engagement_at',
+        'preferences',
+        'company_id',
     ];
 
     /**
@@ -58,6 +67,109 @@ class User extends Authenticatable implements MustVerifyEmail
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function companies(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'company_user')
+            ->withPivot('role', 'is_primary')
+            ->withTimestamps();
+    }
+
+    public function deals(): HasMany
+    {
+        return $this->hasMany(Deal::class, 'contact_id');
+    }
+
+    public function assignedDeals(): HasMany
+    {
+        return $this->hasMany(Deal::class, 'assigned_to');
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'contact_id');
+    }
+
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class, 'contact_id');
+    }
+
+    public function assignedTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_to');
+    }
+
+    public function notes(): HasMany
+    {
+        return $this->hasMany(ContactNote::class, 'contact_id');
+    }
+
+    public function communicationLogs(): HasMany
+    {
+        return $this->hasMany(CommunicationLog::class);
+    }
+
+    /* ──────────────────────────────────────────────────────────
+       RBAC / Roles
+       ────────────────────────────────────────────────────────── */
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user');
+    }
+
+    public function hasRole(string $roleName): bool
+    {
+        if ($this->is_admin && $roleName === 'admin') {
+            return true;
+        }
+        return $this->roles->contains('name', $roleName);
+    }
+
+    public function hasAnyRole(array $roleNames): bool
+    {
+        foreach ($roleNames as $name) {
+            if ($this->hasRole($name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        // Super admin bypass
+        if ($this->is_admin) {
+            return true;
+        }
+        foreach ($this->roles as $role) {
+            if ($role->hasPermission($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* ──────────────────────────────────────────────────────────

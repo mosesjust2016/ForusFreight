@@ -12,7 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('whatsapp:poll-incoming')->everyMinute();
+        $schedule->command('whatsapp:resolve-ab-winners')->everyFifteenMinutes();
+        $schedule->command('whatsapp:check-campaign-alerts')->everyTenMinutes();
     }
 
     /**

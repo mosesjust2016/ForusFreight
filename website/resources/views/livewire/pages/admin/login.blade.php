@@ -16,13 +16,14 @@ new #[Layout('layouts.guest')] class extends Component
         $this->form->authenticate();
         Session::regenerate();
 
-        if (!Auth::user()->is_admin) {
+        $user = Auth::user();
+
+        // Allow super-admins and any user with a staff role
+        if (!$user->is_admin && !$user->hasAnyRole(['admin_staff', 'sales'])) {
             Auth::logout();
-            $this->addError('form.email', 'This area is restricted to administrators only.');
+            $this->addError('form.email', 'This area is restricted to authorized staff only.');
             return;
         }
-
-        $user = Auth::user();
 
         if (! $user->hasVerifiedEmail()) {
             $user->generateEmailOtp();

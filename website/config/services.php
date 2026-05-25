@@ -36,7 +36,9 @@ return [
     ],
 
     'brevo' => [
-        'key' => env('BREVO_API_KEY'),
+        'key'          => env('BREVO_API_KEY'),
+        'sender_email' => env('BREVO_SENDER_EMAIL', env('MAIL_FROM_ADDRESS')),
+        'sender_name'  => env('BREVO_SENDER_NAME', env('APP_NAME')),
     ],
 
     'molo' => [
@@ -44,6 +46,12 @@ return [
         'password'   => env('MOLO_PASSWORD'),
         'originator' => env('MOLO_SMS_ORIGINATOR', 'FORUSFL'),
         'url'        => env('MOLO_SMS_URL', 'https://api.molomarketing.cloud'),
+    ],
+
+    'green_api' => [
+        'instance_id' => env('GREEN_API_INSTANCE_ID'),
+        'token'       => env('GREEN_API_TOKEN'),
+        'base_url'    => env('GREEN_API_BASE_URL', 'https://api.green-api.com'),
     ],
 
 ];

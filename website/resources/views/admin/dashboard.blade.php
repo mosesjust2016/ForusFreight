@@ -311,19 +311,77 @@
 @endsection
 
 @section('content')
+@php
+    $authUser = Auth::user();
+    $isSuperAdmin = $authUser->is_admin;
+    $canSeeShipments = $authUser->hasPermission('admin.shipments.view');
+    $roleLabel = $isSuperAdmin ? 'SYSTEM ADMINISTRATOR' : ($authUser->hasRole('sales') ? 'SALES' : 'ADMIN STAFF');
+    $roleBg = $isSuperAdmin ? 'var(--primary-green)' : ($authUser->hasRole('sales') ? '#2563eb' : '#7c3aed');
+@endphp
+
 <div class="welcome-section">
     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-            <h1>Admin Dashboard</h1>
-            <p>Global Freight Overview - {{ now()->format('l jS M, Y') }}</p>
+            <h1>{{ $isSuperAdmin ? 'Admin Dashboard' : 'Welcome, ' . explode(' ', $authUser->name)[0] }}</h1>
+            <p>{{ $canSeeShipments ? 'Global Freight Overview' : 'CRM & Sales Overview' }} — {{ now()->format('l jS M, Y') }}</p>
         </div>
-        <div style="background: var(--primary-green); color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.8rem;">
-            SYSTEM ADMINISTRATOR
+        <div style="background: {{ $roleBg }}; color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.8rem;">
+            {{ $roleLabel }}
         </div>
     </div>
 </div>
 
-<!-- Stats Grid -->
+<!-- CRM Quick Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+    @if($authUser->hasPermission('crm.reports.view'))
+    <a href="{{ route('admin.crm.reports') }}" style="background: white; border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: #e8f5e9; color: #4caf50; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="fas fa-chart-pie"></i></div>
+            <span style="font-size: 0.75rem; color: var(--text-gray); font-weight: 800;">CRM</span>
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-dark);">Dashboard</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.pipeline.view'))
+    <a href="{{ route('admin.crm.pipeline') }}" style="background: white; border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: #e3f2fd; color: #1e88e5; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="fas fa-funnel-dollar"></i></div>
+            <span style="font-size: 0.75rem; color: var(--text-gray); font-weight: 800;">PIPELINE</span>
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-dark);">Deals</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.tickets.manage'))
+    <a href="{{ route('admin.crm.tickets') }}" style="background: white; border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="fas fa-headset"></i></div>
+            <span style="font-size: 0.75rem; color: var(--text-gray); font-weight: 800;">SUPPORT</span>
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-dark);">Tickets</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.campaigns.manage'))
+    <a href="{{ route('admin.crm.campaigns') }}" style="background: white; border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: #fff8e1; color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="fas fa-bullhorn"></i></div>
+            <span style="font-size: 0.75rem; color: var(--text-gray); font-weight: 800;">MARKETING</span>
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-dark);">Campaigns</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.companies.view'))
+    <a href="{{ route('admin.crm.companies') }}" style="background: white; border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: #f3e5f5; color: #8e24aa; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="fas fa-address-book"></i></div>
+            <span style="font-size: 0.75rem; color: var(--text-gray); font-weight: 800;">CONTACTS</span>
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-dark);">Companies</div>
+    </a>
+    @endif
+</div>
+
+@if($canSeeShipments)
+<!-- Shipment Stats — admin and admin_staff only -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-header">
@@ -387,7 +445,7 @@
 </div>
 
 <div class="dashboard-grid">
-    <!-- Center Content -->
+    <!-- Shipment Registry -->
     <div class="recent-shipments">
         <div class="section-header">
             <h2><i class="fas fa-box-archive"></i> Global Shipment Registry</h2>
@@ -408,7 +466,7 @@
             <div class="shipment-card">
                 <div class="shipment-top">
                     <div class="shipment-id">
-                        #{{ $shipment->tracking_number }} 
+                        #{{ $shipment->tracking_number }}
                         <span class="shipment-status-tag">{{ $shipment->status }}</span>
                     </div>
                     <div style="text-align: right;">
@@ -463,4 +521,58 @@
         </div>
     </div>
 </div>
+@else
+<!-- Sales-focused view — no shipments access -->
+<div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+    <i class="fas fa-briefcase" style="color: #2563eb; font-size: 1.25rem;"></i>
+    <div>
+        <div style="font-weight: 700; font-size: 0.9rem; color: #1e40af;">Sales Portal</div>
+        <div style="font-size: 0.8rem; color: #3b82f6;">You have access to CRM, pipeline, deals, tasks, contacts, tickets, and reports. Use the sidebar to navigate.</div>
+    </div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+    @if($authUser->hasPermission('crm.pipeline.view'))
+    <a href="{{ route('admin.crm.pipeline') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#e3f2fd;color:#1e88e5;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-funnel-dollar"></i></div>
+        <div style="font-weight:800;">Sales Pipeline</div>
+        <div style="font-size:0.8rem;color:#64748b;">View and manage deals</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.leads.manage'))
+    <a href="{{ route('admin.crm.leads') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#f0fdf4;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-user-plus"></i></div>
+        <div style="font-weight:800;">Lead Routing</div>
+        <div style="font-size:0.8rem;color:#64748b;">Manage and assign leads</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.tasks.manage'))
+    <a href="{{ route('admin.crm.tasks') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#fff8e1;color:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-list-check"></i></div>
+        <div style="font-weight:800;">My Tasks</div>
+        <div style="font-size:0.8rem;color:#64748b;">Track your to-dos</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.tickets.manage'))
+    <a href="{{ route('admin.crm.tickets') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#fef2f2;color:#ef4444;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-headset"></i></div>
+        <div style="font-weight:800;">Support Tickets</div>
+        <div style="font-size:0.8rem;color:#64748b;">Handle customer issues</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.contacts.view'))
+    <a href="{{ route('admin.clients') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#f3e5f5;color:#8e24aa;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-address-book"></i></div>
+        <div style="font-weight:800;">Contacts</div>
+        <div style="font-size:0.8rem;color:#64748b;">Browse all contacts</div>
+    </a>
+    @endif
+    @if($authUser->hasPermission('crm.reports.view'))
+    <a href="{{ route('admin.crm.reports') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#e8f5e9;color:#4caf50;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-chart-bar"></i></div>
+        <div style="font-weight:800;">CRM Reports</div>
+        <div style="font-size:0.8rem;color:#64748b;">Analytics and insights</div>
+    </a>
+    @endif
+</div>
+@endif
 @endsection
