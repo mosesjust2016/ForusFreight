@@ -96,6 +96,7 @@ Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix(
         Route::get('/shipments', [AdminController::class, 'shipments'])->name('admin.shipments');
         Route::get('/shipments/{shipment}/edit', [AdminController::class, 'editShipment'])->name('admin.shipments.edit');
         Route::put('/shipments/{shipment}', [AdminController::class, 'updateShipment'])->name('admin.shipments.update');
+        Route::post('/shipments/{shipment}/images/remove', [AdminController::class, 'removeShipmentImage'])->name('admin.shipments.images.remove');
         Route::post('/shipments/{shipment}/events', [AdminController::class, 'editShipment'])->name('admin.shipments.events.store');
         Route::delete('/shipments/{shipment}/events/{event}', fn() => back())->name('admin.shipments.events.destroy');
     });
@@ -136,6 +137,12 @@ Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix(
         Route::get('/staff', [\App\Http\Controllers\UserManagementController::class, 'index'])->name('admin.staff.index');
         Route::post('/staff/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'assignRole'])->name('admin.staff.roles.assign');
         Route::delete('/staff/{user}/roles/{role}', [\App\Http\Controllers\UserManagementController::class, 'removeRole'])->name('admin.staff.roles.remove');
+
+        // Phone country whitelist
+        Route::get('/settings/phone-countries', [\App\Http\Controllers\PhoneCountryController::class, 'index'])->name('admin.settings.phone-countries');
+        Route::post('/settings/phone-countries', [\App\Http\Controllers\PhoneCountryController::class, 'store'])->name('admin.settings.phone-countries.store');
+        Route::post('/settings/phone-countries/{phoneCountry}/toggle', [\App\Http\Controllers\PhoneCountryController::class, 'toggle'])->name('admin.settings.phone-countries.toggle');
+        Route::delete('/settings/phone-countries/{phoneCountry}', [\App\Http\Controllers\PhoneCountryController::class, 'destroy'])->name('admin.settings.phone-countries.destroy');
     });
 
     // ─────────── CRM ───────────

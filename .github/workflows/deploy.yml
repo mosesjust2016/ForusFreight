@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       # ── PHP ──────────────────────────────────
       - name: 🐘 Setup PHP 8.2
@@ -46,21 +48,42 @@ jobs:
         working-directory: website
         run: npm run build
 
-      # ── Prepare deployment artifact ───────────
-      - name: 🗜️ Create deployment archive
+      # ── Prepare cPanel deployment artifact ────
+      - name: 🗜️ Create cPanel deployment archive
         run: |
           tar --exclude='website/node_modules' \
               --exclude='website/.env' \
               --exclude='website/vendor/.git' \
+              --exclude='website/bootstrap/cache' \
               --exclude='.git' \
               -czf deploy.tar.gz \
-              website/ Ecommerce/ TerraForm/ README.md
+              website/ TerraForm/ README.md
 
-      - name: 📤 Upload artifact
+      - name: 📤 Upload cPanel artifact
         uses: actions/upload-artifact@v4
         with:
           name: deploy-package
           path: deploy.tar.gz
+          retention-days: 3
+
+      # ── Prepare VM deployment artifact ─────────
+      - name: 🗜️ Create VM deployment archive
+        run: |
+          tar --exclude='Ecommerce/forus-digital-admin-portal/node_modules' \
+              --exclude='Ecommerce/forus-digital-admin-portal/.git' \
+              --exclude='Ecommerce/forus-digital-api/.git' \
+              --exclude='Ecommerce/forus-digital-api/__pycache__' \
+              --exclude='Ecommerce/forus-digital-api/.pytest_cache' \
+              -czf forus-digital-vm-deploy.tar.gz \
+              Ecommerce/docker-compose.yml \
+              Ecommerce/forus-digital-admin-portal \
+              Ecommerce/forus-digital-api
+
+      - name: 📤 Upload VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: forus-digital-vm-package
+          path: forus-digital-vm-deploy.tar.gz
           retention-days: 3
 
   # ─────────────────────────────────────────────
@@ -85,6 +108,7 @@ jobs:
           host: ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
           port: ${{ secrets.CPANEL_PORT }}
           source: deploy.tar.gz
           target: /tmp/
@@ -96,6 +120,7 @@ jobs:
           host: ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
           port: ${{ secrets.CPANEL_PORT }}
           script: |
             set -e
@@ -150,3 +175,46 @@ jobs:
       - name: ❌ Notify failure
         if: failure()
         run: echo "Deployment FAILED. Check the logs above."
+
+  # ─────────────────────────────────────────────
+  # 3. DEPLOY ECOMMERCE API + ADMIN PORTAL TO VM
+  # ─────────────────────────────────────────────
+  deploy-vm:
+    name: Deploy Forus Digital to VM
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+
+    steps:
+      - name: ⬇️ Download VM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: forus-digital-vm-package
+
+      - name: 📡 Upload VM archive via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 46.62.161.138
+          username: root
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: forus-digital-vm-deploy.tar.gz
+          target: /tmp/
+
+      - name: 🛠️ SSH – Deploy Forus Digital Services
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 46.62.161.138
+          username: root
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            set -e
+
+            DEPLOY_PATH="/opt/forus-digital"
+            mkdir -p "$DEPLOY_PATH"
+
+            tar -xzf /tmp/forus-digital-vm-deploy.tar.gz -C "$DEPLOY_PATH"
+            rm -f /tmp/forus-digital-vm-deploy.tar.gz
+
+            cd "$DEPLOY_PATH/Ecommerce"
+            docker compose up -d --build --remove-orphans
+            docker compose ps

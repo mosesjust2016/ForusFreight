@@ -1,0 +1,9 @@
+[submodule "Ecommerce/forus-digital-admin-portal"]
+	path = Ecommerce/forus-digital-admin-portal
+	url = https://github.com/mosesjust2016/store-commander.git
+[submodule "Ecommerce/forus-digital-api"]
+	path = Ecommerce/forus-digital-api
+	url = https://github.com/mosesjust2016/forus-digital-api.git
+[submodule "Ecommerce/forus-digital-storefront"]
+	path = Ecommerce/forus-digital-storefront
+	url = https://github.com/mosesjust2016/forus-digital-vision.git

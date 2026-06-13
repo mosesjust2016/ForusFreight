@@ -42,8 +42,19 @@ See [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) for the full 
 | `CPANEL_HOST` | cPanel server hostname / IP |
 | `CPANEL_USERNAME` | SSH username |
 | `CPANEL_SSH_KEY` | Private SSH key (Ed25519 / RSA) |
+| `CPANEL_SSH_PASSPHRASE` | Private key passphrase, if the key is encrypted |
 | `CPANEL_PORT` | SSH port (default `22`) |
 | `CPANEL_DEPLOY_PATH` | Absolute path on server e.g. `/home/user/public_html` |
+| `VM_SSH_KEY` | Private SSH key for `root@46.62.161.138` VM deploy |
+
+If deployment fails with `Permission denied (publickey,password)`, verify that `CPANEL_SSH_KEY`
+contains the full private key, the matching public key is authorized for `CPANEL_USERNAME` in
+cPanel SSH Access, and the username / host / port match the same account.
+
+The `forus-digital-api` and `forus-digital-admin-portal` services deploy to
+`root@46.62.161.138:/opt/forus-digital` with Docker Compose, not to cPanel. Set
+`VM_SSH_KEY` to the contents of the VM private key, for example
+`/Users/moses/Desktop/molomarketing/terraform/ssh_keys/id_rsa_github`.
 
 ---
 

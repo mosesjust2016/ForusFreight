@@ -12,11 +12,12 @@ class Shipment extends Model
     protected $fillable = [
         'user_id', 'tracking_number', 'status', 'from', 'to', 'service', 'history',
         'origin', 'destination', 'weight', 'dimensions', 'description', 'service_type',
-        'estimated_delivery', 'cost', 'border_status',
+        'estimated_delivery', 'cost', 'border_status', 'images',
     ];
 
     protected $casts = [
         'history' => 'array',
+        'images' => 'array',
         'shipment_date' => 'datetime',
         'estimated_delivery' => 'datetime',
     ];

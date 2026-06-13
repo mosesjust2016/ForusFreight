@@ -87,6 +87,14 @@ class SmsService
         return $this->send($phone, $message);
     }
 
+    /**
+     * Send a shipment status update notification.
+     */
+    public function sendShipmentUpdate(string $phone, string $message): bool
+    {
+        return $this->send($phone, $message);
+    }
+
     // -------------------------------------------------------------------------
     // Token lifecycle
     // -------------------------------------------------------------------------

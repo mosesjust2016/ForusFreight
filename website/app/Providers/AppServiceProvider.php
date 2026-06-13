@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Livewire\Volt\Volt;
+use App\Models\Shipment;
+use App\Observers\ShipmentObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +28,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Mount Volt components
         Volt::mount(resource_path('views/livewire'));
+
+        // Register model observers
+        Shipment::observe(ShipmentObserver::class);
     }
 }

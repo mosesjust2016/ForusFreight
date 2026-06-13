@@ -205,7 +205,7 @@ class CmsAdminController extends Controller
                 'contact_address' => 'Forus Freight Ltd METROLUX PLAZA Plot No. 401A/8 Kafure Road',
                 'contact_city' => 'Lusaka, Zambia',
                 'copyright_text' => '© {year} Forus Freight. All rights reserved.',
-                'whatsapp_number' => '260961234567',
+                'whatsapp_number' => '260572788685',
                 'whatsapp_message' => 'Hi Forus Freight, I need a quote for logistics services',
             ],
         ];

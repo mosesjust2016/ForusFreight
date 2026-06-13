@@ -32,6 +32,10 @@ class ShipmentController extends Controller
 
     /**
      * Store new shipment
+     *
+     * Triggers ShipmentObserver::created() which:
+     * - Sends email notification to customer
+     * - Creates initial TrackingEvent
      */
     public function store(Request $request)
     {
@@ -44,9 +48,12 @@ class ShipmentController extends Controller
             'service_type' => 'required|string',
         ]);
 
+        // Generate unique tracking number
+        $trackingNumber = $this->generateTrackingNumber($validated['origin']);
+
         $shipment = Shipment::create([
             'user_id' => Auth::id(),
-            'tracking_number' => 'FORUS-' . strtoupper(substr($validated['origin'], 0, 3)) . '-' . rand(1000, 9999),
+            'tracking_number' => $trackingNumber,
             'origin' => $validated['origin'],
             'destination' => $validated['destination'],
             'status' => 'Order Placed',
@@ -55,8 +62,26 @@ class ShipmentController extends Controller
             'description' => $validated['description'] ?? null,
             'service_type' => $validated['service_type'],
         ]);
+        // Observer will automatically send email & create tracking event
 
-        return redirect()->route('client.shipments')->with('success', 'Shipment created successfully! Tracking number: ' . $shipment->tracking_number);
+        return redirect()->route('client.shipments')
+            ->with('success', 'Shipment created successfully! You will receive a confirmation email shortly. Tracking number: ' . $shipment->tracking_number);
+    }
+
+    /**
+     * Generate unique tracking number
+     */
+    private function generateTrackingNumber(string $origin): string
+    {
+        $prefix = 'FORUS-' . strtoupper(substr($origin, 0, 3));
+        $number = rand(10000, 99999);
+
+        // Ensure uniqueness
+        while (Shipment::where('tracking_number', "{$prefix}-{$number}")->exists()) {
+            $number = rand(10000, 99999);
+        }
+
+        return "{$prefix}-{$number}";
     }
 
     /**

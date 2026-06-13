@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PhoneCountry;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Arr;
@@ -22,14 +23,19 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function register(): void
     {
+        $activeCountries = PhoneCountry::where('is_active', true)->get();
+        $phoneRegex      = 'regex:/^\+?(' . $activeCountries->pluck('dial_code')->join('|') . ')\d{7,12}$/';
+        $countryNames    = $activeCountries->map(fn($c) => "{$c->name} (+{$c->dial_code})")->join(', ');
+
         $validated = $this->validate([
             'name'        => ['required', 'string', 'max:255'],
             'email'       => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'phone'       => ['required', 'string', 'max:20'],
+            'phone'       => ['required', 'string', 'max:20', $phoneRegex],
             'password'    => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'agree_terms' => ['accepted'],
         ], [
             'agree_terms.accepted' => 'You must accept the Terms & Conditions to create an account.',
+            'phone.regex'          => "Only mobile numbers from the following countries are accepted: {$countryNames}.",
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -104,8 +110,12 @@ new #[Layout('layouts.guest')] class extends Component
                     <span class="input-icon"><i class="fas fa-mobile-screen"></i></span>
                     <input wire:model="phone" id="phone"
                         class="form-control has-icon"
-                        type="tel" name="phone" required autocomplete="tel" placeholder="+260 96 123 4567" />
+                        type="tel" name="phone" required autocomplete="tel" placeholder="+260961234567" />
                 </div>
+                <p class="mt-1 text-xs text-slate-400">
+                    Accepted countries:
+                    {{ \App\Models\PhoneCountry::where('is_active', true)->get()->map(fn($c) => "{$c->name} (+{$c->dial_code})")->join(', ') }}
+                </p>
                 <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>
 

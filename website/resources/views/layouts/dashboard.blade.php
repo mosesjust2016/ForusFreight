@@ -584,6 +584,10 @@
                 <i class="fas fa-users-gear"></i>
                 <span>Staff & Roles</span>
             </a>
+            <a href="{{ route('admin.settings.phone-countries') }}" class="nav-item {{ request()->routeIs('admin.settings.phone-countries*') ? 'active' : '' }}">
+                <i class="fas fa-earth-africa"></i>
+                <span>Phone Countries</span>
+            </a>
             @endif
 
             @if(!Auth::user()->is_admin && !Auth::user()->hasAnyPermission(['crm.contacts.view','crm.companies.view','crm.pipeline.view','crm.deals.manage','crm.tasks.manage','crm.documents.manage','crm.forecast.view','crm.leads.manage','crm.campaigns.manage','crm.landing_pages.manage','crm.tickets.manage','crm.knowledge_base.manage','crm.reports.view','admin.shipments.view','admin.reports.view','admin.exchange_rates.manage']))

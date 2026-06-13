@@ -136,6 +136,42 @@
         font-size: 0.9rem;
     }
 
+    /* ── Image upload zone ── */
+    .upload-zone {
+        border: 2px dashed #cbd5e1; border-radius: 14px; padding: 1.5rem 1rem;
+        text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+        position: relative;
+    }
+    .upload-zone.drag-over { border-color: var(--primary-green); background: #f0fdf4; }
+    .upload-zone input[type="file"] {
+        position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-zone-icon { font-size: 1.6rem; color: #94a3b8; margin-bottom: 0.4rem; }
+    .upload-zone p { font-size: 0.8rem; color: #64748b; margin: 0; }
+    .upload-zone span { font-size: 0.7rem; color: #94a3b8; }
+    .img-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 0.65rem; margin-top: 0.75rem;
+    }
+    .img-thumb {
+        position: relative; border-radius: 10px; overflow: hidden;
+        aspect-ratio: 1; background: #f1f5f9; border: 1.5px solid #e2e8f0;
+    }
+    .img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+    .img-thumb .btn-rm {
+        position: absolute; top: 3px; right: 3px;
+        background: rgba(0,0,0,0.55); color: white; border: none;
+        border-radius: 50%; width: 20px; height: 20px; font-size: 0.6rem;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .img-thumb .btn-rm:hover { background: #dc2626; }
+    .preview-filename { font-size: 0.62rem; color: #64748b; text-align: center; padding: 0.15rem 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* lightbox */
+    #lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; }
+    #lightbox.active { display:flex; }
+    #lightbox img { max-width:90vw; max-height:90vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+    #lightbox-close { position:absolute; top:1.25rem; right:1.5rem; color:white; font-size:1.75rem; cursor:pointer; background:none; border:none; }
+
     @media (max-width: 900px) {
         .edit-grid { grid-template-columns: 1fr; }
     }
@@ -171,9 +207,9 @@
     <div class="edit-card">
         <h2><i class="fas fa-pen-to-square" style="color: var(--primary-green);"></i> Shipment Details</h2>
 
-        <form method="POST" action="{{ route('admin.shipments.update', $shipment) }}">
+        <form method="POST" action="{{ route('admin.shipments.update', $shipment) }}" enctype="multipart/form-data">
             @csrf
-            @method('PATCH')
+            @method('PUT')
 
             <div class="form-group">
                 <label>Status</label>
@@ -213,6 +249,42 @@
                 <label>Estimated Delivery</label>
                 <input type="date" name="estimated_delivery" value="{{ old('estimated_delivery', $shipment->estimated_delivery?->format('Y-m-d')) }}">
                 @error('estimated_delivery')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            {{-- Existing images --}}
+            @if(!empty($shipment->images))
+            <div class="form-group">
+                <label>Current Images ({{ count($shipment->images) }})</label>
+                <div class="img-grid">
+                    @foreach($shipment->images as $i => $path)
+                    <div class="img-thumb">
+                        <img src="{{ Storage::url($path) }}" alt="Cargo image {{ $i + 1 }}"
+                             onclick="openLightbox('{{ Storage::url($path) }}')">
+                        <form method="POST" action="{{ route('admin.shipments.images.remove', $shipment) }}" style="display:contents;">
+                            @csrf
+                            <input type="hidden" name="index" value="{{ $i }}">
+                            <button type="submit" class="btn-rm" title="Remove image"
+                                    onclick="return confirm('Remove this image?')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            {{-- Upload new images --}}
+            <div class="form-group">
+                <label>Add More Images <span style="font-weight:500;text-transform:none;color:#94a3b8;">(optional)</span></label>
+                <div class="upload-zone" id="uploadZone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDrop(event)">
+                    <input type="file" name="images[]" id="imageInput" multiple accept="image/jpeg,image/png,image/jpg,image/webp" onchange="handleFiles(this.files)">
+                    <div class="upload-zone-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                    <p>Drag & drop or <strong>click to browse</strong></p>
+                    <span>JPG, PNG, WebP · max 5 MB each</span>
+                </div>
+                <div class="img-grid" id="previewGrid"></div>
+                @error('images.*')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
 
             <button type="submit" class="btn-save">
@@ -323,4 +395,72 @@
         </div>
     </div>
 </div>
+
+{{-- Lightbox --}}
+<div id="lightbox" onclick="closeLightbox()">
+    <button id="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+    <img id="lightbox-img" src="" alt="Preview">
+</div>
+
+<script>
+    /* ── Lightbox ── */
+    function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.add('active');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    /* ── New image staging ── */
+    let stagedFiles = new DataTransfer();
+
+    function syncInput() {
+        document.getElementById('imageInput').files = stagedFiles.files;
+    }
+
+    function renderPreviews() {
+        const grid = document.getElementById('previewGrid');
+        grid.innerHTML = '';
+        Array.from(stagedFiles.files).forEach((file, i) => {
+            const url = URL.createObjectURL(file);
+            grid.insertAdjacentHTML('beforeend', `
+                <div class="img-thumb">
+                    <img src="${url}" alt="${file.name}" onclick="openLightbox('${url}')">
+                    <button type="button" class="btn-rm" onclick="removeStaged(${i})" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="preview-filename">${file.name}</div>
+                </div>`);
+        });
+    }
+
+    function handleFiles(files) {
+        Array.from(files).forEach(f => stagedFiles.items.add(f));
+        syncInput();
+        renderPreviews();
+    }
+
+    function removeStaged(index) {
+        const newDt = new DataTransfer();
+        Array.from(stagedFiles.files).forEach((f, i) => { if (i !== index) newDt.items.add(f); });
+        stagedFiles = newDt;
+        syncInput();
+        renderPreviews();
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('uploadZone').classList.add('drag-over');
+    }
+    function handleDragLeave() {
+        document.getElementById('uploadZone').classList.remove('drag-over');
+    }
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('uploadZone').classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+    }
+</script>
 @endsection
