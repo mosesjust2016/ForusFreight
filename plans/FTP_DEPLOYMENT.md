@@ -29,7 +29,7 @@ Add these secrets to your GitHub repository:
 | `FTP_SERVER` | FTP server hostname | `ftp.forusfl.co.zm` |
 | `FTP_USERNAME` | FTP username | `update9240@forusfl.co.zm` |
 | `FTP_PASSWORD` | FTP password | `your_ftp_password` |
-| `CPANEL_DEPLOY_PATH` | Path on server where files are deployed | `/home/forusfl/public_html` |
+| `CPANEL_DEPLOY_PATH` | Path on server where files are deployed | `/public_html` |
 
 #### For Ecommerce/VM FTP Deployment (Optional):
 | Secret Name | Value |
@@ -53,7 +53,7 @@ Click **"New repository secret"** and add each:
 FTP_SERVER = ftp.forusfl.co.zm
 FTP_USERNAME = update9240@forusfl.co.zm
 FTP_PASSWORD = [your_actual_ftp_password]
-CPANEL_DEPLOY_PATH = /home/forusfl/public_html
+CPANEL_DEPLOY_PATH = /public_html
 ```
 
 ### Step 3: Test Deployment
@@ -87,7 +87,7 @@ Check GitHub Actions tab to see deployment progress.
 3. **Manual Post-Deployment** (You do this once):
    ```bash
    # SSH into your server
-   cd /home/forusfl/public_html/website
+   cd /public_html/website
    
    # Run migrations
    php artisan migrate --force
@@ -145,11 +145,18 @@ php artisan view:clear
 
 ### 📁 FTP Upload Path
 
-The workflow uploads to your FTP home directory. You need to know:
-- Where FTP user's home directory maps to on the server
-- Usually: `/home/username/` or `/public_html/`
+The workflow uploads directly to **`/public_html`** (web root).
 
-**Check with hosting provider** if upload path unclear.
+This is the standard cPanel directory where your website files should be located.
+
+**Directory Structure**:
+```
+/public_html/
+├── website/          ← Laravel app (website folder)
+├── index.php         ← Entry point (if in root)
+├── .htaccess         ← Rewrite rules
+└── ...
+```
 
 ---
 
@@ -173,9 +180,10 @@ The workflow uploads to your FTP home directory. You need to know:
 **Error**: `Permission denied` or `550 No such file or directory`
 
 **Solutions**:
-1. Check `CPANEL_DEPLOY_PATH` secret is correct
-2. Ensure FTP user has write permissions on that directory
-3. Check cPanel to see actual directory structure
+1. Verify `CPANEL_DEPLOY_PATH` is set to `/public_html`
+2. Ensure FTP user (update9240@forusfl.co.zm) has write permissions on `/public_html`
+3. Check in cPanel file manager that `/public_html` exists and is writable
+4. Verify FTP user home directory maps to root (not a subdirectory)
 
 ### Deployment Succeeds But Site Broken
 
@@ -184,7 +192,7 @@ The workflow uploads to your FTP home directory. You need to know:
 **Fix**:
 ```bash
 # SSH into server
-cd /home/forusfl/public_html/website
+cd /public_html/website
 
 # Run migrations
 php artisan migrate --force
@@ -233,7 +241,7 @@ If you want to automate the post-deployment steps, consider:
 ### Option 1: cPanel Cron Job
 Create a cron job that runs daily at 2 AM:
 ```bash
-cd /home/forusfl/public_html/website && php artisan migrate --force 2>&1
+cd /public_html/website && php artisan migrate --force 2>&1
 ```
 
 ### Option 2: GitHub Actions SSH Step (Requires SSH access)
@@ -246,7 +254,7 @@ Add SSH step after FTP to run migrations:
     username: ${{ secrets.SSH_USERNAME }}
     key: ${{ secrets.SSH_KEY }}
     script: |
-      cd /home/forusfl/public_html/website
+      cd /public_html/website
       php artisan migrate --force
       php artisan cache:clear
 ```
@@ -286,7 +294,7 @@ If deployment breaks production:
 ### Quick Rollback
 ```bash
 # SSH into server
-cd /home/forusfl/public_html/website
+cd /public_html/website
 
 # Revert to previous git commit
 git fetch origin
@@ -334,7 +342,7 @@ https://github.com/mosesjust2016/ForusFreight/actions
 ### SSH After Deployment
 ```bash
 ssh update9240@forusfl.co.zm
-cd /home/forusfl/public_html/website
+cd /public_html/website
 php artisan migrate --force
 php artisan cache:clear
 ```
