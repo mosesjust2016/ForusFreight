@@ -4,6 +4,7 @@
 
 # ---- Laravel (website/) ----
 website/.env
+website/.env.*
 website/.env.backup
 website/vendor/
 website/node_modules/
