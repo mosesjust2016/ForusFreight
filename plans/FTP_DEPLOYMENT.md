@@ -7,13 +7,21 @@
 
 ## Overview
 
-The deployment pipeline has been updated to use FTP instead of SSH. This is simpler and doesn't require SSH key management.
+The deployment pipeline has been updated to use FTP for the cPanel shared hosting and Docker for the VM.
 
-**FTP Server Details**:
+### Deployment Architecture:
+
+| Component | Deployment Method | Location | Purpose |
+|-----------|-------------------|----------|---------|
+| **website/** | FTP (cPanel) | `/public_html` | Laravel web application |
+| **Ecommerce/** | Docker | VM 46.62.161.138 | API, Admin Portal, Storefront |
+| **TerraForm/** | Manual | Git | Infrastructure as Code |
+
+### FTP Server Details:
 - **FTP Server**: ftp.forusfl.co.zm
 - **FTP Username**: update9240@forusfl.co.zm
-- **FTP Port**: 21 (implicit FTPS)
-- **Remote Path**: Will upload to home directory (check your hosting control panel)
+- **FTP Port**: 21 (Explicit FTPS)
+- **Target Path**: `/public_html` (web root)
 
 ---
 
@@ -23,13 +31,15 @@ Add these secrets to your GitHub repository:
 
 ### Settings → Secrets and variables → Actions
 
-#### For cPanel FTP Deployment:
-| Secret Name | Value | Example |
-|-------------|-------|---------|
-| `FTP_SERVER` | FTP server hostname | `ftp.forusfl.co.zm` |
-| `FTP_USERNAME` | FTP username | `update9240@forusfl.co.zm` |
-| `FTP_PASSWORD` | FTP password | `your_ftp_password` |
-| `CPANEL_DEPLOY_PATH` | Path on server where files are deployed | `/public_html` |
+#### For cPanel FTP Deployment (website/ folder):
+| Secret Name | Value | Description |
+|-------------|-------|-------------|
+| `FTP_SERVER` | `ftp.forusfl.co.zm` | FTP server hostname |
+| `FTP_USERNAME` | `update9240@forusfl.co.zm` | FTP username |
+| `FTP_PASSWORD` | `[your_password]` | FTP password (keep secret!) |
+| `FTP_REMOTE_PATH` | `` (empty) or `/` | Remote path on FTP (relative to FTP home) |
+
+⚠️ **Important**: Files in `website/` folder are uploaded directly to `/public_html/` on the server.
 
 #### For Ecommerce/VM FTP Deployment (Optional):
 | Secret Name | Value |
@@ -47,14 +57,16 @@ Add these secrets to your GitHub repository:
 2. Click: **Secrets and variables** → **Actions**
 
 ### Step 2: Add FTP Secrets
-Click **"New repository secret"** and add each:
+Click **"New repository secret"** for each:
 
 ```
 FTP_SERVER = ftp.forusfl.co.zm
 FTP_USERNAME = update9240@forusfl.co.zm
 FTP_PASSWORD = [your_actual_ftp_password]
-CPANEL_DEPLOY_PATH = /public_html
+FTP_REMOTE_PATH = [leave empty or use /]
 ```
+
+**Note**: Leave `FTP_REMOTE_PATH` empty if FTP user home is `/public_html`, or set to `/` to upload to root.
 
 ### Step 3: Test Deployment
 Push to `main` branch:
@@ -78,16 +90,24 @@ Check GitHub Actions tab to see deployment progress.
    - Install NPM packages
    - Build Vite assets
 
-2. **FTP Deploy Stage** (~2-3 min):
+2. **Website FTP Deploy Stage** (~2-3 min):
    - Clean build artifacts (node_modules, vendor/.git, cache)
-   - Upload all files to FTP server
-   - Skip uploading .env, vendor, storage/logs
+   - Upload **only `website/` folder** to `/public_html/`
+   - Skip uploading: .env, vendor, storage/logs, node_modules
    - Report success/failure
 
-3. **Manual Post-Deployment** (You do this once):
+3. **Ecommerce Docker Deploy Stage** (~2-3 min) - *Parallel*:
+   - Upload **only `Ecommerce/` folder** to VM
+   - Trigger Docker Compose rebuild
+   - Deploy services: API, Admin Portal, Storefront
+
+4. **Manual Post-Deployment** (You do this via SSH):
    ```bash
-   # SSH into your server
-   cd /public_html/website
+   # SSH into cPanel server
+   ssh update9240@forusfl.co.zm
+   
+   # Navigate to web root
+   cd /public_html
    
    # Run migrations
    php artisan migrate --force
@@ -96,9 +116,6 @@ Check GitHub Actions tab to see deployment progress.
    php artisan cache:clear
    php artisan view:clear
    php artisan config:clear
-   
-   # Optional: optimize
-   php artisan optimize
    
    # Restart queue worker
    sudo supervisorctl restart forusfreight-queue:*
@@ -143,20 +160,34 @@ php artisan view:clear
 - Rotate FTP password annually
 - If password leaked, change in hosting control panel immediately
 
-### 📁 FTP Upload Path
+### 📁 Deployment Targets
 
-The workflow uploads directly to **`/public_html`** (web root).
+#### Website → cPanel (via FTP)
+**Source**: `website/` folder  
+**Destination**: `/public_html/` on cPanel  
+**Contents**: Laravel application files
 
-This is the standard cPanel directory where your website files should be located.
-
-**Directory Structure**:
 ```
 /public_html/
-├── website/          ← Laravel app (website folder)
-├── index.php         ← Entry point (if in root)
-├── .htaccess         ← Rewrite rules
-└── ...
+├── app/                    ← Laravel app directory
+├── config/                 ← Configuration files
+├── resources/              ← Views, assets
+├── routes/                 ← Route definitions
+├── storage/                ← Logs, cache, uploads
+├── public/                 ← Web-accessible files (CSS, JS, images)
+├── artisan                 ← Laravel CLI
+├── composer.json           ← PHP dependencies
+├── .env                    ← Environment config (NOT uploaded, manually set)
+└── [other Laravel files]
 ```
+
+#### Ecommerce → VM (via Docker)
+**Source**: `Ecommerce/` folder  
+**Destination**: VM 46.62.161.138:/opt/forus-digital  
+**Services**: 
+- forus-digital-api
+- forus-digital-admin-portal
+- forus-digital-storefront
 
 ---
 

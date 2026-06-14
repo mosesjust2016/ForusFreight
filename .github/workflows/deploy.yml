@@ -89,25 +89,26 @@ jobs:
         working-directory: website
         run: npm run build
 
-      # ── Prepare deployment (remove unnecessary files) ──
-      - name: 🗑️ Clean up before FTP upload
+      # ── Prepare website for FTP upload ────────
+      - name: 🗑️ Clean up website before FTP upload
         run: |
           cd website
           rm -rf node_modules
           rm -rf vendor/.git
           rm -rf bootstrap/cache/*
-          rm -f .env.example .env.backup
+          find . -name '.DS_Store' -delete
           cd ..
 
-      # ── Upload via FTP ────────────────────────
-      - name: 📡 Upload files via FTP
+      # ── Upload website folder via FTP ─────────
+      # Only the website/ folder contents go to /public_html
+      - name: 📡 Upload website to FTP
         uses: milanmk/actions-file-deployer@master
         with:
-          remote-url: ftp://${{ secrets.FTP_SERVER }}
+          remote-url: ftp://${{ secrets.FTP_SERVER }}/${{ secrets.FTP_REMOTE_PATH }}
           remote-user: ${{ secrets.FTP_USERNAME }}
           remote-password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./website/
-          args: --delete --parallel=10 --exclude='.env' --exclude='vendor' --exclude='storage/logs'
+          args: --delete --parallel=10 --exclude='.env' --exclude='vendor' --exclude='storage/logs' --exclude='node_modules'
 
       # ── Run Laravel post-deployment tasks via PHP ─────
       # Note: For FTP deployments, you may need to:
@@ -117,13 +118,18 @@ jobs:
 
       - name: ℹ️ Deployment Info
         run: |
-          echo "✅ FTP deployment completed!"
+          echo "✅ Website folder deployed to cPanel FTP!"
           echo ""
-          echo "⚠️  Manual post-deployment steps (if needed):"
-          echo "1. SSH into server and run: cd ${{ secrets.CPANEL_DEPLOY_PATH }}/website"
-          echo "2. Run migrations: php artisan migrate --force"
-          echo "3. Clear cache: php artisan cache:clear && php artisan view:clear"
-          echo "4. Optional: php artisan optimize"
+          echo "📂 Deployment Summary:"
+          echo "  ✅ Website folder → FTP → /public_html (cPanel)"
+          echo "  ⏳ Ecommerce folder → Docker → VM (deploy-vm job)"
+          echo ""
+          echo "⚠️  Manual post-deployment steps (run via SSH):"
+          echo "1. SSH: ssh update9240@forusfl.co.zm"
+          echo "2. Navigate: cd /public_html"
+          echo "3. Run migrations: php artisan migrate --force"
+          echo "4. Clear cache: php artisan cache:clear && php artisan view:clear && php artisan config:clear"
+          echo "5. Restart queue: sudo supervisorctl restart forusfreight-queue:*"
 
       - name: 🎉 Notify success
         if: success()
