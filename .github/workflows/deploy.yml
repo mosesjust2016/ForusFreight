@@ -25,11 +25,17 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, xml, curl, zip
+          extensions: mbstring, bcmath, pdo, pdo_mysql, xml, curl, zip, sqlite3
           coverage: none
+
+      - name: 📝 Create SQLite database (for composer)
+        working-directory: website
+        run: touch database/database.sqlite
 
       - name: 📦 Install Composer dependencies
         working-directory: website
+        env:
+          APP_ENV: testing
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       # ── Node / Assets ─────────────────────────
@@ -68,10 +74,16 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, xml, curl, zip
+          extensions: mbstring, bcmath, pdo, pdo_mysql, xml, curl, zip, sqlite3
+
+      - name: 📝 Create SQLite database (for composer)
+        working-directory: website
+        run: touch database/database.sqlite
 
       - name: 📦 Install Composer dependencies
         working-directory: website
+        env:
+          APP_ENV: testing
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       - name: 🟢 Setup Node.js
