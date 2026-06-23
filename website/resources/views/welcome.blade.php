@@ -685,9 +685,13 @@ try {
             background: linear-gradient(135deg, rgba(0, 127, 127, 0.05), rgba(255, 98, 0, 0.05));
         }
 
+        .benefits-section .section-title p {
+            color: white;
+        }
+
         .benefits-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 2.5rem;
         }
 
@@ -936,8 +940,16 @@ try {
             .network-stats {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .benefits-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        
+
         @media (max-width: 480px) {
             .hero-title {
                 font-size: 2rem;
@@ -980,6 +992,14 @@ try {
             }
             
             .network-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials-grid {
                 grid-template-columns: 1fr;
             }
         }
