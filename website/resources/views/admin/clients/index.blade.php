@@ -390,6 +390,52 @@
             @endforelse
         </tbody>
     </table>
+
+    <!-- Pagination -->
+    @if($clients->hasPages())
+    <div style="margin-top: 2.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+        {{-- Previous Page Link --}}
+        @if ($clients->onFirstPage())
+            <span style="padding: 0.6rem 0.8rem; border-radius: 8px; color: #cbd5e1; cursor: not-allowed;">
+                <i class="fas fa-chevron-left"></i>
+            </span>
+        @else
+            <a href="{{ $clients->previousPageUrl() }}" style="padding: 0.6rem 0.8rem; border-radius: 8px; background: #f8fafc; color: var(--primary-green); text-decoration: none; transition: all 0.3s;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        @endif
+
+        {{-- Pagination Elements --}}
+        @foreach ($clients->getUrlRange(1, $clients->lastPage()) as $page => $url)
+            @if ($page == $clients->currentPage())
+                <span style="padding: 0.6rem 0.8rem; border-radius: 8px; background: var(--primary-green); color: white; font-weight: 700; min-width: 2.5rem; text-align: center;">
+                    {{ $page }}
+                </span>
+            @else
+                <a href="{{ $url }}" style="padding: 0.6rem 0.8rem; border-radius: 8px; background: #f8fafc; color: var(--text-dark); text-decoration: none; transition: all 0.3s; min-width: 2.5rem; text-align: center;">
+                    {{ $page }}
+                </a>
+            @endif
+        @endforeach
+
+        {{-- Next Page Link --}}
+        @if ($clients->hasMorePages())
+            <a href="{{ $clients->nextPageUrl() }}" style="padding: 0.6rem 0.8rem; border-radius: 8px; background: #f8fafc; color: var(--primary-green); text-decoration: none; transition: all 0.3s;">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        @else
+            <span style="padding: 0.6rem 0.8rem; border-radius: 8px; color: #cbd5e1; cursor: not-allowed;">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+        @endif
+    </div>
+
+    {{-- Pagination Info --}}
+    <div style="margin-top: 1.5rem; text-align: center; color: #64748b; font-size: 0.9rem;">
+        Showing {{ $clients->firstItem() ?? 0 }} to {{ $clients->lastItem() ?? 0 }} of {{ $clients->total() }} clients
+        (Page {{ $clients->currentPage() }} of {{ $clients->lastPage() }})
+    </div>
+    @endif
 </div>
 
 <!-- Communication Modal -->
