@@ -26,10 +26,28 @@ class SmsService
     }
 
     /**
+     * Check if SMS service is properly configured
+     */
+    public function isConfigured(): bool
+    {
+        return !empty($this->email) &&
+               !empty($this->password) &&
+               !str_contains($this->email, 'example.com');
+    }
+
+    /**
      * Send an SMS via Molo Marketing Cloud.
      */
     public function send(string $to, string $message): bool
     {
+        if (!$this->isConfigured()) {
+            Log::warning('Molo SMS: service not properly configured. SMS will not be sent.', [
+                'to'      => $to,
+                'message' => substr($message, 0, 50) . '...',
+            ]);
+            return false;
+        }
+
         $to    = $this->normalisePhone($to);
         $token = $this->getAccessToken();
 

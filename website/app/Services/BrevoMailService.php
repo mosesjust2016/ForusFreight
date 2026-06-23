@@ -15,8 +15,24 @@ class BrevoMailService
         $this->apiKey = config('services.brevo.key');
     }
 
+    /**
+     * Check if email service is properly configured
+     */
+    public function isConfigured(): bool
+    {
+        return !empty($this->apiKey);
+    }
+
     public function sendOtpEmail(string $toEmail, string $toName, string $otp): bool
     {
+        if (!$this->isConfigured()) {
+            Log::warning('Brevo email service not configured. Email will not be sent.', [
+                'to_email' => $toEmail,
+                'to_name'  => $toName,
+            ]);
+            return false;
+        }
+
         $response = Http::withHeaders([
             'api-key'      => $this->apiKey,
             'Content-Type' => 'application/json',
