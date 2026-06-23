@@ -605,6 +605,202 @@ try {
             font-weight: 500;
         }
 
+        /* Testimonials Section */
+        .testimonials-section {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(0, 127, 127, 0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .testimonial-card:hover {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 127, 127, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .testimonial-quote {
+            font-size: 1rem;
+            color: #475569;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .testimonial-stars {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .testimonial-info h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .testimonial-info p {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0.25rem 0 0 0;
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, rgba(0, 127, 127, 0.05), rgba(255, 98, 0, 0.05));
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .benefit-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .benefit-card:nth-child(2) {
+            border-left-color: var(--secondary);
+        }
+
+        .benefit-card:nth-child(3) {
+            border-left-color: #059669;
+        }
+
+        .benefit-card:nth-child(4) {
+            border-left-color: #8b5cf6;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 127, 127, 0.15);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .benefit-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+
+        .benefit-description {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .faq-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 127, 127, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 127, 127, 0.1);
+        }
+
+        .faq-question {
+            background: white;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #1e293b;
+            user-select: none;
+            transition: background 0.3s;
+        }
+
+        .faq-item.active .faq-question {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        .faq-icon {
+            font-size: 1.25rem;
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 1.5rem;
+            padding-top: 0;
+        }
+
         /* News Section */
         .news-section {
             padding: 5rem 0;
@@ -1010,6 +1206,174 @@ try {
         </div>
     </section>
 
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>What Our Clients Say</h2>
+                <p>Trusted by businesses across Africa and beyond</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"Forus Freight has been a game-changer for our logistics. Reliable, efficient, and always on time. Highly recommended!"</div>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JM</div>
+                        <div class="testimonial-info">
+                            <h4>John Mwale</h4>
+                            <p>CEO, Mwale Trading Co.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"The transparency and communication from Forus Freight is exceptional. We always know where our shipments are."</div>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">SN</div>
+                        <div class="testimonial-info">
+                            <h4>Sarah Nkosi</h4>
+                            <p>Operations Manager, RetailHub Africa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"Working with Forus Freight reduced our shipping costs by 30% while improving delivery times. Outstanding value!"</div>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">PM</div>
+                        <div class="testimonial-info">
+                            <h4>Paul Musonda</h4>
+                            <p>Supply Chain Director, TechImports Ltd</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose Forus Freight?</h2>
+                <p>Industry-leading logistics solutions tailored to your needs</p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <h3 class="benefit-title">Speed & Efficiency</h3>
+                    <p class="benefit-description">Fast transit times with optimized routes and real-time tracking to ensure your cargo arrives on schedule.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛡️</div>
+                    <h3 class="benefit-title">Safety & Security</h3>
+                    <p class="benefit-description">Full insurance coverage, secure facilities, and trained personnel protect your valuable shipments 24/7.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <h3 class="benefit-title">Competitive Pricing</h3>
+                    <p class="benefit-description">Transparent pricing with no hidden fees. Get quality logistics services at rates that fit your budget.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">📱</div>
+                    <h3 class="benefit-title">Digital Solutions</h3>
+                    <p class="benefit-description">Advanced tracking, online booking, and customer dashboard for seamless logistics management.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌍</div>
+                    <h3 class="benefit-title">Wide Coverage</h3>
+                    <p class="benefit-description">Operating across 12+ SADC countries with local expertise and global reach for your shipments.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">👥</div>
+                    <h3 class="benefit-title">Expert Support</h3>
+                    <p class="benefit-description">Dedicated support team available 24/7 to answer questions and resolve issues quickly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Frequently Asked Questions</h2>
+                <p>Find answers to common questions about our services</p>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How long does shipping typically take?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Shipping times depend on the destination and service type. Road freight typically takes 2-7 days within SADC countries. Air freight is available for urgent shipments (1-3 days). We'll provide a specific timeframe when you request a quote.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can you handle international shipments?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! We specialize in international logistics across Africa and beyond. Our services include customs clearance, documentation, and coordination with international partners to ensure smooth delivery worldwide.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What insurance options are available?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        We offer comprehensive insurance coverage for all shipments. Standard coverage is included, with options for additional coverage based on cargo value. Full details are available in your shipment quote.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I track my shipment?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        You can track your shipment 24/7 through our online portal. Simply log in with your account or use the tracking number provided. Real-time updates are sent via SMS and email throughout the delivery process.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What payment methods do you accept?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        We accept bank transfers, mobile money (Airtel Money, Zamtel Money), credit/debit cards, and cash on delivery. Corporate accounts can arrange credit terms based on creditworthiness and shipment volume.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Do you offer warehousing services?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, we operate modern warehousing facilities across the region. Services include storage, inventory management, order fulfillment, and cross-docking. Contact us for facility details and rates.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- News Section -->
     <section class="news-section">
         <div class="container">
@@ -1156,6 +1520,13 @@ try {
 
             window.addEventListener('resize', () => {
                 myGlobe.width(container.clientWidth).height(container.clientHeight);
+            });
+
+            // FAQ toggle functionality
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.querySelector('.faq-question').addEventListener('click', () => {
+                    item.classList.toggle('active');
+                });
             });
 
             // Other animations and interactions
