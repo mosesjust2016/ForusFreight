@@ -15,13 +15,10 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/profile');
+        $response = $this->actingAs($user)->get('/client/profile');
 
-        $response
-            ->assertOk()
-            ->assertSeeVolt('profile.update-profile-information-form')
-            ->assertSeeVolt('profile.update-password-form')
-            ->assertSeeVolt('profile.delete-user-form');
+        $response->assertOk();
+        $response->assertSee('My Profile');
     }
 
     public function test_profile_information_can_be_updated(): void

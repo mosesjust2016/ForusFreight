@@ -52,9 +52,15 @@ new class extends Component
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile')" wire:navigate>
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        @if(auth()->user()->is_admin)
+                            <x-dropdown-link :href="route('admin.profile')" wire:navigate>
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+                        @else
+                            <x-dropdown-link :href="route('client.profile')" wire:navigate>
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+                        @endif
 
                         <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">
@@ -94,9 +100,15 @@ new class extends Component
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile')" wire:navigate>
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
+                @if(auth()->user()->is_admin)
+                    <x-responsive-nav-link :href="route('admin.profile')" wire:navigate>
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
+                @else
+                    <x-responsive-nav-link :href="route('client.profile')" wire:navigate>
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 <!-- Authentication -->
                 <button wire:click="logout" class="w-full text-start">

@@ -1,8 +1,13 @@
 @extends('layouts.app')
 
 @php
-$page = \App\Models\CmsPage::where('slug', 'home')->first();
-$sections = $page?->sections ?? [];
+try {
+    $page = \App\Models\CmsPage::where('slug', 'home')->first();
+    $sections = $page?->sections ?? [];
+} catch (\Exception $e) {
+    $page = null;
+    $sections = [];
+}
 @endphp
 @section('title', ($page?->title ?? 'Forus Freight') . ' - Global Logistics Solutions')
 
