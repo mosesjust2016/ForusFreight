@@ -1070,11 +1070,13 @@ try {
 
             const countries = {
                 'Zambia':       { lat: -13.1339, lng: 27.8493, color: '#007f7f', size: 0.7 },
-                'South Africa': { lat: -30.5595, lng: 22.9375, color: '#ff6200', size: 0.5 },
+                'South Africa': { lat: -30.5595, lng: 22.9375, color: '#ff6200', size: 0.6 },
+                'Zimbabwe':     { lat: -19.0154, lng: 29.1549, color: '#007f7f', size: 0.6 },
+                'China':        { lat:  35.8617, lng: 104.1954, color: '#ff6200', size: 0.7 },
+                'UAE':          { lat:  23.4241, lng: 53.8478, color: '#059669', size: 0.6 },
                 'Tanzania':     { lat:  -6.3690, lng: 34.8888, color: '#059669', size: 0.5 },
                 'Botswana':     { lat: -22.3285, lng: 24.6849, color: '#8b5cf6', size: 0.5 },
                 'Mozambique':   { lat: -18.6657, lng: 35.5296, color: '#f59e0b', size: 0.5 },
-                'Zimbabwe':     { lat: -19.0154, lng: 29.1549, color: '#007f7f', size: 0.4 },
                 'DRC':          { lat:  -4.0383, lng: 21.7587, color: '#ff6200', size: 0.4 },
                 'Angola':       { lat: -11.2027, lng: 17.8739, color: '#007f7f', size: 0.4 },
                 'Kenya':        { lat:   1.2921, lng: 36.8219, color: '#059669', size: 0.4 },
@@ -1084,8 +1086,9 @@ try {
             const connections = [
                 ['Zambia','South Africa'],['Zambia','Tanzania'],['Zambia','Botswana'],
                 ['Zambia','Mozambique'],['Zambia','Zimbabwe'],['Zambia','DRC'],
-                ['Zambia','Angola'],['South Africa','Botswana'],
-                ['Tanzania','Kenya'],['Kenya','Ethiopia'],
+                ['Zambia','Angola'],['Zambia','UAE'],['Zambia','China'],
+                ['South Africa','Botswana'],['South Africa','China'],
+                ['Tanzania','Kenya'],['Kenya','Ethiopia'],['UAE','China'],
             ];
 
             const points = Object.entries(countries).map(([name, d]) => ({
