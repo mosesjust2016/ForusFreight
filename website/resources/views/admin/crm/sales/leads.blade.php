@@ -32,6 +32,10 @@
 
 <!-- Leads List -->
 <div class="crm-grid">
+    <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.1rem; font-weight: 800;">Leads <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">(Page {{ $leads->currentPage() }} of {{ $leads->lastPage() }} — {{ $leads->total() }} total)</span></h2>
+    </div>
+
     <table style="width: 100%; border-collapse: separate; border-spacing: 0 0.75rem;">
         <thead>
             <tr style="text-align: left;">
@@ -88,6 +92,29 @@
             @endforelse
         </tbody>
     </table>
-    <div style="margin-top: 1.5rem;">{{ $leads->links() }}</div>
+
+    @if($leads->hasPages())
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9;">
+        @if($leads->onFirstPage())
+            <span style="padding: 0.5rem 0.75rem; border-radius: 6px; color: #94a3b8; font-size: 0.8rem;">« Previous</span>
+        @else
+            <a href="{{ $leads->previousPageUrl() }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc; color: #475569; text-decoration: none; font-size: 0.8rem; font-weight: 700;">« Previous</a>
+        @endif
+
+        @foreach($leads->getUrlRange(max(1, $leads->currentPage() - 2), min($leads->lastPage(), $leads->currentPage() + 2)) as $page => $url)
+            @if($page === $leads->currentPage())
+                <span style="padding: 0.5rem 0.75rem; border-radius: 6px; background: var(--primary-green); color: white; font-size: 0.8rem; font-weight: 700;">{{ $page }}</span>
+            @else
+                <a href="{{ $url }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc; color: #475569; text-decoration: none; font-size: 0.8rem; font-weight: 700;">{{ $page }}</a>
+            @endif
+        @endforeach
+
+        @if($leads->hasMorePages())
+            <a href="{{ $leads->nextPageUrl() }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc; color: #475569; text-decoration: none; font-size: 0.8rem; font-weight: 700;">Next »</a>
+        @else
+            <span style="padding: 0.5rem 0.75rem; border-radius: 6px; color: #94a3b8; font-size: 0.8rem;">Next »</span>
+        @endif
+    </div>
+    @endif
 </div>
 @endsection

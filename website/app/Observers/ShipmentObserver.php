@@ -17,14 +17,16 @@ class ShipmentObserver
      */
     public function created(Shipment $shipment): void
     {
-        // Send email notification to customer
-        try {
-            Mail::send(new ShipmentCreatedNotification($shipment));
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send shipment created email', [
-                'shipment_id' => $shipment->id,
-                'error' => $e->getMessage(),
-            ]);
+        // Send email notification to customer (skip if no email)
+        if ($shipment->user && $shipment->user->email) {
+            try {
+                Mail::send(new ShipmentCreatedNotification($shipment));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send shipment created email', [
+                    'shipment_id' => $shipment->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         // Create initial tracking event
@@ -56,27 +58,29 @@ class ShipmentObserver
                 'event_time' => now(),
             ]);
 
-            // Send email notification to customer
-            try {
-                Mail::send(new ShipmentStatusUpdatedNotification($shipment, $oldStatus, $newStatus));
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send shipment status updated email', [
-                    'shipment_id' => $shipment->id,
-                    'error' => $e->getMessage(),
-                ]);
+            // Send email notification to customer (skip if no email)
+            if ($shipment->user && $shipment->user->email) {
+                try {
+                    Mail::send(new ShipmentStatusUpdatedNotification($shipment, $oldStatus, $newStatus));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send shipment status updated email', [
+                        'shipment_id' => $shipment->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
-            // Send SMS notification to customer (optional - can be toggled via preferences)
-            try {
-                if ($shipment->user && $shipment->user->phone) {
+            // Send SMS notification to customer (skip if no phone)
+            if ($shipment->user && $shipment->user->phone) {
+                try {
                     $message = "Your Forus Freight shipment {$shipment->tracking_number} has been {$newStatus}. Track: https://forusfreight.com/tracking";
                     app(SmsService::class)->sendShipmentUpdate($shipment->user->phone, $message);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send shipment status SMS', [
+                        'shipment_id' => $shipment->id,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send shipment status SMS', [
-                    'shipment_id' => $shipment->id,
-                    'error' => $e->getMessage(),
-                ]);
             }
         }
     }

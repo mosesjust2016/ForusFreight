@@ -40,22 +40,18 @@ class TrackingController extends Controller
             'tracking_number' => 'required|string|min:5'
         ]);
 
-        // Check if shipment exists
-        $shipment = Shipment::where('tracking_number', $request->tracking_number)->first();
-        
+        $trackingNumber = $request->tracking_number;
+
+        $shipment = Shipment::where('tracking_number', $trackingNumber)
+            ->with('trackingEvents')
+            ->first();
+
         if (!$shipment) {
-            return back()->with('error', 'Tracking number not found. Please check and try again.');
+            return back()->with('error', 'Tracking number not found. Please check and try again.')
+                ->withInput();
         }
 
-        // If user is NOT logged in → save tracking & redirect to login
-        if (!Auth::check()) {
-            session(['tracking_attempt' => $request->tracking_number]);
-            return redirect()->route('login')
-                ->with('info', 'Please login to view your shipment details.');
-        }
-
-        // If user is logged in, redirect to the dashboard with tracking
-        return redirect()->route('dashboard', ['tracking_number' => $request->tracking_number]);
+        return view('tracking', compact('shipment'));
     }
 
     /**

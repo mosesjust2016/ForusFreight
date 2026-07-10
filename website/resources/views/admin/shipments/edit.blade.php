@@ -252,11 +252,14 @@
             </div>
 
             {{-- Existing images --}}
-            @if(!empty($shipment->images))
+            @php
+                $images = is_string($shipment->images) ? json_decode($shipment->images, true) : ($shipment->images ?? []);
+            @endphp
+            @if(!empty($images))
             <div class="form-group">
-                <label>Current Images ({{ count($shipment->images) }})</label>
+                <label>Current Images ({{ count($images) }})</label>
                 <div class="img-grid">
-                    @foreach($shipment->images as $i => $path)
+                    @foreach($images as $i => $path)
                     <div class="img-thumb">
                         <img src="{{ Storage::url($path) }}" alt="Cargo image {{ $i + 1 }}"
                              onclick="openLightbox('{{ Storage::url($path) }}')">

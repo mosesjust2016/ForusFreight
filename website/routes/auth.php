@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Livewire\Pages\Auth\ActivateAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,9 @@ Route::middleware('guest')->group(function () {
 
     Volt::route('login', 'pages.auth.login')
         ->name('login');
+
+    Route::get('activate-account', ActivateAccount::class)
+        ->name('activation.phone');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');

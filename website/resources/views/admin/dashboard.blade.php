@@ -449,7 +449,11 @@
     <div class="recent-shipments">
         <div class="section-header">
             <h2><i class="fas fa-box-archive"></i> Global Shipment Registry</h2>
-            <a href="{{ route('admin.shipments') }}" class="view-all">Manage All <i class="fas fa-arrow-right"></i></a>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <a href="{{ route('admin.shipments.bulk.index') }}" class="view-all" style="background: var(--primary-green); color: white; display: inline-flex; gap: 0.5rem;"><i class="fas fa-cloud-upload-alt"></i> Bulk Shipment</a>
+                <a href="{{ route('admin.warehouse.cargo.index') }}" class="view-all" style="background: #3b82f6; color: white; display: inline-flex; gap: 0.5rem;"><i class="fas fa-warehouse"></i> Warehouse Cargo</a>
+                <a href="{{ route('admin.shipments') }}" class="view-all">Manage All <i class="fas fa-arrow-right"></i></a>
+            </div>
         </div>
 
         @forelse($shipments as $shipment)

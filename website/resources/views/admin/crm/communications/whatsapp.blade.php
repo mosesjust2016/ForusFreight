@@ -327,7 +327,7 @@
         <!-- Right: Contact List -->
         <div class="crm-grid" style="max-height: 800px; overflow-y: auto; padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1rem; font-weight: 800;">Contacts ({{ $contacts->count() }})</h3>
+                <h3 style="font-size: 1rem; font-weight: 800;">Contacts <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">(Page {{ $contacts->currentPage() }} of {{ $contacts->lastPage() }} — {{ $contacts->total() }} total)</span></h3>
                 <div style="display: flex; gap: 0.5rem;">
                     <a href="{{ route('admin.crm.communications.export-contacts-csv', ['filter' => request('filter')]) }}" class="btn-secondary btn-sm" style="text-decoration:none;" title="Export current filtered contacts to CSV">
                         <i class="fas fa-file-export"></i> Export
@@ -363,6 +363,30 @@
                     @endforelse
                 </tbody>
             </table>
+
+            @if($contacts->hasPages())
+            <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
+                @if($contacts->onFirstPage())
+                    <span style="padding: 0.5rem 0.75rem; border-radius: 6px; color: #94a3b8; font-size: 0.8rem;">« Previous</span>
+                @else
+                    <a href="{{ $contacts->previousPageUrl() }}{{ request('filter') ? '&filter=' . request('filter') : '' }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc; color: #475569; text-decoration: none; font-size: 0.8rem; font-weight: 700;">« Previous</a>
+                @endif
+
+                @foreach($contacts->getUrlRange(max(1, $contacts->currentPage() - 2), min($contacts->lastPage(), $contacts->currentPage() + 2)) as $page => $url)
+                    @if($page === $contacts->currentPage())
+                        <span style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #22c55e; color: white; font-size: 0.8rem; font-weight: 700;">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}{{ request('filter') ? '&filter=' . request('filter') : '' }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc; color: #475569; text-decoration: none; font-size: 0.8rem; font-weight: 700;">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                @if($contacts->hasMorePages())
+                    <a href="{{ $contacts->nextPageUrl() }}{{ request('filter') ? '&filter=' . request('filter') : '' }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc; color: #475569; text-decoration: none; font-size: 0.8rem; font-weight: 700;">Next »</a>
+                @else
+                    <span style="padding: 0.5rem 0.75rem; border-radius: 6px; color: #94a3b8; font-size: 0.8rem;">Next »</span>
+                @endif
+            </div>
+            @endif
         </div>
     </div>
 </div>

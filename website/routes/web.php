@@ -58,6 +58,10 @@ Route::post('/lp/{slug}/submit', [PublicContentController::class, 'landingPageSu
 // Public exchange rate API
 Route::get('/api/exchange-rate/current', [ExchangeRateController::class, 'currentRate'])->name('api.exchange-rate.current');
 
+// Guest shipment creation (no auth required - creates temporary account)
+Route::get('/shipments/create', [ShipmentController::class, 'create'])->name('shipments.create.guest');
+Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store.guest');
+
 // Protected routes (require authentication + full verification)
 Route::middleware(['auth', 'fully_verified'])->group(function () {
     // Dashboard for logged in users
@@ -71,6 +75,7 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::get('/client/shipments', [ShipmentController::class, 'index'])->name('client.shipments');
     Route::get('/client/shipments/create', [ShipmentController::class, 'create'])->name('client.shipments.create');
     Route::post('/client/shipments', [ShipmentController::class, 'store'])->name('client.shipments.store');
+    Route::get('/client/warehouse-cargo', [\App\Http\Controllers\ShipmentController::class, 'warehouseCargo'])->name('client.warehouse.cargo');
     Route::get('/client/invoices', [ShipmentController::class, 'invoices'])->name('client.invoices');
     Route::get('/client/tracking/auto', [\App\Http\Controllers\DashboardController::class, 'index'])->name('client.tracking.auto');
     
@@ -99,6 +104,20 @@ Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix(
         Route::post('/shipments/{shipment}/images/remove', [AdminController::class, 'removeShipmentImage'])->name('admin.shipments.images.remove');
         Route::post('/shipments/{shipment}/events', [AdminController::class, 'editShipment'])->name('admin.shipments.events.store');
         Route::delete('/shipments/{shipment}/events/{event}', fn() => back())->name('admin.shipments.events.destroy');
+    });
+
+    // Bulk Shipment Import
+    Route::middleware('permission:admin.shipments.manage')->group(function () {
+        Route::get('/shipments/bulk/import', [\App\Http\Controllers\BulkShipmentImportController::class, 'index'])->name('admin.shipments.bulk.index');
+        Route::post('/shipments/bulk/import', [\App\Http\Controllers\BulkShipmentImportController::class, 'import'])->name('admin.shipments.bulk.import');
+        Route::get('/shipments/bulk/template', [\App\Http\Controllers\BulkShipmentImportController::class, 'downloadTemplate'])->name('admin.shipments.bulk.template');
+    });
+
+    // Warehouse Cargo Import (integrated with shipments)
+    Route::middleware('permission:admin.shipments.manage')->group(function () {
+        Route::get('/shipments/warehouse/import', [\App\Http\Controllers\WarehouseCargoImportController::class, 'index'])->name('admin.warehouse.cargo.index');
+        Route::post('/shipments/warehouse/import', [\App\Http\Controllers\WarehouseCargoImportController::class, 'import'])->name('admin.warehouse.cargo.import');
+        Route::get('/shipments/warehouse/template', [\App\Http\Controllers\WarehouseCargoImportController::class, 'downloadTemplate'])->name('admin.warehouse.cargo.template');
     });
 
     // Clients — admin_staff and super-admin only

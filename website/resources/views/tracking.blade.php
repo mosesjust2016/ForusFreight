@@ -46,77 +46,102 @@
                 @enderror
             </form>
 
-            <!-- Results for Authenticated Users -->
-            @auth
-                @if(isset($shipment) && $shipment)
-                <div id="results" style="margin-top:3rem; padding:2rem; background:linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius:12px; border: 2px solid #007f7f;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h3 style="font-weight:700; color:#1e293b; margin:0;">Shipment Details</h3>
-                        <span style="padding: 0.5rem 1rem; background: #007f7f; color: white; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
-                            {{ strtoupper($shipment->status) }}
-                        </span>
+            <!-- Results for All Users -->
+            @if(isset($shipment) && $shipment)
+            <div id="results" style="margin-top:3rem; padding:2rem; background:linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius:12px; border: 2px solid #007f7f;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-weight:700; color:#1e293b; margin:0;">Shipment Details</h3>
+                    <span style="padding: 0.5rem 1rem; background: #007f7f; color: white; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                        {{ strtoupper($shipment->status) }}
+                    </span>
+                </div>
+
+                <!-- Shipment Info -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div>
+                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Tracking Number</p>
+                        <p style="color: #1e293b; font-weight: 600; font-size: 1.25rem;">{{ $shipment->tracking_number }}</p>
                     </div>
-                    
-                    <!-- Shipment Info -->
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
-                        <div>
-                            <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Tracking Number</p>
-                            <p style="color: #1e293b; font-weight: 600; font-size: 1.25rem;">{{ $shipment->tracking_number }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Shipment Date</p>
-                            <p style="color: #1e293b; font-weight: 600;">{{ $shipment->shipment_date->format('M d, Y') }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">From</p>
-                            <p style="color: #1e293b; font-weight: 600;">{{ $shipment->origin }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">To</p>
-                            <p style="color: #1e293b; font-weight: 600;">{{ $shipment->destination }}</p>
-                        </div>
+                    <div>
+                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Shipment Date</p>
+                        <p style="color: #1e293b; font-weight: 600;">{{ $shipment->shipment_date ? $shipment->shipment_date->format('M d, Y') : 'N/A' }}</p>
                     </div>
-                    
-                    <!-- Tracking Timeline -->
-                    <div style="margin-top: 2rem;">
-                        <h4 style="font-weight:600; color:#1e293b; margin-bottom:1.5rem;">Shipment Timeline</h4>
-                        <div style="position:relative; padding-left:2rem;">
-                            @foreach($shipment->trackingEvents as $index => $event)
-                            <div style="position:relative; margin-bottom:2rem;">
-                                <div style="position:absolute; left:-8px; top:0; width:16px; height:16px; 
-                                    background: {{ $index == count($shipment->trackingEvents) - 1 ? '#ff6200' : '#007f7f' }}; 
-                                    border-radius:50%;"></div>
-                                <div style="padding-left:1rem;">
-                                    <p style="font-weight:600; color:#1e293b; margin-bottom:0.25rem;">{{ $event->description }}</p>
-                                    <p style="color:#64748b; font-size:0.9rem;">
-                                        {{ $event->location }} • {{ $event->event_time->format('M d, Y • h:i A') }}
-                                    </p>
-                                </div>
-                            </div>
-                            @endforeach
-                            <!-- Timeline line -->
-                            <div style="position:absolute; left:0; top:8px; bottom:8px; width:2px; background:#cccccc;"></div>
-                        </div>
+                    <div>
+                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">From</p>
+                        <p style="color: #1e293b; font-weight: 600;">{{ $shipment->origin }}</p>
                     </div>
-                    
-                    <!-- Estimated Delivery -->
-                    <div style="margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 8px; border: 2px solid #059669;">
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <i class="fas fa-truck" style="color: #059669; font-size: 1.5rem;"></i>
-                            <div>
-                                <p style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">Estimated Delivery</p>
-                                <p style="color: #64748b;">
-                                    {{ $shipment->estimated_delivery->format('l, F j, Y') }} • 
-                                    <span style="color: #059669; font-weight: 600;">By {{ $shipment->estimated_delivery->format('h:i A') }}</span>
-                                </p>
-                            </div>
+                    <div>
+                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">To</p>
+                        <p style="color: #1e293b; font-weight: 600;">{{ $shipment->destination }}</p>
+                    </div>
+                </div>
+
+                <!-- Shipment Images -->
+                @php
+                    $images = is_string($shipment->images) ? json_decode($shipment->images, true) : ($shipment->images ?? []);
+                @endphp
+                @if(!empty($images))
+                <div style="margin-top: 2rem;">
+                    <h4 style="font-weight:600; color:#1e293b; margin-bottom:1rem;">Shipment Images</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        @foreach($images as $image)
+                        <div style="border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;">
+                            <img src="{{ asset('storage/' . $image) }}"
+                                 alt="Shipment image"
+                                 style="width: 100%; height: 150px; object-fit: cover;"
+                                 onclick="this.style.maxWidth='100%'; this.style.cursor='zoom-in';"
+                                 data-lightbox="shipment-images">
                         </div>
+                        @endforeach
                     </div>
                 </div>
                 @endif
-            @endauth
 
-            <!-- Demo Numbers Section (only show if not authenticated or no shipment) -->
+                <!-- Tracking Timeline -->
+                <div style="margin-top: 2rem;">
+                    <h4 style="font-weight:600; color:#1e293b; margin-bottom:1.5rem;">Shipment Timeline</h4>
+                    <div style="position:relative; padding-left:2rem;">
+                        @forelse($shipment->trackingEvents as $index => $event)
+                        <div style="position:relative; margin-bottom:2rem;">
+                            <div style="position:absolute; left:-8px; top:0; width:16px; height:16px;
+                                background: {{ $index == count($shipment->trackingEvents) - 1 ? '#ff6200' : '#007f7f' }};
+                                border-radius:50%;"></div>
+                            <div style="padding-left:1rem;">
+                                <p style="font-weight:600; color:#1e293b; margin-bottom:0.25rem;">{{ $event->description }}</p>
+                                <p style="color:#64748b; font-size:0.9rem;">
+                                    {{ $event->location }} • {{ $event->event_time ? $event->event_time->format('M d, Y • h:i A') : 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        @empty
+                        <p style="color:#64748b; font-style:italic;">No tracking events yet.</p>
+                        @endforelse
+                        <!-- Timeline line -->
+                        <div style="position:absolute; left:0; top:8px; bottom:8px; width:2px; background:#cccccc;"></div>
+                    </div>
+                </div>
+
+                <!-- Estimated Delivery -->
+                <div style="margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 8px; border: 2px solid #059669;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-truck" style="color: #059669; font-size: 1.5rem;"></i>
+                        <div>
+                            <p style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">Estimated Delivery</p>
+                            <p style="color: #64748b;">
+                                @if($shipment->estimated_delivery)
+                                    {{ $shipment->estimated_delivery->format('l, F j, Y') }} •
+                                    <span style="color: #059669; font-weight: 600;">By {{ $shipment->estimated_delivery->format('h:i A') }}</span>
+                                @else
+                                    <span style="color: #059669; font-weight: 600;">To be determined</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Demo Numbers Section (only show if no shipment found) -->
             @if(!isset($shipment) || !$shipment)
             <div style="margin-top:3rem; padding:2rem; background:linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius:12px; border: 2px solid #cccccc;">
                 <h4 style="font-weight:700; color:#1e293b; margin-bottom:1rem;">Demo Tracking Numbers</h4>

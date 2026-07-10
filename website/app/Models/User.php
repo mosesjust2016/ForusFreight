@@ -30,6 +30,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'password',
         'is_admin',
+        'is_temporary',
+        'account_status',
+        'phone_otp',
+        'phone_otp_expires_at',
+        'email_otp',
+        'email_otp_expires_at',
         'crm_status',
         'assigned_agent',
         'lead_score',
@@ -275,6 +281,42 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isFullyVerified(): bool
     {
         return $this->hasVerifiedEmail() && $this->hasVerifiedPhone();
+    }
+
+    public function isTemporary(): bool
+    {
+        return $this->is_temporary === true;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->account_status === 'active';
+    }
+
+    public function activateAccount(): bool
+    {
+        return $this->forceFill([
+            'account_status' => 'active',
+            'is_temporary' => false,
+        ])->save();
+    }
+
+    public static function findOrCreateByPhone(string $phone, string $name): self
+    {
+        $user = self::where('phone', $phone)->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        return self::create([
+            'name' => $name,
+            'phone' => $phone,
+            'email' => null,
+            'password' => null,
+            'is_temporary' => true,
+            'account_status' => 'pending',
+        ]);
     }
 
     /**

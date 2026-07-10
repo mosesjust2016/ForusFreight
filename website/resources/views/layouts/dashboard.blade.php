@@ -409,10 +409,24 @@
                     Admin Home
                 </a>
                 @if($canShipments)
-                <a href="{{ route('admin.shipments') }}" class="nav-item {{ request()->routeIs('admin.shipments') ? 'active' : '' }}">
-                    <i class="fas fa-location-crosshairs"></i>
-                    All Shipments
-                </a>
+                <div class="nav-item-collapsible {{ request()->routeIs('admin.shipments') || request()->routeIs('admin.shipments.bulk*') || request()->routeIs('admin.warehouse.cargo*') ? 'expanded' : '' }}">
+                    <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.shipments') || request()->routeIs('admin.shipments.bulk*') || request()->routeIs('admin.warehouse.cargo*') ? 'active' : '' }}">
+                        <i class="fas fa-location-crosshairs"></i>
+                        <span>Shipments</span>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </a>
+                    <div class="nav-sub-group">
+                        <a href="{{ route('admin.shipments') }}" class="sub-nav-item {{ request()->routeIs('admin.shipments') && !request()->routeIs('admin.shipments.bulk*') && !request()->routeIs('admin.warehouse.cargo*') ? 'active' : '' }}">
+                            <i class="fas fa-circle"></i> All Shipments
+                        </a>
+                        <a href="{{ route('admin.shipments.bulk.index') }}" class="sub-nav-item {{ request()->routeIs('admin.shipments.bulk*') ? 'active' : '' }}">
+                            <i class="fas fa-circle"></i> Bulk Shipment Import
+                        </a>
+                        <a href="{{ route('admin.warehouse.cargo.index') }}" class="sub-nav-item {{ request()->routeIs('admin.warehouse.cargo*') ? 'active' : '' }}">
+                            <i class="fas fa-circle"></i> Warehouse Cargo Import
+                        </a>
+                    </div>
+                </div>
                 @endif
                 @if($canSysReports)
                 <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">

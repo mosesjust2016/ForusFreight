@@ -44,7 +44,7 @@ class BulkCommunicationsController extends Controller
             };
         }
 
-        $contacts = $query->whereNotNull('phone')->latest()->get();
+        $contacts = $query->whereNotNull('phone')->latest()->paginate(30);
         $companies = Company::all();
         $stats = $this->contactStats();
 
@@ -133,7 +133,7 @@ class BulkCommunicationsController extends Controller
             };
         }
 
-        $contacts = $query->whereNotNull('phone')->latest()->get();
+        $contacts = $query->whereNotNull('phone')->latest()->paginate(30);
         $companies = Company::all();
         $stats = $this->contactStats();
 
