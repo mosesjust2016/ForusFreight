@@ -216,7 +216,7 @@
                 @if($invoice->shipment)
                 <tr>
                     <td>
-                        <div style="font-weight: 800; margin-bottom: 0.25rem;">Freight Services - #{{ $invoice->shipment->tracking_number }}</div>
+                        <div style="font-weight: 800; margin-bottom: 0.25rem;">Freight Services - {{ $invoice->shipment->serial_no }}</div>
                         <div style="font-size: 0.75rem; color: var(--text-gray);">Route: {{ $invoice->shipment->origin }} to {{ $invoice->shipment->destination }}</div>
                     </td>
                     <td style="text-align: center;">1</td>

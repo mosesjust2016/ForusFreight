@@ -64,12 +64,12 @@ class AdminController extends Controller
             'images.*'           => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // Generate unique tracking number
-        $trackingNumber = $this->generateTrackingNumber($validated['origin']);
+        // Generate unique serial number
+        $serialNo = $this->generateSerialNo($validated['origin']);
 
         $shipment = Shipment::create([
             'user_id'            => $validated['user_id'],
-            'tracking_number'    => $trackingNumber,
+            'serial_no'          => $serialNo,
             'origin'             => $validated['origin'],
             'destination'        => $validated['destination'],
             'status'             => $validated['status'],
@@ -90,23 +90,23 @@ class AdminController extends Controller
         }
 
         return redirect()->route('admin.shipments')
-            ->with('success', 'Shipment created successfully! Customer notification sent. Tracking: ' . $shipment->tracking_number);
+            ->with('success', 'Shipment created successfully! Customer notification sent. Serial: ' . $shipment->serial_no);
     }
 
     /**
-     * Generate unique tracking number
+     * Generate unique serial number
      */
-    private function generateTrackingNumber(string $origin): string
+    private function generateSerialNo(string $origin): string
     {
-        $prefix = 'FORUS-' . strtoupper(substr($origin, 0, 3));
+        $prefix = strtoupper(substr($origin, 0, 3));
         $number = rand(10000, 99999);
 
         // Ensure uniqueness
-        while (Shipment::where('tracking_number', "{$prefix}-{$number}")->exists()) {
+        while (Shipment::where('serial_no', "{$prefix}.{$number}")->exists()) {
             $number = rand(10000, 99999);
         }
 
-        return "{$prefix}-{$number}";
+        return "{$prefix}.{$number}";
     }
 
     public function editShipment(Shipment $shipment)

@@ -187,8 +187,8 @@
 
         @if($invoice->shipment)
         <div class="summary-item">
-            <span>Tracking Reference</span>
-            <span style="color: var(--primary-green); font-weight: 800;">#{{ $invoice->shipment->tracking_number }}</span>
+            <span>Shipment Reference</span>
+            <span style="color: var(--primary-green); font-weight: 800;">{{ $invoice->shipment->serial_no }}</span>
         </div>
         <div class="summary-item">
             <span>Route</span>

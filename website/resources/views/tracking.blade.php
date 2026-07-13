@@ -7,7 +7,7 @@
     <div class="container">
         <div style="max-width: 720px; margin:auto; text-align:center; color:white;">
             <h1 style="font-size:3rem; font-weight:800; margin-bottom: 1rem;">Track Your Shipment</h1>
-            <p style="opacity:0.9; font-size:1.1rem;">Enter your tracking number to see live shipment progress</p>
+            <p style="opacity:0.9; font-size:1.1rem;">Enter your serial number to see live shipment progress</p>
         </div>
     </div>
 </section>
@@ -32,16 +32,16 @@
             <!-- TRACKING FORM -->
             <form method="POST" action="{{ route('track.check') }}">
                 @csrf
-                <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:0.5rem;">Tracking Number</label>
+                <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:0.5rem;">Serial Number</label>
                 <div style="display:flex; gap:1rem; margin-top:.5rem;">
-                    <input type="text" name="tracking_number" placeholder="SWIFT-2023-00123"
-                        value="{{ old('tracking_number', session('tracking_attempt') ?? '') }}"
+                    <input type="text" name="serial_no" placeholder="e.g. RS.26052049"
+                        value="{{ old('serial_no', session('tracking_attempt') ?? '') }}"
                         style="flex:1; padding:1rem; border-radius:12px; border:2px solid #007f7f; font-size:1rem;">
                     <button type="submit" style="padding:1rem 2rem; border-radius:12px; font-weight:700; color:white; background: #ff6200; border:none; cursor:pointer; transition:all 0.3s;">
                         <i class="fas fa-search" style="margin-right: 0.5rem;"></i> Track Shipment
                     </button>
                 </div>
-                @error('tracking_number')
+                @error('serial_no')
                     <p style="color: #ef4444; margin-top: 0.5rem; font-size: 0.875rem;">{{ $message }}</p>
                 @enderror
             </form>
@@ -59,8 +59,8 @@
                 <!-- Shipment Info -->
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
                     <div>
-                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Tracking Number</p>
-                        <p style="color: #1e293b; font-weight: 600; font-size: 1.25rem;">{{ $shipment->tracking_number }}</p>
+                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Serial Number</p>
+                        <p style="color: #1e293b; font-weight: 600; font-size: 1.25rem;">{{ $shipment->serial_no }}</p>
                     </div>
                     <div>
                         <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Shipment Date</p>
@@ -144,20 +144,20 @@
             <!-- Demo Numbers Section (only show if no shipment found) -->
             @if(!isset($shipment) || !$shipment)
             <div style="margin-top:3rem; padding:2rem; background:linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius:12px; border: 2px solid #cccccc;">
-                <h4 style="font-weight:700; color:#1e293b; margin-bottom:1rem;">Demo Tracking Numbers</h4>
-                <p style="color:#64748b; margin-bottom:1.5rem;">Try these example tracking numbers to see how our tracking system works:</p>
+                <h4 style="font-weight:700; color:#1e293b; margin-bottom:1rem;">Demo Serial Numbers</h4>
+                <p style="color:#64748b; margin-bottom:1.5rem;">Try these example serial numbers to see how our tracking system works:</p>
                 <div style="display:flex; flex-wrap:wrap; gap:1rem;">
-                    <button onclick="document.querySelector('input[name=\"tracking_number\"]').value='SWIFT-2023-00123'; document.querySelector('form').submit();" 
+                    <button onclick="document.querySelector('input[name=\"serial_no\"]').value='RS.26052049'; document.querySelector('form').submit();" 
                             style="padding:0.75rem 1.5rem; background:white; border:2px solid #007f7f; border-radius:8px; color:#007f7f; font-weight:600; cursor:pointer; transition:all 0.3s;">
-                        SWIFT-2023-00123
+                        RS.26052049
                     </button>
-                    <button onclick="document.querySelector('input[name=\"tracking_number\"]').value='SWIFT-2023-00456'; document.querySelector('form').submit();" 
+                    <button onclick="document.querySelector('input[name=\"serial_no\"]').value='RS.26060632'; document.querySelector('form').submit();" 
                             style="padding:0.75rem 1.5rem; background:white; border:2px solid #007f7f; border-radius:8px; color:#007f7f; font-weight:600; cursor:pointer; transition:all 0.3s;">
-                        SWIFT-2023-00456
+                        RS.26060632
                     </button>
-                    <button onclick="document.querySelector('input[name=\"tracking_number\"]').value='SWIFT-2023-00789'; document.querySelector('form').submit();" 
+                    <button onclick="document.querySelector('input[name=\"serial_no\"]').value='RS.26061031'; document.querySelector('form').submit();" 
                             style="padding:0.75rem 1.5rem; background:white; border:2px solid #007f7f; border-radius:8px; color:#007f7f; font-weight:600; cursor:pointer; transition:all 0.3s;">
-                        SWIFT-2023-00789
+                        RS.26061031
                     </button>
                 </div>
             </div>

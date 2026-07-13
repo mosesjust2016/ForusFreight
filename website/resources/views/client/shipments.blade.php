@@ -133,7 +133,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Tracking Number</th>
+                    <th>Serial Number</th>
                     <th>Route</th>
                     <th>Status</th>
                     <th>Estimated Delivery</th>
@@ -145,7 +145,7 @@
                 @foreach($shipments as $shipment)
                 <tr>
                     <td>
-                        <span class="tracking-id">{{ $shipment->tracking_number }}</span>
+                        <span class="tracking-id">{{ $shipment->serial_no }}</span>
                     </td>
                     <td>
                         <div class="route-info">
@@ -186,7 +186,7 @@
                         <span style="font-weight: 800; color: #1e293b;">ZMW {{ number_format($shipment->cost, 2) }}</span>
                     </td>
                     <td style="text-align: right;">
-                        <a href="{{ route('tracking.show', $shipment->tracking_number) }}" class="action-btn" title="Track Shipment">
+                        <a href="{{ route('tracking.show', $shipment->serial_no) }}" class="action-btn" title="Track Shipment">
                             <i class="fas fa-location-dot"></i>
                         </a>
                     </td>

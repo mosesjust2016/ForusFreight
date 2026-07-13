@@ -135,7 +135,7 @@
                 <select name="shipment_id" class="form-control">
                     <option value="">No shipment yet...</option>
                     @foreach($shipments as $shipment)
-                        <option value="{{ $shipment->id }}">{{ $shipment->tracking_number }} - {{ $shipment->origin }} to {{ $shipment->destination }}</option>
+                        <option value="{{ $shipment->id }}">{{ $shipment->serial_no }} - {{ $shipment->origin }} to {{ $shipment->destination }}</option>
                     @endforeach
                 </select>
             </div>

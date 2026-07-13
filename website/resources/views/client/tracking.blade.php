@@ -135,9 +135,9 @@
 <div class="tracking-search-card">
     <form action="{{ route('track.check') }}" method="POST">
         @csrf
-        <label style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Shipment ID / Tracking Number</label>
+        <label style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Serial Number</label>
         <div class="tracking-input-group">
-            <input type="text" name="tracking_number" class="tracking-input" placeholder="e.g. FORUS-LUS-1234" value="{{ old('tracking_number', $shipment->tracking_number ?? '') }}" required>
+            <input type="text" name="serial_no" class="tracking-input" placeholder="e.g. RS.26052049" value="{{ old('serial_no', $shipment->serial_no ?? '') }}" required>
             <button type="submit" class="track-btn">
                 <i class="fas fa-location-crosshairs"></i> Track Now
             </button>

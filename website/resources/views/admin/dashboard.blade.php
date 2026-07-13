@@ -470,7 +470,7 @@
             <div class="shipment-card">
                 <div class="shipment-top">
                     <div class="shipment-id">
-                        #{{ $shipment->tracking_number }}
+                        {{ $shipment->serial_no }}
                         <span class="shipment-status-tag">{{ $shipment->status }}</span>
                     </div>
                     <div style="text-align: right;">
@@ -515,7 +515,7 @@
                     <div class="status-left">
                         <i class="fas fa-circle-dot" style="color: var(--primary-green); font-size: 0.5rem;"></i>
                         <div>
-                            <span class="status-id">#{{ $shipment->tracking_number }}</span>
+                            <span class="status-id">{{ $shipment->serial_no }}</span>
                             <span class="status-desc">{{ $shipment->status }}</span>
                         </div>
                     </div>

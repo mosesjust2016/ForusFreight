@@ -130,8 +130,8 @@ class BulkShipmentImportController extends Controller
         try {
             // Map columns: 0=Client, 1=Tracking, 2=Serial, 3=Origin, 4=Destination, 5=Type, 6=Weight, 7=Qty, 8=Status, 9=Cost, 10=Est.Delivery, 11=Driver, 12=VehicleReg, 13=Images
             $clientName = trim($row[0] ?? '');
-            $trackingNumber = isset($row[1]) ? trim($row[1]) : '';
             $serialNumber = isset($row[2]) ? trim($row[2]) : '';
+            $trackingNumber = isset($row[1]) ? trim($row[1]) : '';
             $origin = isset($row[3]) ? trim($row[3]) : '';
             $destination = isset($row[4]) ? trim($row[4]) : '';
             $cargoType = isset($row[5]) ? trim($row[5]) : '';
@@ -146,19 +146,18 @@ class BulkShipmentImportController extends Controller
 
             // Validate required fields
             if (!$clientName) return ['success' => false, 'error' => "Row $rowNum: Client name is required"];
+            if (!$serialNumber) return ['success' => false, 'error' => "Row $rowNum: Serial number is required"];
             if (!$origin) return ['success' => false, 'error' => "Row $rowNum: Origin is required"];
             if (!$destination) return ['success' => false, 'error' => "Row $rowNum: Destination is required"];
 
-            // Generate tracking number if missing or invalid format
-            if (!$trackingNumber || str_starts_with($trackingNumber, '=') || strlen($trackingNumber) < 5) {
-                $trackingNumber = 'ZML-' . strtoupper(substr(uniqid(), -8));
-            } else {
-                // Convert scientific notation and clean the tracking number
-                $trackingNumber = preg_replace('/\.0+E\+?(\d+)/i', 'ZML-$1', $trackingNumber);
-                if (!str_starts_with(strtoupper($trackingNumber), 'ZML')) {
-                    $trackingNumber = 'ZML-' . str_replace([' ', '-'], '', strtoupper($trackingNumber));
-                }
+            // Clean serial number
+            $serialNumber = preg_replace('/\.0+E\+?(\d+)/i', '$1', $serialNumber);
+
+            // Clean tracking number if provided
+            if ($trackingNumber) {
+                $trackingNumber = preg_replace('/\.0+E\+?(\d+)/i', '$1', $trackingNumber);
             }
+
             if (!$origin) return ['success' => false, 'error' => "Row $rowNum: Origin is required"];
             if (!$destination) return ['success' => false, 'error' => "Row $rowNum: Destination is required"];
 
@@ -173,20 +172,20 @@ class BulkShipmentImportController extends Controller
                 ]);
             }
 
-            // Check if tracking number already exists, regenerate if so
-            $baseTracking = $trackingNumber;
+            // Check if serial number already exists, regenerate if so
+            $baseSerial = $serialNumber;
             $counter = 0;
-            while (Shipment::where('tracking_number', $trackingNumber)->exists()) {
+            while (Shipment::where('serial_no', $serialNumber)->exists()) {
                 $counter++;
-                $trackingNumber = $baseTracking . '-' . $counter;
+                $serialNumber = $baseSerial . '-' . $counter;
             }
 
             // Create shipment
             $shipment = Shipment::create([
                 'user_id' => $user->id,
                 'client_name' => $clientName,
-                'tracking_number' => $trackingNumber,
-                'serial_no' => $serialNumber ?: null,
+                'serial_no' => $serialNumber,
+                'tracking_number' => $trackingNumber ?: null,
                 'origin' => $origin,
                 'destination' => $destination,
                 'service' => $cargoType ?: 'General Cargo',
@@ -202,7 +201,7 @@ class BulkShipmentImportController extends Controller
             return [
                 'success' => true,
                 'shipment' => [
-                    'tracking' => $trackingNumber,
+                    'serial' => $serialNumber,
                     'client' => $clientName,
                     'origin' => $origin,
                     'destination' => $destination,

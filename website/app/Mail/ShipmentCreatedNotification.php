@@ -27,7 +27,7 @@ class ShipmentCreatedNotification extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Shipment Confirmation - Tracking #{$this->shipment->tracking_number}",
+            subject: "Shipment Confirmation - {$this->shipment->serial_no}",
         );
     }
 
@@ -41,14 +41,14 @@ class ShipmentCreatedNotification extends Mailable implements ShouldQueue
             with: [
                 'shipment' => $this->shipment,
                 'customerName' => $this->shipment->user->name ?? 'Valued Customer',
-                'trackingNumber' => $this->shipment->tracking_number,
+                'trackingNumber' => $this->shipment->serial_no,
                 'origin' => $this->shipment->origin,
                 'destination' => $this->shipment->destination,
                 'status' => $this->shipment->status,
                 'weight' => $this->shipment->weight,
                 'estimatedDelivery' => $this->shipment->estimated_delivery,
                 'cost' => $this->shipment->cost,
-                'trackingUrl' => url("/track?number={$this->shipment->tracking_number}"),
+                'trackingUrl' => url("/track?serial_no={$this->shipment->serial_no}"),
             ],
         );
     }

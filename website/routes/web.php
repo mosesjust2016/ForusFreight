@@ -68,7 +68,7 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     
     // Individual tracking dashboard
-    Route::get('/tracking/{tracking_number}', [TrackingController::class, 'showTracking'])
+    Route::get('/tracking/{serial_no}', [TrackingController::class, 'showTracking'])
         ->name('tracking.show');
     
     // Client routes

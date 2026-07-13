@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Shipment '.$shipment->tracking_number)
+@section('title', 'Shipment '.$shipment->serial_no)
 
 @section('content')
 <section style="padding:4rem 0; background: rgb(0,127,127); color:white;">
     <div class="container">
-        <h1 style="text-align:center; font-size:2.5rem; font-weight:800;">Shipment: {{ $shipment->tracking_number }}</h1>
+        <h1 style="text-align:center; font-size:2.5rem; font-weight:800;">Shipment: {{ $shipment->serial_no }}</h1>
         <p style="text-align:center;">Status: <span style="font-weight:700;">{{ $shipment->status }}</span></p>
     </div>
 </section>

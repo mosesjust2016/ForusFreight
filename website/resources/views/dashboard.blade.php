@@ -340,7 +340,7 @@
         </div>
 
         <form method="GET" action="{{ route('dashboard') }}" class="tracking-search">
-            <input type="text" name="tracking_number" placeholder="Enter tracking number (e.g. FORUS-ZM-1001)" value="{{ request('tracking_number') }}" required>
+            <input type="text" name="serial_no" placeholder="Enter serial number (e.g. RS.26052049)" value="{{ request('serial_no') }}" required>
             <button type="submit"><i class="fas fa-search"></i> Track Shipment</button>
         </form>
 
@@ -354,8 +354,8 @@
             <div style="background: white; border-radius: 20px; padding: 2rem; border: 1px solid #e2e8f0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <div>
-                        <p style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.25rem;">Tracking Number</p>
-                        <h3 style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $trackedShipment->tracking_number }}</h3>
+                        <p style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.25rem;">Serial Number</p>
+                        <h3 style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $trackedShipment->serial_no }}</h3>
                     </div>
                     <span style="padding: 0.5rem 1.25rem; background: #007f7f; color: white; border-radius: 9999px; font-size: 0.875rem; font-weight: 700;">
                         {{ strtoupper($trackedShipment->status) }}
@@ -461,7 +461,7 @@
                                 <i class="fas fa-box"></i>
                             </div>
                             <div class="shipment-details">
-                                <h4>{{ $shipment->tracking_number }}</h4>
+                                <h4>{{ $shipment->serial_no }}</h4>
                                 <p>{{ $shipment->origin }} → {{ $shipment->destination }}</p>
                             </div>
                         </div>
@@ -496,7 +496,7 @@
                         <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">{{ $payment->invoice_number }}</span>
                         <span class="payment-amount">ZMW {{ number_format($payment->amount, 2) }}</span>
                     </div>
-                    <p style="font-size: 0.85rem; color: #475569; margin: 0.5rem 0;">Shipment: {{ $payment->shipment->tracking_number }}</p>
+                    <p style="font-size: 0.85rem; color: #475569; margin: 0.5rem 0;">Shipment: {{ $payment->shipment->serial_no }}</p>
                     <span class="payment-date">Due: {{ $payment->due_date->format('M d, Y') }}</span>
                     <button class="pay-btn">Pay Now</button>
                 </div>

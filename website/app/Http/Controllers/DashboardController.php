@@ -46,13 +46,13 @@ class DashboardController extends Controller
         // Real-time tracking lookup
         $trackedShipment = null;
         $trackingError = null;
-        if ($request->has('tracking_number')) {
-            $trackingNumber = $request->query('tracking_number');
-            $trackedShipment = Shipment::where('tracking_number', $trackingNumber)
+        if ($request->has('serial_no')) {
+            $serialNo = $request->query('serial_no');
+            $trackedShipment = Shipment::where('serial_no', $serialNo)
                 ->with('trackingEvents')
                 ->first();
             if (!$trackedShipment) {
-                $trackingError = 'Tracking number not found. Please check and try again.';
+                $trackingError = 'Serial number not found. Please check and try again.';
             }
         }
 

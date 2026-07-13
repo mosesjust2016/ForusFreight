@@ -245,12 +245,12 @@
                 </div>
                 <div class="input-grid">
                     <div class="form-group">
-                        <label>Tracking Number</label>
-                        <input type="text" name="tracking_number" class="form-control" placeholder="e.g. 610080707216" required>
+                        <label>Serial No *</label>
+                        <input type="text" name="serial_no" class="form-control" placeholder="e.g. RS.26052049" required>
                     </div>
                     <div class="form-group">
-                        <label>Serial No</label>
-                        <input type="text" name="serial_no" class="form-control" placeholder="e.g. RS.26052049">
+                        <label>Tracking Number</label>
+                        <input type="text" name="tracking_number" class="form-control" placeholder="e.g. 610080707216">
                     </div>
                     <div class="form-group">
                         <label>Code</label>

@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Edit Shipment #' . $shipment->tracking_number . ' - Admin')
+@section('title', 'Edit Shipment ' . $shipment->serial_no . ' - Admin')
 
 @section('styles')
 <style>
@@ -186,7 +186,7 @@
                 Edit Shipment
             </h1>
             <p style="color: var(--text-gray); font-size: 0.9rem;">
-                Tracking: <strong>#{{ $shipment->tracking_number }}</strong>
+                Serial: <strong>{{ $shipment->serial_no }}</strong>
                 &nbsp;&middot;&nbsp; Client: <strong>{{ $shipment->user?->name ?? 'N/A' }}</strong>
             </p>
         </div>

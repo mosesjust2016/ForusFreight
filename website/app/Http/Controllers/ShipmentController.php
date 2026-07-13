@@ -44,8 +44,8 @@ class ShipmentController extends Controller
         $validated = $request->validate([
             'client_name' => 'required|string|max:255',
             'client_phone' => 'required|string|max:20',
-            'tracking_number' => 'required|string|unique:shipments,tracking_number',
-            'serial_no' => 'nullable|string|max:255',
+            'serial_no' => 'required|string|unique:shipments,serial_no|max:255',
+            'tracking_number' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:50',
             'origin_country' => 'required|string|max:255',
             'origin_city' => 'required|string|max:255',
@@ -97,8 +97,8 @@ class ShipmentController extends Controller
             'user_id' => $user->id,
             'client_name' => $validated['client_name'],
             'client_phone' => $validated['client_phone'],
-            'tracking_number' => $validated['tracking_number'],
-            'serial_no' => $validated['serial_no'] ?? null,
+            'serial_no' => $validated['serial_no'],
+            'tracking_number' => $validated['tracking_number'] ?? null,
             'code' => $validated['code'] ?? null,
             'origin' => $origin,
             'destination' => $destination,
@@ -117,7 +117,7 @@ class ShipmentController extends Controller
             'images' => !empty($imagePaths) ? $imagePaths : null,
         ]);
 
-        $message = 'Shipment created successfully! Tracking number: ' . $shipment->tracking_number;
+        $message = 'Shipment created successfully! Serial No: ' . $shipment->serial_no;
         
         if ($isGuest && $user->isTemporary()) {
             $message .= '. Please activate your account by verifying your phone number.';

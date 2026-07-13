@@ -73,7 +73,7 @@ class ShipmentObserver
             // Send SMS notification to customer (skip if no phone)
             if ($shipment->user && $shipment->user->phone) {
                 try {
-                    $message = "Your Forus Freight shipment {$shipment->tracking_number} has been {$newStatus}. Track: https://forusfreight.com/tracking";
+                    $message = "Your Forus Freight shipment {$shipment->serial_no} has been {$newStatus}. Track: https://forusfreight.com/tracking";
                     app(SmsService::class)->sendShipmentUpdate($shipment->user->phone, $message);
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error('Failed to send shipment status SMS', [
@@ -93,7 +93,7 @@ class ShipmentObserver
         // Optionally log deletion
         \Illuminate\Support\Facades\Log::info('Shipment deleted', [
             'shipment_id' => $shipment->id,
-            'tracking_number' => $shipment->tracking_number,
+            'serial_no' => $shipment->serial_no,
         ]);
     }
 }

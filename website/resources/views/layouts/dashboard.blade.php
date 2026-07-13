@@ -695,7 +695,7 @@
                 </button>
                 <form action="{{ route('dashboard') }}" method="GET" class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" name="tracking_number" placeholder="Enter tracking number..." required>
+                    <input type="text" name="serial_no" placeholder="Enter serial number..." required>
                 </form>
             </div>
 

@@ -254,7 +254,7 @@
             <tbody>
                 @foreach($shipments->take(8) as $shipment)
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 1.25rem 0; font-weight: 700; font-family: monospace;">#{{ $shipment->tracking_number }}</td>
+                    <td style="padding: 1.25rem 0; font-weight: 700; font-family: monospace;">{{ $shipment->serial_no }}</td>
                     <td style="padding: 1.25rem 0; font-weight: 700; font-size: 0.9rem;">{{ $shipment->origin }} → {{ $shipment->destination }}</td>
                     <td style="padding: 1.25rem 0;">
                         <span class="status-badge" style="background: #eff6ff; color: #1d4ed8;">{{ $shipment->status }}</span>

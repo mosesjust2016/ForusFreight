@@ -135,7 +135,7 @@
                 </td>
                 <td>
                     @if($invoice->shipment)
-                        <a href="{{ route('tracking.show', $invoice->shipment->tracking_number) }}" style="color: #007f7f; text-decoration: none; font-weight: 700;">#{{ $invoice->shipment->tracking_number }}</a>
+                        <a href="{{ route('tracking.show', $invoice->shipment->serial_no) }}" style="color: #007f7f; text-decoration: none; font-weight: 700;">{{ $invoice->shipment->serial_no }}</a>
                     @else
                         <span style="color: #cbd5e1;">N/A</span>
                     @endif

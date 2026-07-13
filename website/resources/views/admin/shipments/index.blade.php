@@ -164,7 +164,7 @@
             @forelse($shipments as $shipment)
                 <tr class="shipment-row">
                     <td>
-                        <span class="tracking-badge">#{{ $shipment->tracking_number }}</span>
+                        <span class="tracking-badge">{{ $shipment->serial_no }}</span>
                         <div style="font-size: 0.65rem; color: var(--text-gray); margin-top: 0.4rem; font-weight: 700;">
                             CREATED: {{ $shipment->created_at->format('d M, H:i') }}
                         </div>

@@ -10,11 +10,11 @@ class Shipment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'tracking_number', 'status', 'from', 'to', 'service', 'history',
+        'user_id', 'serial_no', 'tracking_number', 'status', 'from', 'to', 'service', 'history',
         'origin', 'destination', 'weight', 'dimensions', 'description', 'service_type',
         'estimated_delivery', 'cost', 'border_status', 'images', 'quantity', 'driver',
         'vehicle_registration', 'shipment_date', 'current_border',
-        'client_name', 'serial_no', 'code', 'client_phone', 'date_of_load',
+        'client_name', 'code', 'client_phone', 'date_of_load',
         'no_of_parcels', 'cbm_volume', 'gross_weight', 'shipping_method',
         'port_of_origin', 'port_destination',
     ];

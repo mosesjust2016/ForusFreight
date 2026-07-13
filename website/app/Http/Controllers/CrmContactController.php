@@ -176,7 +176,7 @@ class CrmContactController extends Controller
                 'icon' => 'fa-box',
                 'color' => '#4caf50',
                 'title' => 'Shipment Created',
-                'description' => "#{$s->tracking_number} - {$s->origin} to {$s->destination}",
+                'description' => "{$s->serial_no} - {$s->origin} to {$s->destination}",
             ]);
         }
 
