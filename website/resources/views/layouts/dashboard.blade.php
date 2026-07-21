@@ -364,6 +364,7 @@
         }
     </style>
     @yield('styles')
+    @livewireStyles
 </head>
 <body>
     <!-- Sidebar -->
@@ -790,5 +791,6 @@
             }
         });
     </script>
+    @livewireScripts
 </body>
 </html>

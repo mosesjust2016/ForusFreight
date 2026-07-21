@@ -49,8 +49,10 @@ class ProfileController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
+        // Password is NOT hashed here — the 'hashed' cast on the User model
+        // handles hashing automatically when the attribute is set.
         $request->user()->update([
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'],
         ]);
 
         return back()->with('status', 'password-updated');

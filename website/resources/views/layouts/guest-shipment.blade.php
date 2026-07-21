@@ -90,6 +90,7 @@
         }
     </style>
     @yield('styles')
+    @livewireStyles
 </head>
 <body>
     <header class="header">
@@ -121,5 +122,6 @@
     </footer>
 
     @yield('scripts')
+    @livewireScripts
 </body>
 </html>

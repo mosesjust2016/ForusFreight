@@ -146,7 +146,7 @@
         @foreach($results['shipments'] as $shipment)
         <div class="shipment-item">
             <div>
-                <div style="font-weight: 700; color: var(--text-dark);">{{ $shipment['tracking'] }}</div>
+                <div style="font-weight: 700; color: var(--text-dark);">{{ $shipment['serial'] }}</div>
                 <div style="font-size: 0.85rem; color: var(--text-gray);">{{ $shipment['client'] }}</div>
                 <div style="font-size: 0.8rem; color: #94a3b8;">{{ $shipment['origin'] }} → {{ $shipment['destination'] }}</div>
             </div>

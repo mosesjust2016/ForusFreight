@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Shipment;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BrevoMailService
 {
@@ -15,80 +17,175 @@ class BrevoMailService
         $this->apiKey = config('services.brevo.key');
     }
 
-    /**
-     * Check if email service is properly configured
-     */
     public function isConfigured(): bool
     {
         return !empty($this->apiKey);
     }
 
+    public function send(string $toEmail, string $toName, string $subject, string $htmlContent, string $textContent = ''): bool
+    {
+        // Try Brevo HTTP API first
+        if ($this->isConfigured()) {
+            try {
+                $response = Http::timeout(15)->withHeaders([
+                    'api-key'      => $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ])->post($this->apiUrl, [
+                    'sender' => [
+                        'name'  => config('services.brevo.sender_name'),
+                        'email' => config('services.brevo.sender_email'),
+                    ],
+                    'to' => [
+                        ['email' => $toEmail, 'name' => $toName],
+                    ],
+                    'subject'     => $subject,
+                    'htmlContent' => $htmlContent,
+                    'textContent' => $textContent ?: strip_tags($htmlContent),
+                ]);
+
+                if ($response->successful()) {
+                    return true;
+                }
+
+                Log::warning('Brevo HTTP API failed, falling back to SMTP', [
+                    'status'   => $response->status(),
+                    'response' => $response->json(),
+                    'email'    => $toEmail,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('Brevo HTTP API exception, falling back to SMTP', [
+                    'error' => $e->getMessage(),
+                    'email' => $toEmail,
+                ]);
+            }
+        }
+
+        // Fallback: Laravel Mail via Brevo SMTP relay
+        return $this->sendViaSmtp($toEmail, $toName, $subject, $htmlContent, $textContent);
+    }
+
+    private function sendViaSmtp(string $toEmail, string $toName, string $subject, string $htmlContent, string $textContent = ''): bool
+    {
+        $smtpLogin = config('services.brevo.smtp_login');
+        $smtpKey   = config('services.brevo.smtp_key');
+
+        if (empty($smtpLogin) || empty($smtpKey)) {
+            Log::error('Brevo SMTP fallback not configured — no SMTP login or key', ['email' => $toEmail]);
+            return false;
+        }
+
+        try {
+            $plainContent = $textContent ?: strip_tags($htmlContent);
+
+            Mail::raw($plainContent, function ($message) use ($toEmail, $toName, $subject, $htmlContent) {
+                $message->to($toEmail, $toName)
+                    ->subject($subject)
+                    ->html($htmlContent);
+            });
+
+            Log::info('Email sent via Brevo SMTP fallback', ['email' => $toEmail, 'subject' => $subject]);
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Brevo SMTP fallback also failed', [
+                'error' => $e->getMessage(),
+                'email' => $toEmail,
+            ]);
+            return false;
+        }
+    }
+
+    /* ─── OTP Email ────────────────────────────────────────── */
+
     public function sendOtpEmail(string $toEmail, string $toName, string $otp): bool
     {
-        if (!$this->isConfigured()) {
-            Log::warning('Brevo email service not configured. Email will not be sent.', [
-                'to_email' => $toEmail,
-                'to_name'  => $toName,
-            ]);
-            return false;
-        }
+        $html = view('emails.otp', [
+            'name' => $toName,
+            'otp'  => $otp,
+        ])->render();
 
-        $response = Http::withHeaders([
-            'api-key'      => $this->apiKey,
-            'Content-Type' => 'application/json',
-        ])->post($this->apiUrl, [
-            'sender' => [
-                'name'  => config('services.brevo.sender_name'),
-                'email' => config('services.brevo.sender_email'),
-            ],
-            'to' => [
-                ['email' => $toEmail, 'name' => $toName],
-            ],
-            'subject'     => 'Your Email Verification Code',
-            'htmlContent' => $this->otpHtml($toName, $otp),
-            'textContent' => $this->otpText($toName, $otp),
-        ]);
-
-        if ($response->failed()) {
-            Log::error('Brevo mail failed', [
-                'status'   => $response->status(),
-                'response' => $response->json(),
-                'email'    => $toEmail,
-            ]);
-            return false;
-        }
-
-        return true;
+        return $this->send($toEmail, $toName, 'Your Email Verification Code', $html);
     }
 
-    private function otpHtml(string $name, string $otp): string
-    {
-        $appName = config('app.name');
+    /* ─── Shipment Emails ──────────────────────────────────── */
 
-        return <<<HTML
-        <!DOCTYPE html>
-        <html>
-        <body style="font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;">
-          <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;padding:40px;text-align:center;">
-            <h2 style="color:#1a1a1a;margin-bottom:8px;">{$appName}</h2>
-            <p style="color:#555;margin-bottom:32px;">Hi {$name}, verify your email address.</p>
-            <div style="background:#f0faf7;border:2px dashed #007f7f;border-radius:10px;padding:24px;margin-bottom:32px;">
-              <p style="margin:0 0 6px;font-size:13px;color:#555;letter-spacing:1px;text-transform:uppercase;">Your verification code</p>
-              <span style="font-size:36px;font-weight:700;letter-spacing:10px;color:#007f7f;">{$otp}</span>
-            </div>
-            <p style="color:#888;font-size:13px;">This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
-            <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
-            <p style="color:#bbb;font-size:12px;">If you didn't create an account, you can safely ignore this email.</p>
-          </div>
-        </body>
-        </html>
-        HTML;
+    public function sendShipmentCreated(Shipment $shipment): bool
+    {
+        $user = $shipment->user;
+        if (!$user || !$user->email) return false;
+
+        $html = view('emails.shipment-created', [
+            'shipment'         => $shipment,
+            'customerName'     => $user->name ?? 'Valued Customer',
+            'trackingNumber'   => $shipment->serial_no,
+            'origin'           => $shipment->origin,
+            'destination'      => $shipment->destination,
+            'status'           => $shipment->status,
+            'weight'           => $shipment->weight,
+            'estimatedDelivery'=> $shipment->estimated_delivery,
+            'cost'             => $shipment->cost,
+            'trackingUrl'      => url("/track?serial_no={$shipment->serial_no}"),
+        ])->render();
+
+        return $this->send(
+            $user->email,
+            $user->name ?? 'Valued Customer',
+            "Shipment Confirmation - {$shipment->serial_no}",
+            $html
+        );
     }
 
-    private function otpText(string $name, string $otp): string
+    public function sendShipmentUpdated(Shipment $shipment, string $oldStatus, string $newStatus): bool
     {
-        $appName = config('app.name');
+        $user = $shipment->user;
+        if (!$user || !$user->email) return false;
 
-        return "Hi {$name},\n\nYour {$appName} verification code is: {$otp}\n\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIf you didn't create an account, ignore this email.";
+        $statusEmoji = match($newStatus) {
+            'Delivered'       => '✅',
+            'In Transit'      => '🚚',
+            'At Border'       => '📍',
+            'Cleared'         => '✓',
+            'Out for Delivery'=> '📦',
+            'Cancelled'       => '❌',
+            default           => '📋',
+        };
+
+        $html = view('emails.shipment-status-updated', [
+            'shipment'         => $shipment,
+            'customerName'     => $user->name ?? 'Valued Customer',
+            'trackingNumber'   => $shipment->serial_no,
+            'oldStatus'        => $oldStatus,
+            'newStatus'        => $newStatus,
+            'statusEmoji'      => $statusEmoji,
+            'origin'           => $shipment->origin,
+            'destination'      => $shipment->destination,
+            'estimatedDelivery'=> $shipment->estimated_delivery,
+            'trackingUrl'      => url("/track?serial_no={$shipment->serial_no}"),
+            'dashboardUrl'     => url("/dashboard"),
+        ])->render();
+
+        return $this->send(
+            $user->email,
+            $user->name ?? 'Valued Customer',
+            "Shipment Update - {$newStatus} - {$shipment->serial_no}",
+            $html
+        );
+    }
+
+    /* ─── Security Alert ───────────────────────────────────── */
+
+    public function sendSecurityAlert(string $toEmail, string $message, string $level): bool
+    {
+        $html = view('emails.security-alert', [
+            'message' => $message,
+            'level'   => $level,
+            'appName' => config('app.name'),
+        ])->render();
+
+        return $this->send(
+            $toEmail,
+            'Admin',
+            "[{$level}] " . config('app.name') . " Security Alert",
+            $html
+        );
     }
 }

@@ -60,7 +60,7 @@ class ImportCrmContactsCommand extends Command
                             'phone' => $phone,
                             'company_name' => $record['Business Name'] ?? null,
                             'crm_status' => $crm_status,
-                            'password' => Hash::make('temp_' . $phone),
+                            'password' => 'temp_' . $phone, // 'hashed' cast handles hashing automatically
                             'email_verified_at' => now(),
                             'phone_verified_at' => now(),
                             'internal_notes' => $this->formatNotes($record),

@@ -121,6 +121,7 @@
         background: var(--primary-green);
         color: white;
     }
+
 </style>
 @endsection
 
@@ -230,5 +231,11 @@
             @endforelse
         </tbody>
     </table>
+
+    @if($shipments->count() > 0)
+    <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid #f1f5f9; text-align: center;">
+        {{ $shipments->links('vendor.pagination.bootstrap-5') }}
+    </div>
+    @endif
 </div>
 @endsection

@@ -3,8 +3,8 @@
 // app/Http/Controllers/QuoteController.php
 namespace App\Http\Controllers;
 
+use App\Services\BrevoMailService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
 {
@@ -24,34 +24,29 @@ class QuoteController extends Controller
             'details' => 'nullable|string'
         ]);
         
-        // Prepare email content
         $serviceType = $this->getServiceTypeName($validated['service_type']);
         
-        $emailBody = "NEW QUOTE REQUEST - Forus Freight\n";
-        $emailBody .= "========================================\n\n";
-        $emailBody .= "Service Type: {$serviceType}\n";
-        $emailBody .= "Full Name: {$validated['full_name']}\n";
-        $emailBody .= "Company: " . ($validated['company'] ?? 'N/A') . "\n";
-        $emailBody .= "Email: {$validated['email']}\n";
-        $emailBody .= "Phone: {$validated['phone']}\n\n";
-        $emailBody .= "PICKUP & DELIVERY DETAILS\n";
-        $emailBody .= "-------------------------\n";
-        $emailBody .= "Pickup Location: {$validated['pickup']}\n";
-        $emailBody .= "Delivery Location: {$validated['delivery']}\n";
-        $emailBody .= "Weight: " . ($validated['weight'] ? $validated['weight'] . ' kg' : 'Not specified') . "\n";
-        $emailBody .= "Dimensions: " . ($validated['dimensions'] ?? 'Not specified') . "\n\n";
-        $emailBody .= "ADDITIONAL DETAILS\n";
-        $emailBody .= "------------------\n";
-        $emailBody .= ($validated['details'] ?? 'No additional details provided.') . "\n\n";
-        $emailBody .= "Submitted on: " . now()->format('Y-m-d H:i:s') . "\n";
+        $html = view('emails.quote-request', [
+            'serviceType'  => $serviceType,
+            'fullName'     => $validated['full_name'],
+            'company'      => $validated['company'] ?? '',
+            'email'        => $validated['email'],
+            'phone'        => $validated['phone'],
+            'pickup'       => $validated['pickup'],
+            'delivery'     => $validated['delivery'],
+            'weight'       => $validated['weight'] ?? '',
+            'dimensions'   => $validated['dimensions'] ?? '',
+            'details'      => $validated['details'] ?? '',
+            'submittedAt'  => now()->format('Y-m-d H:i:s'),
+        ])->render();
         
-        // Send email to info@forusfl.co.zm
         try {
-            Mail::raw($emailBody, function ($message) use ($validated, $serviceType) {
-                $message->from('noreply@forusfl.co.zm', 'Forus Freight Quotes')
-                        ->to('info@forusfl.co.zm')
-                        ->subject('New Quote Request - ' . $serviceType . ' from ' . $validated['full_name']);
-            });
+            app(BrevoMailService::class)->send(
+                'info@forusfl.co.zm',
+                'Forus Freight Quotes',
+                'New Quote Request - ' . $serviceType . ' from ' . $validated['full_name'],
+                $html
+            );
             
             return response()->json([
                 'success' => true,

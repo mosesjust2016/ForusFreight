@@ -1,8 +1,8 @@
 <?php
 
 use App\Services\SmsService;
-use App\Livewire\Actions\Logout;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -36,18 +36,24 @@ new #[Layout('layouts.guest')] class extends Component
     public function resend(): void
     {
         $user = Auth::user();
-        $otp = $user->generatePhoneOtp();
 
-        app(SmsService::class)->sendOtp($user->phone, $otp);
+        try {
+            $otp = $user->generatePhoneOtp();
+            $sent = app(SmsService::class)->sendOtp($user->phone, $otp);
+
+            if (!$sent) {
+                $this->addError('otp', 'Failed to send SMS verification code. Please try again or contact support.');
+                Log::error('VerifyPhone: OTP resend failed', ['user_id' => $user->id, 'phone' => $user->phone]);
+                return;
+            }
+        } catch (\Throwable $e) {
+            Log::error('VerifyPhone: exception resending OTP', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+            $this->addError('otp', 'Failed to send SMS verification code. Please try again or contact support.');
+            return;
+        }
 
         $this->resent = true;
         $this->otp = '';
-    }
-
-    public function logout(Logout $logout): void
-    {
-        $logout();
-        $this->redirect('/', navigate: true);
     }
 }; 
 ?>
@@ -59,12 +65,6 @@ new #[Layout('layouts.guest')] class extends Component
             Enter the 6-digit code sent to <strong>{{ Auth::user()->phone }}</strong>
         </p>
     </div>
-
-    @if (app()->environment('local'))
-        <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-2xl text-sm font-medium text-center">
-            🛠️ <strong>Dev Mode:</strong> Use <strong>123456</strong> to bypass SMS verification.
-        </div>
-    @endif
 
     @if ($resent)
         <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-sm font-medium text-center animate-fade-in flex items-center justify-center gap-3">
@@ -133,13 +133,6 @@ new #[Layout('layouts.guest')] class extends Component
                         <span x-show="timeLeft > 0" x-text="'Resend Code in ' + formattedTime"></span>
                     </span>
                     <span wire:loading wire:target="resend">Sending...</span>
-                </button>
-            </div>
-
-            <div class="text-center pt-4 border-t border-slate-100">
-                <button wire:click="logout" type="button" class="text-sm font-bold text-slate-400 hover:text-[rgb(255,98,0)] transition-colors">
-                    <i class="fas fa-sign-out-alt mr-1"></i>
-                    Log Out
                 </button>
             </div>
         </div>

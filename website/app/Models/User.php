@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Notifications\ResetPasswordNotification;
+use App\Services\BrevoMailService;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -200,10 +201,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $otp = (string) random_int(100000, 999999);
 
-        if (app()->environment('local')) {
-            $otp = '123456'; // dev bypass
-        }
-
         $this->forceFill([
             'phone_otp' => $otp,
             'phone_otp_expires_at' => Carbon::now()->addMinutes(10),
@@ -214,11 +211,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function verifyPhoneOtp(string $otp): bool
     {
-        if (app()->environment('local') && $otp === '123456') {
-            $this->markPhoneAsVerified();
-            return true;
-        }
-
         if (
             $this->phone_otp === $otp &&
             $this->phone_otp_expires_at &&
@@ -253,10 +245,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $otp = (string) random_int(100000, 999999);
 
-        if (app()->environment('local')) {
-            $otp = '654321'; // dev bypass
-        }
-
         $this->forceFill([
             'email_otp' => $otp,
             'email_otp_expires_at' => Carbon::now()->addMinutes(10),
@@ -267,11 +255,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function verifyEmailOtp(string $otp): bool
     {
-        if (app()->environment('local') && $otp === '654321') {
-            $this->markEmailAsVerified();
-            return true;
-        }
-
         if (
             $this->email_otp === $otp &&
             $this->email_otp_expires_at &&
@@ -330,14 +313,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Override MustVerifyEmail notification to use our custom OTP mail.
+     * Override to send email verification via BrevoMailService.
      */
     public function sendEmailVerificationNotification(): void
     {
         $otp = $this->generateEmailOtp();
+        app(BrevoMailService::class)->sendOtpEmail($this->email, $this->name, $otp);
+    }
 
-        // We'll send via a custom notification or direct mailable
-        // For now, log it locally and let the controller handle sending
-        Log::info("Email OTP for {$this->email}: {$otp}");
+    /**
+     * Send password reset notification via BrevoMailService instead of default SMTP.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

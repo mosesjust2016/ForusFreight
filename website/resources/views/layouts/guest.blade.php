@@ -15,6 +15,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
 
         <style>
             :root {
@@ -123,6 +124,83 @@
             .form-control::placeholder {
                 color: #94a3b8;
             }
+
+            select.form-control {
+                appearance: auto;
+                cursor: pointer;
+                background-image: none;
+                padding-right: 0.75rem;
+            }
+
+            /* Phone input group */
+            .phone-input-group {
+                border-radius: 12px;
+                border: 2px solid var(--tertiary);
+                overflow: hidden;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+                background: #fff;
+            }
+
+            .phone-input-group:focus-within {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 4px rgba(0, 127, 127, 0.1);
+            }
+
+            .phone-country-select {
+                border: none;
+                border-right: 2px solid var(--tertiary);
+                background: #f8fafc;
+                padding: 0.75rem 0.5rem 0.75rem 1rem;
+                font-size: 0.9375rem;
+                font-weight: 600;
+                color: #1e293b;
+                cursor: pointer;
+                outline: none;
+                min-width: 85px;
+                appearance: auto;
+                -webkit-appearance: auto;
+                -moz-appearance: auto;
+            }
+
+            .phone-country-select:focus {
+                outline: none;
+                box-shadow: none;
+            }
+
+            /* Override browser default blue on select focus */
+            select:focus,
+            select:-moz-focusring {
+                outline: none;
+                box-shadow: none;
+            }
+
+            /* WebKit/Blink: remove default blue highlight */
+            select::-webkit-focus-inner {
+                border: none;
+                padding: 0;
+            }
+
+            .phone-number-wrapper {
+                border: none !important;
+                border-radius: 0 !important;
+            }
+
+            .phone-number-input {
+                display: block;
+                width: 100%;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.9375rem;
+                line-height: 1.5;
+                color: #1e293b;
+                background: transparent;
+                outline: none;
+            }
+
+            .phone-number-input::placeholder {
+                color: #94a3b8;
+            }
         </style>
     </head>
     <body class="antialiased h-full">
@@ -189,5 +267,6 @@
                 </div>
             </div>
         </div>
+        @livewireScripts
     </body>
 </html>

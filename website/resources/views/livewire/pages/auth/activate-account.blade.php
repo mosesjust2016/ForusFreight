@@ -61,12 +61,6 @@
             </form>
 
         @elseif($step === 'phone')
-            @if (app()->environment('local'))
-                <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-2xl text-sm font-medium text-center">
-                    🛠️ <strong>Dev Mode:</strong> Use <strong>123456</strong> to bypass SMS verification.
-                </div>
-            @endif
-
             <form wire:submit="verifyPhone" class="space-y-6">
                 <div>
                     <label for="phone" class="block text-sm font-bold text-slate-700 mb-2">Phone Number</label>
@@ -133,12 +127,6 @@
             </form>
 
         @elseif($step === 'verify_email')
-            @if (app()->environment('local'))
-                <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-2xl text-sm font-medium text-center">
-                    🛠️ <strong>Dev Mode:</strong> Use <strong>654321</strong> to bypass email verification.
-                </div>
-            @endif
-
             <form wire:submit="verifyEmail" class="space-y-6">
                 <div>
                     <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Email</label>

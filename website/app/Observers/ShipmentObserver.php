@@ -4,32 +4,22 @@ namespace App\Observers;
 
 use App\Models\Shipment;
 use App\Models\TrackingEvent;
-use App\Mail\ShipmentCreatedNotification;
-use App\Mail\ShipmentStatusUpdatedNotification;
 use App\Services\BrevoMailService;
 use App\Services\SmsService;
-use Illuminate\Support\Facades\Mail;
 
 class ShipmentObserver
 {
-    /**
-     * Handle the Shipment "created" event.
-     */
     public function created(Shipment $shipment): void
     {
-        // Send email notification to customer (skip if no email)
-        if ($shipment->user && $shipment->user->email) {
-            try {
-                Mail::send(new ShipmentCreatedNotification($shipment));
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send shipment created email', [
-                    'shipment_id' => $shipment->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+        try {
+            app(BrevoMailService::class)->sendShipmentCreated($shipment);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send shipment created email', [
+                'shipment_id' => $shipment->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
-        // Create initial tracking event
         TrackingEvent::create([
             'shipment_id' => $shipment->id,
             'status' => $shipment->status,
@@ -39,17 +29,12 @@ class ShipmentObserver
         ]);
     }
 
-    /**
-     * Handle the Shipment "updated" event.
-     */
     public function updated(Shipment $shipment): void
     {
-        // Check if status changed
         if ($shipment->wasChanged('status')) {
             $oldStatus = $shipment->getOriginal('status');
             $newStatus = $shipment->status;
 
-            // Create tracking event for status change
             TrackingEvent::create([
                 'shipment_id' => $shipment->id,
                 'status' => $newStatus,
@@ -58,19 +43,15 @@ class ShipmentObserver
                 'event_time' => now(),
             ]);
 
-            // Send email notification to customer (skip if no email)
-            if ($shipment->user && $shipment->user->email) {
-                try {
-                    Mail::send(new ShipmentStatusUpdatedNotification($shipment, $oldStatus, $newStatus));
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Failed to send shipment status updated email', [
-                        'shipment_id' => $shipment->id,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
+            try {
+                app(BrevoMailService::class)->sendShipmentUpdated($shipment, $oldStatus, $newStatus);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send shipment status updated email', [
+                    'shipment_id' => $shipment->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
 
-            // Send SMS notification to customer (skip if no phone)
             if ($shipment->user && $shipment->user->phone) {
                 try {
                     $message = "Your Forus Freight shipment {$shipment->serial_no} has been {$newStatus}. Track: https://forusfreight.com/tracking";
@@ -85,12 +66,8 @@ class ShipmentObserver
         }
     }
 
-    /**
-     * Handle the Shipment "deleted" event.
-     */
     public function deleted(Shipment $shipment): void
     {
-        // Optionally log deletion
         \Illuminate\Support\Facades\Log::info('Shipment deleted', [
             'shipment_id' => $shipment->id,
             'serial_no' => $shipment->serial_no,

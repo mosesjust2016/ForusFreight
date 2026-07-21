@@ -107,6 +107,7 @@
         margin-bottom: 2rem;
         opacity: 0.6;
     }
+
 </style>
 @endsection
 
@@ -194,9 +195,9 @@
                 @endforeach
             </tbody>
         </table>
-        
-        <div style="margin-top: 2rem;">
-            {{ $shipments->links() }}
+
+        <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid #f1f5f9; text-align: center;">
+            {{ $shipments->links('vendor.pagination.bootstrap-5') }}
         </div>
     @else
         <div class="empty-state">

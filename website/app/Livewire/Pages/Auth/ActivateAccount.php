@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\SmsService;
 use App\Services\BrevoMailService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -89,8 +90,20 @@ class ActivateAccount extends Component
             $this->loadUser();
         }
 
-        $otp = $this->user->generatePhoneOtp();
-        app(SmsService::class)->sendOtp($this->user->phone, $otp);
+        try {
+            $otp = $this->user->generatePhoneOtp();
+            $sent = app(SmsService::class)->sendOtp($this->user->phone, $otp);
+
+            if (!$sent) {
+                $this->addError('otp', 'Failed to send SMS verification code. Please try again or contact support.');
+                Log::error('ActivateAccount: SMS OTP send failed', ['user_id' => $this->user->id, 'phone' => $this->user->phone]);
+                return;
+            }
+        } catch (\Throwable $e) {
+            Log::error('ActivateAccount: exception sending SMS OTP', ['user_id' => $this->user->id, 'error' => $e->getMessage()]);
+            $this->addError('otp', 'Failed to send SMS verification code. Please try again or contact support.');
+            return;
+        }
 
         $this->resent = true;
         $this->otp = '';
@@ -106,8 +119,20 @@ class ActivateAccount extends Component
             'email' => $this->email,
         ]);
 
-        $emailOtp = $this->user->generateEmailOtp();
-        app(BrevoMailService::class)->sendOtpEmail($this->user->email, $this->user->name, $emailOtp);
+        try {
+            $emailOtp = $this->user->generateEmailOtp();
+            $sent = app(BrevoMailService::class)->sendOtpEmail($this->user->email, $this->user->name, $emailOtp);
+
+            if (!$sent) {
+                $this->addError('email', 'Failed to send email verification code. Please try again or contact support.');
+                Log::error('ActivateAccount: email OTP send failed', ['user_id' => $this->user->id, 'email' => $this->user->email]);
+                return;
+            }
+        } catch (\Throwable $e) {
+            Log::error('ActivateAccount: exception sending email OTP', ['user_id' => $this->user->id, 'error' => $e->getMessage()]);
+            $this->addError('email', 'Failed to send email verification code. Please try again or contact support.');
+            return;
+        }
 
         $this->step = 'verify_email';
         session()->flash('email_sent', 'Verification code sent to your email.');
@@ -133,8 +158,20 @@ class ActivateAccount extends Component
 
     public function resendEmailOtp(): void
     {
-        $otp = $this->user->generateEmailOtp();
-        app(BrevoMailService::class)->sendOtpEmail($this->user->email, $this->user->name, $otp);
+        try {
+            $otp = $this->user->generateEmailOtp();
+            $sent = app(BrevoMailService::class)->sendOtpEmail($this->user->email, $this->user->name, $otp);
+
+            if (!$sent) {
+                $this->addError('email_otp', 'Failed to send email verification code. Please try again or contact support.');
+                Log::error('ActivateAccount: email OTP resend failed', ['user_id' => $this->user->id, 'email' => $this->user->email]);
+                return;
+            }
+        } catch (\Throwable $e) {
+            Log::error('ActivateAccount: exception resending email OTP', ['user_id' => $this->user->id, 'error' => $e->getMessage()]);
+            $this->addError('email_otp', 'Failed to send email verification code. Please try again or contact support.');
+            return;
+        }
 
         $this->resent = true;
         $this->email_otp = '';

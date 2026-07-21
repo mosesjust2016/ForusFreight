@@ -2,10 +2,9 @@
 
 use App\Models\PhoneCountry;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use App\Services\BrevoMailService;
 use App\Services\SmsService;
@@ -16,6 +15,7 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public string $name = '';
     public string $email = '';
+    public string $phone_country = '260';
     public string $phone = '';
     public string $password = '';
     public string $password_confirmation = '';
@@ -26,6 +26,13 @@ new #[Layout('layouts.guest')] class extends Component
         $activeCountries = PhoneCountry::where('is_active', true)->get();
         $phoneRegex      = 'regex:/^\+?(' . $activeCountries->pluck('dial_code')->join('|') . ')\d{7,12}$/';
         $countryNames    = $activeCountries->map(fn($c) => "{$c->name} (+{$c->dial_code})")->join(', ');
+
+        // Combine country code + local number into full phone BEFORE validation
+        $fullPhone = '+' . $this->phone_country . ltrim($this->phone, '0');
+
+        // Temporarily set phone to the combined number for validation
+        $originalPhone = $this->phone;
+        $this->phone = $fullPhone;
 
         $validated = $this->validate([
             'name'        => ['required', 'string', 'max:255'],
@@ -38,24 +45,66 @@ new #[Layout('layouts.guest')] class extends Component
             'phone.regex'          => "Only mobile numbers from the following countries are accepted: {$countryNames}.",
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        // Restore the local number so the form field doesn't show the full number
+        $this->phone = $originalPhone;
 
-        $user = User::create(Arr::except($validated, ['agree_terms']));
+        // Ensure the stored phone has the full prefix
+        $validated['phone'] = $fullPhone;
+
+        // Note: Password is NOT hashed here — the 'hashed' cast on the User model
+        // handles hashing automatically when the attribute is set.
+
+        try {
+            $user = User::create(Arr::except($validated, ['agree_terms']));
+        } catch (\Throwable $e) {
+            Log::error('Registration failed: could not create user', [
+                'email' => $validated['email'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            $this->addError('form', 'Registration failed. Please try again.');
+            return;
+        }
 
         // Generate & send email OTP via Brevo
-        $emailOtp = $user->generateEmailOtp();
-        app(BrevoMailService::class)->sendOtpEmail($user->email, $user->name, $emailOtp);
+        $emailOtpSent = false;
+        try {
+            $emailOtp = $user->generateEmailOtp();
+            $emailOtpSent = app(BrevoMailService::class)->sendOtpEmail($user->email, $user->name, $emailOtp);
+        } catch (\Throwable $e) {
+            Log::error('Registration: failed to send email OTP', [
+                'user_id' => $user->id,
+                'email'   => $user->email,
+                'error'   => $e->getMessage(),
+            ]);
+        }
 
-        // Generate & send phone OTP
-        $phoneOtp = $user->generatePhoneOtp();
-        app(SmsService::class)->sendOtp($user->phone, $phoneOtp);
-
-        event(new Registered($user));
+        // Generate & send phone OTP via SMS
+        $phoneOtpSent = false;
+        try {
+            $phoneOtp = $user->generatePhoneOtp();
+            $phoneOtpSent = app(SmsService::class)->sendOtp($user->phone, $phoneOtp);
+        } catch (\Throwable $e) {
+            Log::error('Registration: failed to send phone OTP', [
+                'user_id' => $user->id,
+                'phone'   => $user->phone,
+                'error'   => $e->getMessage(),
+            ]);
+        }
 
         // Auto-login so they can access verification pages
         Auth::login($user);
 
-        session()->flash('success', 'Account created! Please verify your email and phone number.');
+        // Warn the user if OTPs could not be delivered
+        if (!$emailOtpSent && !$phoneOtpSent) {
+            session()->flash('warning', 'Account created, but we could not send verification codes to your email or phone. Please contact support.');
+        } elseif (!$emailOtpSent) {
+            session()->flash('warning', 'Account created, but we could not send the email verification code. Please check your phone for the SMS code, or contact support.');
+        } elseif (!$phoneOtpSent) {
+            session()->flash('warning', 'Account created, but we could not send the SMS verification code. Please check your email for the verification code, or contact support.');
+        } else {
+            session()->flash('success', 'Account created! Please verify your email and phone number.');
+        }
+
         $this->redirect(route('verification.notice'), navigate: true);
     }
 }; 
@@ -73,6 +122,20 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-sm font-medium text-center animate-fade-in">
             <i class="fas fa-check-circle mr-2"></i>
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session()->has('warning'))
+        <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-2xl text-sm font-medium text-center animate-fade-in">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if ($errors->has('form'))
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-2xl text-sm font-medium text-center animate-fade-in">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            {{ $errors->first('form') }}
         </div>
     @endif
 
@@ -106,15 +169,24 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Phone -->
             <div>
                 <label for="phone" class="block text-sm font-bold text-slate-700 mb-2">Mobile Number</label>
-                <div class="input-wrapper">
-                    <span class="input-icon"><i class="fas fa-mobile-screen"></i></span>
-                    <input wire:model="phone" id="phone"
-                        class="form-control has-icon"
-                        type="tel" name="phone" required autocomplete="tel" placeholder="+260961234567" />
+                <div class="flex items-stretch gap-0 phone-input-group">
+                    <select wire:model="phone_country" id="phone_country"
+                        class="phone-country-select">
+                        @foreach(\App\Models\PhoneCountry::where('is_active', true)->get() as $country)
+                            <option value="{{ $country->dial_code }}" {{ $phone_country === $country->dial_code ? 'selected' : '' }}>
+                                +{{ $country->dial_code }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="input-wrapper flex-1 phone-number-wrapper">
+                        <input wire:model="phone" id="phone"
+                            class="phone-number-input"
+                            type="tel" name="phone" required autocomplete="tel"
+                            placeholder="96 123 4567" />
+                    </div>
                 </div>
                 <p class="mt-1 text-xs text-slate-400">
-                    Accepted countries:
-                    {{ \App\Models\PhoneCountry::where('is_active', true)->get()->map(fn($c) => "{$c->name} (+{$c->dial_code})")->join(', ') }}
+                    Enter your number without the country code
                 </p>
                 <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>

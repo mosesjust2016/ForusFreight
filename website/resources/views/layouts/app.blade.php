@@ -706,6 +706,7 @@
     </style>
 
     @yield('styles')
+    @livewireStyles
 </head>
 <body>
 
@@ -967,5 +968,6 @@
     </script>
 
     @yield('scripts')
+    @livewireScripts
 </body>
 </html>
