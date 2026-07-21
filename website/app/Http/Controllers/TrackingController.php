@@ -63,12 +63,19 @@ class TrackingController extends Controller
             return redirect()->route('login');
         }
 
+        $user = Auth::user();
         $shipment = Shipment::where('serial_no', $serial_no)
             ->with('trackingEvents')
             ->first();
 
         if (!$shipment) {
             return redirect()->route('track')->with('error', 'Serial number not found.');
+        }
+
+        // Verify the user owns this shipment (or is admin)
+        if (!$user->is_admin && $shipment->user_id !== $user->id) {
+            return redirect()->route('client.shipments')
+                ->with('error', 'You do not have permission to view this shipment.');
         }
 
         // Clear the tracking attempt from session
