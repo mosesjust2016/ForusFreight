@@ -124,11 +124,11 @@ class GreenApiService
     }
 
     /**
-     * Get the QR code URL for initial account authorization.
+     * Get the QR code for initial account authorization.
      *
-     * Green API provides a direct web page at qr.green-api.com that renders
-     * the QR code automatically and refreshes it. We return that URL so the
-     * frontend can show it in an iframe or link.
+     * Calls Green API's /qr/ endpoint, which returns a base64-encoded PNG.
+     * The QR is only issued while the instance is in the "notAuthorized"
+     * state — an already-authorized instance must be logged out first.
      *
      * @return array ['success' => bool, 'qr' => ?string, 'message' => string]
      */
@@ -138,14 +138,38 @@ class GreenApiService
             return ['success' => false, 'qr' => null, 'message' => 'Green API not configured.'];
         }
 
-        // Direct QR page provided by Green API
-        $qrUrl = "https://qr.green-api.com/{$this->instanceId}/{$this->token}";
+        $url = "{$this->baseUrl}/{$this->instanceId}/qr/{$this->token}";
 
-        return [
-            'success' => true,
-            'qr'      => $qrUrl,
-            'message' => 'Open the QR page and scan with WhatsApp Business to authorize.',
-        ];
+        try {
+            $response = Http::timeout(20)->get($url);
+            $body = $response->json();
+
+            if (!$response->successful() || !isset($body['type'])) {
+                Log::error('Green API getQrCode error', ['status' => $response->status(), 'body' => $body]);
+                return ['success' => false, 'qr' => null, 'message' => 'Failed to retrieve QR code.'];
+            }
+
+            return match ($body['type']) {
+                'qrCode' => [
+                    'success' => true,
+                    'qr'      => 'data:image/png;base64,' . $body['message'],
+                    'message' => 'Scan this QR code with WhatsApp Business to authorize.',
+                ],
+                'alreadyLogged' => [
+                    'success' => false,
+                    'qr'      => null,
+                    'message' => 'This instance is already authorized. Logout first to request a new QR code.',
+                ],
+                default => [
+                    'success' => false,
+                    'qr'      => null,
+                    'message' => $body['message'] ?? 'Failed to retrieve QR code.',
+                ],
+            };
+        } catch (\Exception $e) {
+            Log::error('Green API getQrCode exception: ' . $e->getMessage());
+            return ['success' => false, 'qr' => null, 'message' => $e->getMessage()];
+        }
     }
 
     /**
@@ -218,7 +242,7 @@ class GreenApiService
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'phoneNumber' => str_replace('@c.us', '', $phone),
+                'phoneNumber' => (int) str_replace('@c.us', '', $phone),
             ]);
 
             $body = $response->json();
