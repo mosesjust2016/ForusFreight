@@ -14,20 +14,20 @@ class TrackingController extends Controller
      */
     public function show(Request $request)
     {
-        // Check if serial_no is in query string
-        $serialNo = $request->query('serial_no') ?? session('tracking_attempt');
-        
+        // Check if tracking_number is in query string
+        $trackingNumber = $request->query('tracking_number') ?? session('tracking_attempt');
+
         // If user is authenticated and has a tracking attempt, show their shipment
-        if (Auth::check() && $serialNo) {
-            $shipment = Shipment::where('serial_no', $serialNo)
+        if (Auth::check() && $trackingNumber) {
+            $shipment = Shipment::where('tracking_number', $trackingNumber)
                 ->with('trackingEvents')
                 ->first();
-                
+
             if ($shipment) {
                 return view('tracking', compact('shipment'));
             }
         }
-        
+
         return view('tracking');
     }
 
@@ -37,17 +37,17 @@ class TrackingController extends Controller
     public function check(Request $request)
     {
         $request->validate([
-            'serial_no' => 'required|string|min:3'
+            'tracking_number' => 'required|string|min:3'
         ]);
 
-        $serialNo = $request->serial_no;
+        $trackingNumber = $request->tracking_number;
 
-        $shipment = Shipment::where('serial_no', $serialNo)
+        $shipment = Shipment::where('tracking_number', $trackingNumber)
             ->with('trackingEvents')
             ->first();
 
         if (!$shipment) {
-            return back()->with('error', 'Serial number not found. Please check and try again.')
+            return back()->with('error', 'Tracking number not found. Please check and try again.')
                 ->withInput();
         }
 
@@ -57,19 +57,19 @@ class TrackingController extends Controller
     /**
      * Show individual tracking details (protected)
      */
-    public function showTracking($serial_no)
+    public function showTracking($tracking_number)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
-        $shipment = Shipment::where('serial_no', $serial_no)
+        $shipment = Shipment::where('tracking_number', $tracking_number)
             ->with('trackingEvents')
             ->first();
 
         if (!$shipment) {
-            return redirect()->route('track')->with('error', 'Serial number not found.');
+            return redirect()->route('track')->with('error', 'Tracking number not found.');
         }
 
         // Verify the user owns this shipment (or is admin)
