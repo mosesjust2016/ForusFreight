@@ -98,7 +98,7 @@
             </div>
             <div class="detail-item">
                 <div class="detail-label">Annual Revenue</div>
-                <div class="detail-value">{{ $company->annual_revenue ? number_format($company->annual_revenue, 2) . ' ZMW' : 'N/A' }}</div>
+                <div class="detail-value">{{ $company->annual_revenue ? usd($company->annual_revenue) : 'N/A' }}</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Employees</div>

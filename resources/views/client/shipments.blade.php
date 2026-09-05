@@ -184,7 +184,7 @@
                         @endif
                     </td>
                     <td>
-                        <span style="font-weight: 800; color: #1e293b;">ZMW {{ number_format($shipment->cost, 2) }}</span>
+                        <span style="font-weight: 800; color: #1e293b;">{{ usd($shipment->cost) }}</span>
                     </td>
                     <td style="text-align: right;">
                         <a href="{{ route('tracking.show', $shipment->serial_no) }}" class="action-btn" title="Track Shipment">

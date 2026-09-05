@@ -29,11 +29,11 @@
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
     <div class="stat-card">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Won Revenue (YTD)</div>
-        <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary-green);">{{ number_format($wonRevenue, 2) }} ZMW</div>
+        <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary-green);">{{ usd($wonRevenue) }}</div>
     </div>
     <div class="stat-card">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Open Pipeline</div>
-        <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-dark);">{{ number_format($pipelineTotal, 2) }} ZMW</div>
+        <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-dark);">{{ usd($pipelineTotal) }}</div>
     </div>
     <div class="stat-card">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Forecast Accuracy</div>
@@ -59,8 +59,8 @@
             <tr class="forecast-row">
                 <td style="font-weight: 800; color: var(--text-dark);">{{ $month['month'] }}</td>
                 <td style="font-weight: 700; color: #475569;">{{ $month['deal_count'] }}</td>
-                <td style="font-weight: 700; color: #475569;">{{ number_format($month['total_value'], 2) }} ZMW</td>
-                <td style="font-weight: 900; color: var(--primary-green);">{{ number_format($month['weighted_forecast'], 2) }} ZMW</td>
+                <td style="font-weight: 700; color: #475569;">{{ usd($month['total_value']) }}</td>
+                <td style="font-weight: 900; color: var(--primary-green);">{{ usd($month['weighted_forecast']) }}</td>
                 <td style="width: 150px;">
                     @php $confidence = $month['total_value'] > 0 ? round(($month['weighted_forecast'] / $month['total_value']) * 100) : 0; @endphp
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -93,7 +93,7 @@
             <tr class="agent-row">
                 <td style="font-weight: 800; color: var(--text-dark);">{{ $agent->name }}</td>
                 <td style="font-weight: 700; color: #475569;">{{ $agent->assigned_deals_count ?? 0 }}</td>
-                <td style="font-weight: 900; color: var(--text-dark);">{{ number_format($agent->total_pipeline ?? 0, 2) }} ZMW</td>
+                <td style="font-weight: 900; color: var(--text-dark);">{{ usd($agent->total_pipeline ?? 0) }}</td>
                 <td style="width: 200px;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <div class="progress-bar" style="flex-grow: 1;">

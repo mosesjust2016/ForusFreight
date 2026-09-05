@@ -111,7 +111,7 @@
     </div>
     <div class="balance-card">
         <p style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Total Outstanding</p>
-        <h3 style="font-size: 1.75rem; font-weight: 900; color: #ef4444;">ZMW {{ number_format($invoices->where('status', 'Pending')->sum('amount'), 2) }}</h3>
+        <h3 style="font-size: 1.75rem; font-weight: 900; color: #ef4444;">{{ usd($invoices->where('status', 'Pending')->sum('amount')) }}</h3>
     </div>
 </div>
 
@@ -140,7 +140,7 @@
                         <span style="color: #cbd5e1;">N/A</span>
                     @endif
                 </td>
-                <td style="font-weight: 800; font-size: 1rem;">ZMW {{ number_format($invoice->amount, 2) }}</td>
+                <td style="font-weight: 800; font-size: 1rem;">{{ usd($invoice->amount) }}</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 0.5rem; color: {{ $invoice->due_date->isPast() && $invoice->status == 'Pending' ? '#ef4444' : '#64748b' }}">
                         <i class="far fa-calendar-alt"></i>

@@ -231,7 +231,7 @@
         <h2 class="section-title"><i class="fas fa-wallet" style="color: #f59e0b;"></i> Financial Summary</h2>
         <div class="detail-item">
             <div class="detail-label">Lifetime Spend</div>
-            <div class="detail-value" style="font-size: 1.5rem; font-weight: 900;">{{ number_format($shipments->sum('total_charge'), 2) }} ZMW</div>
+            <div class="detail-value" style="font-size: 1.5rem; font-weight: 900;">{{ usd($shipments->sum('total_charge')) }}</div>
         </div>
         <div class="detail-item">
             <div class="detail-label">Last Transaction</div>

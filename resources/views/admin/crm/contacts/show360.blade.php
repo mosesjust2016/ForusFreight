@@ -47,7 +47,7 @@
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
     <div class="info-card" style="text-align: center;">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Lifetime Value</div>
-        <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-dark);">{{ number_format($lifetimeValue, 2) }} ZMW</div>
+        <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-dark);">{{ usd($lifetimeValue) }}</div>
     </div>
     <div class="info-card" style="text-align: center;">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Shipments</div>

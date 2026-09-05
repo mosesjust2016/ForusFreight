@@ -39,7 +39,7 @@
     @foreach($pipelineStats as $stat)
     <div class="stage-card" style="--stage-color: {{ $stat['color'] }};">
         <div class="stage-name">{{ $stat['name'] }}</div>
-        <div class="stage-meta">{{ $stat['count'] }} Deals &middot; {{ number_format($stat['value'], 2) }} ZMW</div>
+        <div class="stage-meta">{{ $stat['count'] }} Deals &middot; {{ usd($stat['value']) }}</div>
     </div>
     @endforeach
 </div>

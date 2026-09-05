@@ -206,7 +206,7 @@
                     </td>
                     <td>
                         <div style="font-size: 1rem; font-weight: 900; color: var(--text-dark);">
-                            {{ number_format($shipment->cost ?? 0, 2) }} ZMW
+                            {{ usd($shipment->cost ?? 0) }}
                         </div>
                         <div style="font-size: 0.7rem; color: var(--text-gray); font-weight: 800; text-transform: uppercase;">
                             ETA: {{ $shipment->estimated_delivery ? $shipment->estimated_delivery->format('M d') : 'TBD' }}

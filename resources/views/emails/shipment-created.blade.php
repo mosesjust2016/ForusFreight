@@ -61,7 +61,7 @@
                 @if($cost)
                 <div class="detail">
                     <strong>Cost:</strong>
-                    <span>ZMW {{ number_format($cost, 2) }}</span>
+                    <span>{{ usd($cost) }}</span>
                 </div>
                 @endif
             </div>

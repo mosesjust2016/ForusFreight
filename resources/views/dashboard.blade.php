@@ -420,7 +420,7 @@
             </div>
             <div class="stat-info">
                 <p>Total Paid</p>
-                <h3>ZMW {{ number_format($stats['total_spent'], 2) }}</h3>
+                <h3>{{ usd($stats['total_spent']) }}</h3>
             </div>
         </div>
         <div class="stat-card">
@@ -494,7 +494,7 @@
                 <div class="payment-card">
                     <div class="payment-header">
                         <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">{{ $payment->invoice_number }}</span>
-                        <span class="payment-amount">ZMW {{ number_format($payment->amount, 2) }}</span>
+                        <span class="payment-amount">{{ usd($payment->amount) }}</span>
                     </div>
                     <p style="font-size: 0.85rem; color: #475569; margin: 0.5rem 0;">Shipment: {{ $payment->shipment->serial_no }}</p>
                     <span class="payment-date">Due: {{ $payment->due_date->format('M d, Y') }}</span>

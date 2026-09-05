@@ -23,6 +23,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('whatsapp:poll-incoming')->everyMinute();
         $schedule->command('whatsapp:resolve-ab-winners')->everyFifteenMinutes();
         $schedule->command('whatsapp:check-campaign-alerts')->everyTenMinutes();
+
+        // Keeps the USD conversion used across the app current — see usd()
+        // in app/helpers.php.
+        $schedule->command('exchange-rate:sync')->dailyAt('07:00');
     }
 
     /**

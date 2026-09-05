@@ -318,7 +318,7 @@
                         @php
                             $totalSpent = $client->shipments->sum('total_charge');
                         @endphp
-                        <div style="font-weight: 900; color: var(--text-dark);">{{ number_format($totalSpent, 2) }} ZMW</div>
+                        <div style="font-weight: 900; color: var(--text-dark);">{{ usd($totalSpent) }}</div>
                         <div style="font-size: 0.7rem; color: var(--text-gray); font-weight: 700;">LIFETIME VALUE</div>
                     </td>
                     <td>
@@ -365,7 +365,7 @@
                                     </div>
                                     <div class="crm-stat">
                                         <span>Limit</span>
-                                        <span style="font-weight: 800;">{{ number_format($client->credit_limit, 0) }} ZMW</span>
+                                        <span style="font-weight: 800;">{{ usd($client->credit_limit) }}</span>
                                     </div>
                                     <button onclick="unlockCRM('{{ $client->id }}')" class="crm-unlock-btn">
                                         <i class="fas fa-lock-open"></i> UNLOCK CRM
