@@ -70,7 +70,7 @@
 </div>
 
 <!-- Deals List -->
-<div style="background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow);">
+<div style="background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); overflow-x: auto;">
     <table style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="text-align: left; border-bottom: 2px solid #f8fafc;">

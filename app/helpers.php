@@ -14,9 +14,9 @@ if (! function_exists('usd')) {
         $rate = ExchangeRate::latestMidRate();
 
         if (! $rate) {
-            return 'ZMW ' . number_format($zmwAmount, $decimals);
+            return 'ZMW '.number_format($zmwAmount, $decimals);
         }
 
-        return '$' . number_format($zmwAmount / $rate, $decimals);
+        return '$'.number_format($zmwAmount / $rate, $decimals);
     }
 }

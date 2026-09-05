@@ -15,12 +15,14 @@ class SyncExchangeRate extends Command
     {
         $rate = $service->sync();
 
-        if (!$rate) {
+        if (! $rate) {
             $this->error('Failed to fetch exchange rate from BOZ.');
+
             return self::FAILURE;
         }
 
         $this->info("Synced: 1 USD = {$rate->mid_rate} ZMW (BOZ, recorded {$rate->recorded_at}).");
+
         return self::SUCCESS;
     }
 }

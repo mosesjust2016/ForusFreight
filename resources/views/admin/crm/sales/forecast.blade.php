@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .crm-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); }
+    .crm-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); overflow-x: auto; }
     .stat-card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); text-align: center; }
     .forecast-row td { padding: 1.25rem 1rem; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
     .progress-bar { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
@@ -12,6 +12,13 @@
     .agent-row { transition: all 0.2s; }
     .agent-row:hover { background: #fcfdfe; }
     .agent-row td { padding: 1.25rem 1rem; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
 </style>
 @endsection
 

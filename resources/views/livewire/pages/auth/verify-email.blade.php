@@ -3,6 +3,7 @@
 use App\Services\BrevoMailService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -44,6 +45,15 @@ new #[Layout('layouts.guest')] class extends Component
     public function resend(): void
     {
         $user = Auth::user();
+        $key = 'email-otp-resend:'.$user->id;
+
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            $seconds = RateLimiter::availableIn($key);
+            $this->addError('otp', "Please wait {$seconds} seconds before requesting another code.");
+            return;
+        }
+
+        RateLimiter::hit($key, 180);
 
         try {
             $otp = $user->generateEmailOtp();

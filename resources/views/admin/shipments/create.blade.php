@@ -174,7 +174,7 @@
                 <option value="">— Select a client —</option>
                 @foreach($clients as $client)
                     <option value="{{ $client->id }}" {{ old('user_id') == $client->id ? 'selected' : '' }}>
-                        {{ $client->name }} ({{ $client->email }})
+                        {{ $client->name }} ({{ $client->email ?: 'no email on file' }})
                     </option>
                 @endforeach
             </select>

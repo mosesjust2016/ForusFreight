@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .crm-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); }
+    .crm-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); overflow-x: auto; }
     .lead-row { transition: all 0.2s; }
     .lead-row:hover { background: #fcfdfe; }
     .lead-row td { padding: 1.25rem 1rem; border-top: 1px solid #f8fafc; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
