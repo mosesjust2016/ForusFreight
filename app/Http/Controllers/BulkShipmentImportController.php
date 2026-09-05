@@ -39,6 +39,8 @@ class BulkShipmentImportController extends Controller
         'no_of_parcels' => ['parcel quantity', 'quantity', 'no of parcels'],
         'gross_weight' => ['weight (kg)', 'weight'],
         'cost' => ['cost (zmw)', 'cost'],
+        'cbm_volume' => ['cbm', 'cbm volume', 'volume'],
+        'client_phone' => ['phone', 'client phone', 'phone number'],
     ];
 
     private const REQUIRED_SHIPMENT_FIELDS = ['tracking_number', 'client_name', 'origin', 'destination'];
