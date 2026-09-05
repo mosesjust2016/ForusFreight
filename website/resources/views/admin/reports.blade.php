@@ -51,6 +51,8 @@
         box-shadow: var(--shadow);
         border: 1px solid #f1f5f9;
         margin-bottom: 2.5rem;
+        position: relative;
+        min-width: 0;
     }
 
     .log-table {
@@ -80,6 +82,14 @@
         font-size: 0.7rem;
         font-weight: 800;
         text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+        .report-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+        .report-grid { grid-template-columns: 1fr; }
     }
 </style>
 @endsection
@@ -132,6 +142,7 @@
 
 <div class="chart-container">
     <h3 style="font-weight: 800; margin-bottom: 2rem;">Global Communication Activity (Recent)</h3>
+    <div style="overflow-x: auto;">
     <table class="log-table">
         <tbody>
             @foreach($recentLogs as $log)
@@ -154,6 +165,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
 </div>
 
 <script>

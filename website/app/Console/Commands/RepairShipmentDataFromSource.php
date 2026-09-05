@@ -126,7 +126,7 @@ class RepairShipmentDataFromSource extends Command
             if (!$dryRun) {
                 $user = User::where('name', $row['client'])->first() ?? User::create([
                     'name' => $row['client'],
-                    'email' => strtolower(str_replace(' ', '.', $row['client'])) . '@client.local',
+                    'email' => null,
                     'password' => 'temp' . uniqid(),
                     'is_admin' => false,
                 ]);

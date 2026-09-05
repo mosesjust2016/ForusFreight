@@ -124,7 +124,7 @@
                 <select name="user_id" class="form-control" required>
                     <option value="">Select a client...</option>
                     @foreach($clients as $client)
-                        <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->email }})</option>
+                        <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->email ?: 'no email on file' }})</option>
                     @endforeach
                 </select>
                 @error('user_id')<p style="color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror

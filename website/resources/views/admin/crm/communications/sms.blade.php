@@ -29,6 +29,14 @@
     .results-success { background: #f0fdf4; color: #16a34a; }
     .results-warning { background: #fff8e1; color: #f59e0b; }
     .results-error { background: #fef2f2; color: #ef4444; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+        div[style*="grid-template-columns: 1fr 340px"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
 </style>
 @endsection
 
@@ -138,7 +146,7 @@
     </div>
 
     <!-- Right: Contact List -->
-    <div class="crm-grid" style="max-height: 700px; overflow-y: auto; padding: 1.5rem;">
+    <div class="crm-grid" style="max-height: 700px; overflow-y: auto; overflow-x: auto; padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="font-size: 1rem; font-weight: 800;">Contacts <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">(Page {{ $contacts->currentPage() }} of {{ $contacts->lastPage() }} — {{ $contacts->total() }} total)</span></h3>
             <div style="display: flex; gap: 0.5rem;">
