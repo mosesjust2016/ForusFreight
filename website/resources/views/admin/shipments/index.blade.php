@@ -201,7 +201,7 @@
                         <div style="font-weight: 800; color: var(--text-dark); font-size: 0.9rem;">{{ $shipment->destination }}</div>
                     </td>
                     <td>
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-dark);">{{ $shipment->service ?? 'General Cargo' }}</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-dark);">{{ $shipment->description ?: ($shipment->service ?: 'General Cargo') }}</div>
                         <div style="font-size: 0.75rem; color: var(--text-gray); font-weight: 600;">{{ $shipment->border_status ? 'Border: ' . $shipment->border_status : 'No border update' }}</div>
                     </td>
                     <td>
