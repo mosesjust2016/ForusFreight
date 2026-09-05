@@ -23,11 +23,29 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('shipments'));
     }
 
-    public function shipments()
+    public function shipments(Request $request)
     {
-        $shipments = Shipment::with('user')->latest()->paginate(20);
+        $search = trim((string) $request->query('search', ''));
 
-        return view('admin.shipments.index', compact('shipments'));
+        $query = Shipment::with('user')->latest();
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('tracking_number', 'like', "%{$search}%")
+                    ->orWhere('serial_no', 'like', "%{$search}%")
+                    ->orWhere('client_name', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $stats = [
+            'active' => (clone $query)->where('status', 'In Transit')->count(),
+            'total' => (clone $query)->count(),
+        ];
+
+        $shipments = $query->paginate(20)->withQueryString();
+
+        return view('admin.shipments.index', compact('shipments', 'search', 'stats'));
     }
 
     public function createShipment()
