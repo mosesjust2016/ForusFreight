@@ -10,7 +10,7 @@ class TrackingEvent extends Model
     use HasFactory;
 
     protected $fillable = [
-        'shipment_id', 'location', 'description', 'status', 'latitude', 'longitude', 'event_time'
+        'shipment_id', 'location', 'description', 'status', 'latitude', 'longitude', 'event_time', 'sequence'
     ];
 
     protected $casts = [

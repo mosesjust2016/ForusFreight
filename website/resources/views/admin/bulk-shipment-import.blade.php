@@ -74,52 +74,110 @@
 <!-- Instructions -->
 <div class="import-card">
     <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1rem;">File Format Requirements</h3>
+    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+        Columns are matched by <strong>header name</strong>, not position — so the order of columns in your
+        file doesn't matter, as long as the header row uses (or closely matches) the names below.
+        Re-uploading a file with a <strong>Tracking Number</strong> that already exists updates that shipment
+        instead of creating a duplicate.
+    </p>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
         <div>
-            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.5rem;">Required Fields</h4>
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.5rem;">Required Columns</h4>
             <ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #475569; line-height: 1.8;">
-                <li>✓ Client Name</li>
                 <li>✓ Tracking Number</li>
+                <li>✓ Client Name</li>
                 <li>✓ Origin</li>
                 <li>✓ Destination</li>
-                <li style="color: #94a3b8; margin-top: 0.5rem; border-top: 1px solid #f1f5f9; padding-top: 0.5rem;">Optional Fields:</li>
-                <li>○ Serial Number</li>
-                <li>○ Cargo Type</li>
-                <li>○ Weight (KG)</li>
-                <li>○ Quantity</li>
-                <li>○ Status</li>
-                <li>○ Cost (ZMW)</li>
-                <li>○ Estimated Delivery (DD/MM/YYYY)</li>
-                <li>○ Driver</li>
-                <li>○ Vehicle Registration</li>
-                <li>○ Cargo Images</li>
             </ul>
         </div>
         <div>
-            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.5rem;">Column Sequence</h4>
-            <table style="font-size: 0.75rem; width: 100%; border-collapse: collapse;">
-                <tr style="border-bottom: 1px solid #f1f5f9; background: #f8fafc;">
-                    <td style="padding: 0.4rem 0.5rem; color: #94a3b8; font-weight: 700;">Col</td>
-                    <td style="padding: 0.4rem 0.5rem; color: #94a3b8; font-weight: 700;">Field</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">1</td><td style="padding: 0.4rem 0.5rem;"><strong>Client Name</strong></td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">2</td><td style="padding: 0.4rem 0.5rem;"><strong>Tracking Number</strong></td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">3</td><td style="padding: 0.4rem 0.5rem;">Serial Number</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">4</td><td style="padding: 0.4rem 0.5rem;"><strong>Origin</strong></td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">5</td><td style="padding: 0.4rem 0.5rem;"><strong>Destination</strong></td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">6</td><td style="padding: 0.4rem 0.5rem;">Cargo Type</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">7</td><td style="padding: 0.4rem 0.5rem;">Weight (KG)</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">8</td><td style="padding: 0.4rem 0.5rem;">Quantity</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">9</td><td style="padding: 0.4rem 0.5rem;">Status</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">10</td><td style="padding: 0.4rem 0.5rem;">Cost (ZMW)</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">11</td><td style="padding: 0.4rem 0.5rem;">Est. Delivery</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">12</td><td style="padding: 0.4rem 0.5rem;">Driver</td></tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 0.4rem 0.5rem;">13</td><td style="padding: 0.4rem 0.5rem;">Vehicle Reg</td></tr>
-                <tr><td style="padding: 0.4rem 0.5rem;">14</td><td style="padding: 0.4rem 0.5rem;">Images</td></tr>
-            </table>
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.5rem;">Optional Columns</h4>
+            <ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #475569; line-height: 1.8; columns: 2;">
+                <li>○ Cargo Code</li>
+                <li>○ Serial Number</li>
+                <li>○ Origin Port</li>
+                <li>○ Current Location</li>
+                <li>○ Shipping Method</li>
+                <li>○ Status</li>
+                <li>○ Date Loaded</li>
+                <li>○ ETA</li>
+                <li>○ Driver</li>
+                <li>○ Vehicle Registration</li>
+                <li>○ Delivery Date</li>
+                <li>○ Proof of Delivery</li>
+                <li>○ Cargo Description</li>
+                <li>○ Parcel Quantity</li>
+                <li>○ Weight (KG)</li>
+                <li>○ Cost (ZMW)</li>
+            </ul>
         </div>
     </div>
 </div>
+
+<!-- Tracking Events Upload -->
+<div class="import-card">
+    <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">
+        <i class="fas fa-route" style="color: var(--primary-green);"></i> Import Tracking Events
+    </h2>
+    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">
+        Add the journey timeline for shipments already in the system (one row per event). Each row is matched to a
+        shipment by its <strong>Tracking Number</strong>.
+    </p>
+
+    <form id="eventsUploadForm" action="{{ route('admin.shipments.bulk.import-events') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="upload-area" id="eventsUploadArea" onclick="document.getElementById('eventsFileInput').click()">
+            <i class="fas fa-file-csv" style="font-size: 2.5rem; color: var(--primary-green); margin-bottom: 0.5rem;"></i>
+            <p style="font-size: 1rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;">
+                Drag and drop your tracking events file here
+            </p>
+            <p style="font-size: 0.85rem; color: var(--text-gray); margin-bottom: 1rem;">
+                or click to select CSV or Excel file (max 5MB) — columns: Tracking Number, Date/Time, Status, Location, Remarks
+            </p>
+            <input type="file" id="eventsFileInput" name="file" class="file-input" accept=".csv,.xlsx,.xls" onchange="updateEventsFileName()" required>
+            <p id="eventsFileName" style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; margin-top: 0.5rem;"></p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn-primary" id="eventsSubmitBtn" disabled>
+                <i class="fas fa-arrow-up"></i> Import Tracking Events
+            </button>
+            <button type="button" class="btn-secondary" onclick="clearEventsFile()">
+                <i class="fas fa-times"></i> Clear
+            </button>
+            <a href="{{ route('admin.shipments.bulk.template-events') }}" class="btn-secondary" download style="margin-left: auto;">
+                <i class="fas fa-download"></i> Download Template
+            </a>
+        </div>
+    </form>
+</div>
+
+@if(session('import_events_results'))
+@php $eventResults = session('import_events_results'); @endphp
+<div class="results-section">
+    <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem;">Tracking Events Import Results</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="stat-badge stat-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ $eventResults['success'] }} Added</span>
+        </div>
+        <div class="stat-badge stat-error">
+            <i class="fas fa-times-circle"></i>
+            <span>{{ $eventResults['failed'] }} Failed</span>
+        </div>
+    </div>
+    @if($eventResults['failed'] > 0)
+    <div class="result-error">
+        <h3 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 1rem; color: #ef4444;">
+            <i class="fas fa-exclamation-circle"></i> Import Errors
+        </h3>
+        @foreach($eventResults['errors'] as $error)
+        <div class="error-item">{{ $error }}</div>
+        @endforeach
+    </div>
+    @endif
+</div>
+@endif
 
 <!-- Results Section -->
 @if(session('import_results'))
@@ -132,21 +190,25 @@
             <i class="fas fa-check-circle"></i>
             <span>{{ $results['success'] }} Created</span>
         </div>
+        <div class="stat-badge" style="background: #eff6ff; color: #2563eb;">
+            <i class="fas fa-sync-alt"></i>
+            <span>{{ $results['updated'] ?? 0 }} Updated</span>
+        </div>
         <div class="stat-badge stat-error">
             <i class="fas fa-times-circle"></i>
             <span>{{ $results['failed'] }} Failed</span>
         </div>
     </div>
 
-    @if($results['success'] > 0)
+    @if(count($results['shipments']) > 0)
     <div class="result-success">
         <h3 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 1rem; color: #16a34a;">
-            <i class="fas fa-check-circle"></i> Successfully Created Shipments
+            <i class="fas fa-check-circle"></i> Shipments Created / Updated
         </h3>
         @foreach($results['shipments'] as $shipment)
         <div class="shipment-item">
             <div>
-                <div style="font-weight: 700; color: var(--text-dark);">{{ $shipment['serial'] }}</div>
+                <div style="font-weight: 700; color: var(--text-dark);">{{ $shipment['tracking_number'] }}</div>
                 <div style="font-size: 0.85rem; color: var(--text-gray);">{{ $shipment['client'] }}</div>
                 <div style="font-size: 0.8rem; color: #94a3b8;">{{ $shipment['origin'] }} → {{ $shipment['destination'] }}</div>
             </div>
@@ -220,6 +282,46 @@
     uploadForm.addEventListener('submit', (e) => {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+    });
+
+    const eventsUploadArea = document.getElementById('eventsUploadArea');
+    const eventsFileInput = document.getElementById('eventsFileInput');
+    const eventsUploadForm = document.getElementById('eventsUploadForm');
+    const eventsSubmitBtn = document.getElementById('eventsSubmitBtn');
+
+    eventsUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        eventsUploadArea.classList.add('dragover');
+    });
+
+    eventsUploadArea.addEventListener('dragleave', () => {
+        eventsUploadArea.classList.remove('dragover');
+    });
+
+    eventsUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        eventsUploadArea.classList.remove('dragover');
+        eventsFileInput.files = e.dataTransfer.files;
+        updateEventsFileName();
+    });
+
+    function updateEventsFileName() {
+        const file = eventsFileInput.files[0];
+        if (file) {
+            document.getElementById('eventsFileName').textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            eventsSubmitBtn.disabled = false;
+        }
+    }
+
+    function clearEventsFile() {
+        eventsFileInput.value = '';
+        document.getElementById('eventsFileName').textContent = '';
+        eventsSubmitBtn.disabled = true;
+    }
+
+    eventsUploadForm.addEventListener('submit', (e) => {
+        eventsSubmitBtn.disabled = true;
+        eventsSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
     });
 </script>
 @endsection
