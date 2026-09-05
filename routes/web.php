@@ -68,7 +68,7 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     
     // Individual tracking dashboard
-    Route::get('/tracking/{serial_no}', [TrackingController::class, 'showTracking'])
+    Route::get('/tracking/{tracking_number}', [TrackingController::class, 'showTracking'])
         ->name('tracking.show');
     
     // Client routes
@@ -111,6 +111,8 @@ Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix(
         Route::get('/shipments/bulk/import', [\App\Http\Controllers\BulkShipmentImportController::class, 'index'])->name('admin.shipments.bulk.index');
         Route::post('/shipments/bulk/import', [\App\Http\Controllers\BulkShipmentImportController::class, 'import'])->name('admin.shipments.bulk.import');
         Route::get('/shipments/bulk/template', [\App\Http\Controllers\BulkShipmentImportController::class, 'downloadTemplate'])->name('admin.shipments.bulk.template');
+        Route::post('/shipments/bulk/import-events', [\App\Http\Controllers\BulkShipmentImportController::class, 'importTrackingEvents'])->name('admin.shipments.bulk.import-events');
+        Route::get('/shipments/bulk/template-events', [\App\Http\Controllers\BulkShipmentImportController::class, 'downloadTrackingEventsTemplate'])->name('admin.shipments.bulk.template-events');
     });
 
     // Warehouse Cargo Import (integrated with shipments)
