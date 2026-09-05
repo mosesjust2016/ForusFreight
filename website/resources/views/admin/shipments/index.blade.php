@@ -135,17 +135,33 @@
         <div style="display: flex; gap: 1rem; align-items: center;">
             <div style="background: white; padding: 0.75rem 1.5rem; border-radius: 15px; box-shadow: var(--shadow); border: 1px solid #f1f5f9;">
                 <span style="display: block; font-size: 0.65rem; color: var(--text-gray); font-weight: 800; text-transform: uppercase;">Active Freight</span>
-                <span style="font-size: 1.25rem; font-weight: 900; color: var(--primary-green);">{{ $shipments->where('status', 'In Transit')->count() }}</span>
+                <span style="font-size: 1.25rem; font-weight: 900; color: var(--primary-green);">{{ $stats['active'] }}</span>
             </div>
             <div style="background: white; padding: 0.75rem 1.5rem; border-radius: 15px; box-shadow: var(--shadow); border: 1px solid #f1f5f9;">
                 <span style="display: block; font-size: 0.65rem; color: var(--text-gray); font-weight: 800; text-transform: uppercase;">Total Load</span>
-                <span style="font-size: 1.25rem; font-weight: 900; color: var(--text-dark);">{{ $shipments->count() }}</span>
+                <span style="font-size: 1.25rem; font-weight: 900; color: var(--text-dark);">{{ $stats['total'] }}</span>
             </div>
             <a href="{{ route('admin.shipments.create') }}" style="background: var(--primary-green); color: white; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-plus"></i> New Shipment
             </a>
         </div>
     </div>
+
+    <form method="GET" action="{{ route('admin.shipments') }}" style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+        <div style="position: relative; flex: 1; max-width: 420px;">
+            <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 0.85rem;"></i>
+            <input type="text" name="search" value="{{ $search }}" placeholder="Search by tracking number or customer name..."
+                style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border-radius: 15px; border: 1px solid #e2e8f0; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+        <button type="submit" style="background: var(--text-dark); color: white; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; border: none; cursor: pointer;">
+            Search
+        </button>
+        @if($search !== '')
+        <a href="{{ route('admin.shipments') }}" style="background: #f1f5f9; color: var(--text-gray); padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; text-decoration: none; display: flex; align-items: center;">
+            Clear
+        </a>
+        @endif
+    </form>
 </div>
 
 <div class="admin-shipment-grid">
@@ -165,7 +181,7 @@
             @forelse($shipments as $shipment)
                 <tr class="shipment-row">
                     <td>
-                        <span class="tracking-badge">{{ $shipment->serial_no }}</span>
+                        <span class="tracking-badge">{{ $shipment->tracking_number ?: $shipment->serial_no }}</span>
                         <div style="font-size: 0.65rem; color: var(--text-gray); margin-top: 0.4rem; font-weight: 700;">
                             CREATED: {{ $shipment->created_at->format('d M, H:i') }}
                         </div>
@@ -225,7 +241,13 @@
                     <td colspan="7" style="text-align: center; padding: 5rem 0; color: var(--text-gray);">
                         <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.2;"></i>
                         <h3 style="font-weight: 800;">No Shipments Found</h3>
-                        <p style="font-size: 0.9rem;">There are no active or historical shipments in the system.</p>
+                        <p style="font-size: 0.9rem;">
+                            @if($search !== '')
+                                No shipments match "{{ $search }}". Try a different tracking number or customer name.
+                            @else
+                                There are no active or historical shipments in the system.
+                            @endif
+                        </p>
                     </td>
                 </tr>
             @endforelse
