@@ -63,6 +63,7 @@
         box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         border: 1px solid #f1f5f9;
         margin-bottom: 2rem;
+        overflow-x: auto;
     }
     .section-header {
         display: flex;
@@ -149,6 +150,14 @@
     .status-cancelled { background: #f3f4f6; color: #4b5563; }
     .trend-up { color: #22c55e; }
     .trend-down { color: #ef4444; }
+
+    @media (max-width: 900px) {
+        .rate-grid { grid-template-columns: repeat(2, 1fr); }
+        div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+        .rate-grid { grid-template-columns: 1fr; }
+    }
 </style>
 @endsection
 

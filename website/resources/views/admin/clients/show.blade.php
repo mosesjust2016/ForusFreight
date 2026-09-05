@@ -70,6 +70,7 @@
         padding: 2rem;
         box-shadow: var(--shadow);
         margin-top: 2.5rem;
+        overflow-x: auto;
     }
 
     .status-badge {
@@ -104,7 +105,7 @@
     <div>
         <h1 style="font-size: 2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 0.5rem;">{{ $user->name }}</h1>
         <div style="display: flex; gap: 1.5rem; color: var(--text-gray); font-size: 0.95rem;">
-            <span><i class="fas fa-envelope"></i> {{ $user->email }}</span>
+            <span><i class="fas fa-envelope"></i> {{ $user->email ?: 'No email on file' }}</span>
             <span><i class="fas fa-phone"></i> {{ $user->phone ?? 'Not provided' }}</span>
         </div>
     </div>
@@ -231,7 +232,7 @@
         <h2 class="section-title"><i class="fas fa-wallet" style="color: #f59e0b;"></i> Financial Summary</h2>
         <div class="detail-item">
             <div class="detail-label">Lifetime Spend</div>
-            <div class="detail-value" style="font-size: 1.5rem; font-weight: 900;">{{ number_format($shipments->sum('total_charge'), 2) }} ZMW</div>
+            <div class="detail-value" style="font-size: 1.5rem; font-weight: 900;">{{ usd($shipments->sum('total_charge')) }}</div>
         </div>
         <div class="detail-item">
             <div class="detail-label">Last Transaction</div>

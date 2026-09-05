@@ -63,6 +63,19 @@
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.active { display: flex; }
     .modal-content { background: white; border-radius: 20px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(5, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 600px) {
+        .settings-row { grid-template-columns: 1fr !important; }
+        div[style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(5, 1fr)"] { grid-template-columns: 1fr !important; }
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
 </style>
 @endsection
 
@@ -325,7 +338,7 @@
         </div>
 
         <!-- Right: Contact List -->
-        <div class="crm-grid" style="max-height: 800px; overflow-y: auto; padding: 1.5rem;">
+        <div class="crm-grid" style="max-height: 800px; overflow-y: auto; overflow-x: auto; padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h3 style="font-size: 1rem; font-weight: 800;">Contacts <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">(Page {{ $contacts->currentPage() }} of {{ $contacts->lastPage() }} — {{ $contacts->total() }} total)</span></h3>
                 <div style="display: flex; gap: 0.5rem;">

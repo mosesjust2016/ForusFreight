@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Campaign;
 use App\Models\LandingPage;
+use Mews\Purifier\Facades\Purifier;
 
 class CrmMarketingController extends Controller
 {
@@ -91,6 +92,9 @@ class CrmMarketingController extends Controller
             'campaign_source' => 'nullable|string',
             'campaign_medium' => 'nullable|string',
         ]);
+        if (!empty($validated['content'])) {
+            $validated['content'] = Purifier::clean($validated['content']);
+        }
         $validated['status'] = 'draft';
         LandingPage::create($validated);
         return back()->with('success', 'Landing page created.');
