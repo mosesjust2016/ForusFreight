@@ -1,8 +1,12 @@
-*.log
-.DS_Store
+# ============================================================
+# ForusFreight – Root .gitignore
+# ============================================================
+
+# ---- Laravel (root) ----
 .env
 .env.backup
 .env.production
+.env.*.local
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -18,7 +22,55 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/public/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*.php
+cachePath
 /vendor
 Homestead.json
 Homestead.yaml
+
+# ---- Laravel (website/) ----
+website/.env
+website/.env.*
+website/.env.backup
+website/vendor/
+website/node_modules/
+website/public/hot
+website/public/storage
+website/storage/*.key
+website/storage/app/public/*
+website/storage/framework/cache/*
+website/storage/framework/sessions/*
+website/storage/framework/views/*
+website/storage/logs/*
+website/bootstrap/cache/*.php
+website/cachePath
+
+# ---- Node / JS (Ecommerce/ etc.) ----
+Ecommerce/node_modules/
+TerraForm/node_modules/
+node_modules/
+
+# ---- Build outputs ----
+website/public/build/
+dist/
+build/
+
+# ---- OS / Editor ----
+.DS_Store
 Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.suo
+
+# ---- Misc ----
+*.log
+*.zip
+*.tar.gz
+.gstack/
