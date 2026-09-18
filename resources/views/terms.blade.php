@@ -2,11 +2,24 @@
 $page = \App\Models\CmsPage::where('slug', 'terms')->first();
 $sections = $page?->sections ?? [];
 @endphp
-@extends('layouts.app')
+@extends('layouts.document')
 
 @section('title', ($page?->title ?? 'Terms & Conditions') . ' - Forus Freight')
+@section('meta_description', 'Terms and Conditions governing the use of Forus Freight Limited\'s freight, customs, and warehousing services in Zambia.')
+
+@section('styles')
+<style>
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: 300px 1fr"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 640px) {
+        article[style*="padding: 4rem"] { padding: 2rem !important; }
+    }
+</style>
+@endsection
 
 @section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'Terms & Conditions', 'url' => null]]])
 
 <!-- HERO -->
 <section style="padding: 5rem 0; background: linear-gradient(135deg, rgb(0,127,127), #004c4c);">
@@ -27,15 +40,16 @@ $sections = $page?->sections ?? [];
 <!-- CONTENT -->
 <section style="padding: 5rem 0; background: #f8fafc;">
     <div class="container">
-        <div style="max-width: 900px; margin: auto; display: grid; grid-template-columns: 260px 1fr; gap: 3rem; align-items: start;">
+        <div style="max-width: 1280px; margin: auto; display: grid; grid-template-columns: 300px 1fr; gap: 3rem; align-items: start;">
 
             <!-- Sticky Table of Contents -->
-            <aside style="position: sticky; top: 90px; background: #fff; border-radius: 20px; padding: 1.75rem; box-shadow: 0 4px 24px rgba(0,0,0,.07); border: 1px solid #e2e8f0;">
-                <p style="font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:#94a3b8; margin-bottom:1rem;">Contents</p>
-                <nav style="display:flex; flex-direction:column; gap:.35rem;">
+            <nav aria-label="Table of contents" style="position: sticky; top: 90px; background: #fff; border-radius: 20px; padding: 2.25rem; box-shadow: 0 4px 24px rgba(0,0,0,.07); border: 1px solid #e2e8f0;">
+                <p style="font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:#475569; margin-bottom:1rem;">Contents</p>
+                <div style="display:flex; flex-direction:column; gap:.35rem;">
                     @foreach([
                         ['#definitions',        'Definitions'],
                         ['#services',           'Our Services'],
+                        ['#eligibility',        'Eligibility & Accounts'],
                         ['#booking',            'Booking & Orders'],
                         ['#rates',              'Rates & Payment'],
                         ['#liability',          'Liability'],
@@ -46,8 +60,14 @@ $sections = $page?->sections ?? [];
                         ['#customs',            'Customs & Compliance'],
                         ['#force-majeure',      'Force Majeure'],
                         ['#data',               'Data & Privacy'],
+                        ['#refunds',            'Refunds & Cancellations'],
+                        ['#acceptable-use',     'Website Acceptable Use'],
+                        ['#intellectual-property', 'Intellectual Property'],
+                        ['#copyright',          'Copyright Complaints'],
+                        ['#indemnification',    'Indemnification'],
                         ['#termination',        'Termination'],
                         ['#governing-law',      'Governing Law'],
+                        ['#general',            'General Provisions'],
                         ['#contact',            'Contact Us'],
                     ] as [$href, $label])
                     <a href="{{ $href }}"
@@ -57,11 +77,11 @@ $sections = $page?->sections ?? [];
                         {{ $label }}
                     </a>
                     @endforeach
-                </nav>
-            </aside>
+                </div>
+            </nav>
 
             <!-- Main Content -->
-            <article style="background: #fff; border-radius: 24px; padding: 3rem; box-shadow: 0 4px 24px rgba(0,0,0,.07); border: 1px solid #e2e8f0; color: #334155; line-height: 1.8; font-size: .97rem;">
+            <article style="background: #fff; border-radius: 24px; padding: 4rem; box-shadow: 0 4px 24px rgba(0,0,0,.07); border: 1px solid #e2e8f0; color: #334155; line-height: 1.8; font-size: 1rem;">
 
                 {!! $sections['content'] ?? '<p style="color:#64748b; margin-bottom:2.5rem;">
                     Welcome to <strong>Forus Freight Limited</strong> ("Forus Freight", "we", "us", or "our"), a logistics and freight company registered in Zambia. By booking, using, or accessing any of our services you agree to be bound by these Terms and Conditions.
@@ -70,7 +90,7 @@ $sections = $page?->sections ?? [];
                 {{-- 1. Definitions --}}
                 <div id="definitions" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">01</span> Definitions
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">01</span> Definitions
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li><strong>Consignment / Shipment</strong> — any goods, cargo, packages, or documents accepted by Forus Freight for transportation.</li>
@@ -86,7 +106,7 @@ $sections = $page?->sections ?? [];
                 {{-- 2. Services --}}
                 <div id="services" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">02</span> Our Services
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">02</span> Our Services
                     </h2>
                     <p style="margin-bottom:.8rem;">Forus Freight provides the following logistics services, subject to these Terms:</p>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
@@ -101,10 +121,23 @@ $sections = $page?->sections ?? [];
                     <p style="margin-top:.8rem;">Forus Freight reserves the right to sub-contract any part of the service to reputable carriers while remaining the principal contractor.</p>
                 </div>
 
+                {{-- 2b. Eligibility & Accounts --}}
+                <div id="eligibility" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">02b</span> Eligibility &amp; Accounts
+                    </h2>
+                    <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
+                        <li>To register a personal account or book a shipment as an individual, you must be at least 18 years old. Businesses may register through an authorised representative.</li>
+                        <li>You agree to provide accurate, current, and complete information when creating an account, and to keep it up to date.</li>
+                        <li>You are responsible for maintaining the confidentiality of your account login details and for all activity under your account. Notify us immediately at <strong>info@forusfl.co.zm</strong> if you suspect unauthorised access.</li>
+                        <li>Forus Freight may decline to open, or may suspend, an account where information provided is inaccurate, incomplete, or where we reasonably suspect misuse — see also <a href="#termination">Termination</a>.</li>
+                    </ul>
+                </div>
+
                 {{-- 3. Booking --}}
                 <div id="booking" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">03</span> Booking &amp; Acceptance of Orders
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">03</span> Booking &amp; Acceptance of Orders
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>All bookings must be submitted via our online portal, email, or authorised agents. Verbal bookings are not binding.</li>
@@ -118,7 +151,7 @@ $sections = $page?->sections ?? [];
                 {{-- 4. Rates & Payment --}}
                 <div id="rates" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">04</span> Rates, Charges &amp; Payment
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">04</span> Rates, Charges &amp; Payment
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>All rates are quoted in Zambian Kwacha (ZMW) unless otherwise stated. Foreign currency quotes are subject to exchange rate fluctuations and will be confirmed at invoice date.</li>
@@ -135,7 +168,7 @@ $sections = $page?->sections ?? [];
                 {{-- 5. Liability --}}
                 <div id="liability" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">05</span> Liability &amp; Limitation of Liability
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">05</span> Liability &amp; Limitation of Liability
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>Forus Freight's maximum liability for loss or damage is limited to <strong>ZMW 50 per kilogram</strong> of the affected goods, or the declared value if a higher value has been declared in writing and an appropriate surcharge paid.</li>
@@ -149,7 +182,7 @@ $sections = $page?->sections ?? [];
                 {{-- 6. Prohibited Goods --}}
                 <div id="prohibited" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">06</span> Prohibited Goods
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">06</span> Prohibited Goods
                     </h2>
                     <p style="margin-bottom:.8rem;">The following goods are strictly prohibited from being tendered to Forus Freight:</p>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
@@ -166,7 +199,7 @@ $sections = $page?->sections ?? [];
                 {{-- 7. Dangerous Goods --}}
                 <div id="dangerous" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">07</span> Dangerous Goods
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">07</span> Dangerous Goods
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>Dangerous goods (chemicals, flammables, explosives, etc.) may only be accepted with prior written approval from Forus Freight.</li>
@@ -179,7 +212,7 @@ $sections = $page?->sections ?? [];
                 {{-- 8. Insurance --}}
                 <div id="insurance" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">08</span> Insurance
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">08</span> Insurance
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>Forus Freight maintains basic carrier liability insurance. This does not replace all-risk cargo insurance.</li>
@@ -192,7 +225,7 @@ $sections = $page?->sections ?? [];
                 {{-- 9. Claims --}}
                 <div id="claims" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">09</span> Claims for Loss or Damage
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">09</span> Claims for Loss or Damage
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>Any damage visible at delivery must be noted on the delivery receipt and reported to Forus Freight within <strong>24 hours</strong>.</li>
@@ -207,7 +240,7 @@ $sections = $page?->sections ?? [];
                 {{-- 10. Customs --}}
                 <div id="customs" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">10</span> Customs &amp; Regulatory Compliance
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">10</span> Customs &amp; Regulatory Compliance
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>The Shipper is responsible for providing accurate and complete customs documentation including commercial invoices, certificates of origin, import/export permits, and any other required documents.</li>
@@ -221,7 +254,7 @@ $sections = $page?->sections ?? [];
                 {{-- 11. Force Majeure --}}
                 <div id="force-majeure" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">11</span> Force Majeure
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">11</span> Force Majeure
                     </h2>
                     <p>Forus Freight shall not be liable for any failure or delay in performance caused by circumstances beyond its reasonable control, including but not limited to: acts of God (floods, earthquakes), war, terrorism, civil unrest, strikes, government embargoes, road closures, border shutdowns, pandemics, or fuel shortages. In such events, Forus Freight will notify affected clients as soon as practicable and will resume services as soon as the force majeure event ceases.</p>
                 </div>
@@ -229,20 +262,76 @@ $sections = $page?->sections ?? [];
                 {{-- 12. Data & Privacy --}}
                 <div id="data" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">12</span> Data &amp; Privacy
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12</span> Data &amp; Privacy
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>Forus Freight collects personal and shipment data solely to provide its logistics services and comply with legal obligations.</li>
                         <li>Data will not be sold to third parties. It may be shared with sub-contractors, customs authorities, and regulatory bodies as required.</li>
-                        <li>By using our services, you consent to the collection, processing, and storage of your data in accordance with Zambian data protection laws.</li>
-                        <li>You have the right to request access to, correction of, or deletion of your personal data by contacting us at <strong>info@forusfl.co.zm</strong>.</li>
+                        <li>We only collect the personal data reasonably necessary to book, process, and deliver your shipment, or to respond to your enquiry — we do not request or store information beyond that purpose.</li>
+                        <li>By using our services, you consent to the collection, processing, and storage of your data in accordance with the <strong>Data Protection Act No. 3 of 2021</strong> of Zambia.</li>
+                        <li>You have the right to be informed, to access, correct, or request deletion of your personal data, to withdraw consent at any time, and to object to or restrict certain processing, by contacting us at <strong>info@forusfl.co.zm</strong>.</li>
+                        <li>Full detail on what we collect, why, how long we retain it, and how cookies are used on this website is set out in our <a href="{{ route('privacy') }}" style="color:rgb(0,127,127); font-weight:700;">Privacy Policy</a> and <a href="{{ route('cookie-policy') }}" style="color:rgb(0,127,127); font-weight:700;">Cookie Policy</a>, which form part of these Terms.</li>
                     </ul>
+                </div>
+
+                {{-- 12b. Refunds & Cancellations --}}
+                <div id="refunds" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12b</span> Refunds &amp; Cancellations
+                    </h2>
+                    <p>Refunds, cancellations, and re-performance of service are governed by our dedicated <a href="{{ route('refund-policy') }}" style="color:rgb(0,127,127); font-weight:700;">Refund Policy</a>, which forms part of these Terms. Nothing in these Terms limits, excludes, or purports to waive any refund right or remedy available to you under Zambian law.</p>
+                </div>
+
+                {{-- 12c. Website Acceptable Use --}}
+                <div id="acceptable-use" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12c</span> Website Acceptable Use
+                    </h2>
+                    <p style="margin-bottom:.8rem;">When using our website or client portal, you agree not to:</p>
+                    <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
+                        <li>Attempt to gain unauthorised access to any account, system, or data, including by password guessing or bypassing security controls;</li>
+                        <li>Upload or transmit viruses, malware, or any code intended to disrupt or damage our systems;</li>
+                        <li>Use automated means (scraping, crawling, bots) to extract data from the site without our written permission;</li>
+                        <li>Reverse engineer, decompile, or attempt to derive the source code of our website, tracking portal, or any underlying software;</li>
+                        <li>Interfere with or place an unreasonable load on our infrastructure;</li>
+                        <li>Impersonate any person or misrepresent your affiliation with any person or entity; or</li>
+                        <li>Use the website for any unlawful purpose.</li>
+                    </ul>
+                    <p style="margin-top:.8rem;">We may suspend or terminate access for any breach of this section — see <a href="#termination">Termination</a>.</p>
+                </div>
+
+                {{-- 12d. Intellectual Property --}}
+                <div id="intellectual-property" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12d</span> Intellectual Property
+                    </h2>
+                    <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
+                        <li>The Forus Freight name, logo, website design, and all content we create (excluding information you submit about your own shipments) are owned by Forus Freight Limited or our licensors and are protected under the <strong>Copyright and Performance Rights Act, Chapter 406</strong> of the Laws of Zambia and applicable trademark law.</li>
+                        <li>You may view and print pages from our website for your own personal or internal business use in dealing with us. You may not reproduce, republish, or redistribute our website content for any other purpose without our prior written consent.</li>
+                        <li>"Forus Freight" and our logo may not be used in connection with any product or service without our prior written permission.</li>
+                    </ul>
+                </div>
+
+                {{-- 12e. Copyright Complaints --}}
+                <div id="copyright" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12e</span> Copyright Complaints
+                    </h2>
+                    <p>If you believe material on our website infringes your copyright under Zambian law, please send a written notice to <strong>info@forusfl.co.zm</strong> including: (i) identification of the copyrighted work you claim has been infringed; (ii) identification and location of the material you believe is infringing; (iii) your contact details; and (iv) a statement that you have a good-faith belief the use is not authorised and that the information provided is accurate. We will review and respond to valid notices within a reasonable time and may remove or restrict access to the material in question pending resolution.</p>
+                </div>
+
+                {{-- 12f. Indemnification --}}
+                <div id="indemnification" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12f</span> Indemnification
+                    </h2>
+                    <p>You agree to indemnify and hold Forus Freight harmless from any third-party claim, loss, or expense (including reasonable legal costs) arising from your breach of these Terms, your misuse of the website or client portal, or your violation of applicable law — except to the extent such claim, loss, or expense arises from Forus Freight's own negligence or wilful misconduct.</p>
                 </div>
 
                 {{-- 13. Termination --}}
                 <div id="termination" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">13</span> Account Suspension &amp; Termination
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">13</span> Account Suspension &amp; Termination
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>Forus Freight may suspend or terminate a client's account without notice if the client breaches these Terms, provides false information, or fails to pay outstanding invoices.</li>
@@ -254,7 +343,7 @@ $sections = $page?->sections ?? [];
                 {{-- 14. Governing Law --}}
                 <div id="governing-law" style="margin-bottom:3rem;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
-                        <span style="color:#e2e8f0; font-weight:900; margin-right:.5rem;">14</span> Governing Law &amp; Dispute Resolution
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">14</span> Governing Law &amp; Dispute Resolution
                     </h2>
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>These Terms are governed by the laws of the Republic of Zambia.</li>
@@ -264,10 +353,24 @@ $sections = $page?->sections ?? [];
                     </ul>
                 </div>
 
+                {{-- 14b. General Provisions --}}
+                <div id="general" style="margin-bottom:3rem;">
+                    <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">14b</span> General Provisions
+                    </h2>
+                    <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
+                        <li><strong>Entire agreement</strong> — these Terms, together with our <a href="{{ route('privacy') }}" style="color:rgb(0,127,127); font-weight:700;">Privacy Policy</a> and <a href="{{ route('cookie-policy') }}" style="color:rgb(0,127,127); font-weight:700;">Cookie Policy</a>, and any waybill or invoice issued to you, form the entire agreement between you and Forus Freight regarding our services, superseding any prior understanding on the same subject.</li>
+                        <li><strong>Severability</strong> — if any provision of these Terms is found unenforceable, that provision will be limited or removed to the minimum extent necessary, and the remaining provisions will stay in full effect.</li>
+                        <li><strong>No waiver</strong> — our failure to enforce any provision of these Terms is not a waiver of our right to enforce it later.</li>
+                        <li><strong>Assignment</strong> — you may not assign or transfer your rights under these Terms without our written consent. We may assign these Terms in connection with a merger, acquisition, or sale of our business.</li>
+                        <li><strong>Third-party links</strong> — our website may occasionally link to third-party sites. We are not responsible for the content or practices of any site we do not operate.</li>
+                    </ul>
+                </div>
+
                 {{-- 15. Contact --}}
                 <div id="contact" style="background:#f0fafa; border-radius:16px; padding:2rem; border:1px solid #b2d8d8;">
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem;">
-                        <span style="color:#b2d8d8; font-weight:900; margin-right:.5rem;">15</span> Contact Us
+                        <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">15</span> Contact Us
                     </h2>
                     <p style="margin-bottom:1rem;">For questions about these Terms, please contact our legal or compliance team:</p>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
@@ -276,7 +379,7 @@ $sections = $page?->sections ?? [];
                                 <i class="fas fa-envelope" style="font-size:.9rem;"></i>
                             </div>
                             <div>
-                                <p style="font-size:.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Email</p>
+                                <p style="font-size:.75rem; color:#475569; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Email</p>
                                 <p style="font-weight:700; color:#1e293b;">info@forusfl.co.zm</p>
                             </div>
                         </div>
@@ -285,8 +388,8 @@ $sections = $page?->sections ?? [];
                                 <i class="fas fa-phone" style="font-size:.9rem;"></i>
                             </div>
                             <div>
-                                <p style="font-size:.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Phone</p>
-                                <p style="font-weight:700; color:#1e293b;">+260 572 788 6857</p>
+                                <p style="font-size:.75rem; color:#475569; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Phone</p>
+                                <p style="font-weight:700; color:#1e293b;">+260 572 788 685</p>
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:.75rem;">
@@ -294,8 +397,8 @@ $sections = $page?->sections ?? [];
                                 <i class="fas fa-location-dot" style="font-size:.9rem;"></i>
                             </div>
                             <div>
-                                <p style="font-size:.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Address</p>
-                                <p style="font-weight:700; color:#1e293b;">Lusaka, Zambia</p>
+                                <p style="font-size:.75rem; color:#475569; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Address</p>
+                                <p style="font-weight:700; color:#1e293b;">METROLUX PLAZA, Plot No. 401A/8 Kafure Road, Lusaka, Zambia</p>
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:.75rem;">
@@ -303,10 +406,13 @@ $sections = $page?->sections ?? [];
                                 <i class="fas fa-clock" style="font-size:.9rem;"></i>
                             </div>
                             <div>
-                                <p style="font-size:.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Hours</p>
+                                <p style="font-size:.75rem; color:#475569; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Hours</p>
                                 <p style="font-weight:700; color:#1e293b;">Mon–Fri, 08:00–17:00 CAT</p>
                             </div>
                         </div>
+                    </div>
+                    <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid #b2d8d8; font-size:.85rem; color:#475569;">
+                        <strong>Forus Freight Limited</strong> is a company registered in Zambia. PACRA Registration No. <strong>120251030444</strong> · TPIN <strong>2003929264</strong>.
                     </div>
                 </div>
 

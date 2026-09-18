@@ -1,0 +1,24 @@
+# Forus Freight
+
+> Forus Freight Limited is a logistics and freight company registered in Zambia, providing road, air, and sea freight, customs brokerage, warehousing, and real-time shipment tracking across Zambia and the SADC region.
+
+Forus Freight is based in Lusaka, Zambia (METROLUX PLAZA, Plot No. 401A/8 Kafure Road). Business hours are Monday-Friday, 08:00-17:00 CAT.
+
+## Services
+
+- [Services overview](https://forusfl.co.zm/services): Same-day delivery, cross-border shipping, warehousing and storage, and bulk cargo transport.
+- [Request a quote](https://forusfl.co.zm/quote): Get a free freight quote.
+- [Track a shipment](https://forusfl.co.zm/tracking): Real-time shipment tracking by tracking number.
+
+## Company
+
+- [About](https://forusfl.co.zm/about): Company overview.
+- [Contact](https://forusfl.co.zm/contact): Contact details and enquiry form.
+- [FAQ](https://forusfl.co.zm/faq): Common questions about shipping times, tracking, insurance, and payment.
+
+## Legal
+
+- [Terms & Conditions](https://forusfl.co.zm/terms)
+- [Privacy Policy](https://forusfl.co.zm/privacy)
+- [Cookie Policy](https://forusfl.co.zm/cookie-policy)
+- [Refund Policy](https://forusfl.co.zm/refund-policy)

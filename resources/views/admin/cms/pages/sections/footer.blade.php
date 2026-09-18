@@ -94,6 +94,16 @@
             <input type="text" name="sections[contact_city]" class="form-control" value="{{ $sections['contact_city'] ?? '' }}">
         </div>
     </div>
+    <div class="row-grid" style="margin-top: 1rem;">
+        <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.4rem;">Warehouse Address</label>
+            <input type="text" name="sections[contact_warehouse_address]" class="form-control" value="{{ $sections['contact_warehouse_address'] ?? "" }}">
+        </div>
+        <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.4rem;">Warehouse City</label>
+            <input type="text" name="sections[contact_warehouse_city]" class="form-control" value="{{ $sections['contact_warehouse_city'] ?? '' }}">
+        </div>
+    </div>
 </div>
 
 <div class="crm-grid" style="margin-bottom: 2rem;">

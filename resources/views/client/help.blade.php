@@ -106,17 +106,17 @@
 </div>
 
 <div class="help-grid">
-    <a href="#" class="help-card">
-        <div class="help-icon"><i class="fas fa-book-open"></i></div>
-        <h3>Guides & FAQ</h3>
-        <p>Explore our detailed guides on logistics, border protocols, and shipping regulations.</p>
+    <a href="{{ route('client.getting-started') }}" class="help-card">
+        <div class="help-icon"><i class="fas fa-graduation-cap"></i></div>
+        <h3>Getting Started Walkthrough</h3>
+        <p>Learn how to use the portal, track shipments, create a New Request, and name your parcel with ZMFFL so it arrives in Zambia.</p>
     </a>
-    <a href="#" class="help-card">
+    <a href="https://wa.me/260572788685?text={{ urlencode('Hi Forus Freight, I need help with my shipment.') }}" target="_blank" rel="noopener" class="help-card">
         <div class="help-icon" style="background: #eef2ff; color: #4f46e5;"><i class="fas fa-comments"></i></div>
         <h3>Live Support</h3>
         <p>Chat with our dedicated dispatch team for real-time updates and urgent inquiries.</p>
     </a>
-    <a href="mailto:support@forusfreight.com" class="help-card">
+    <a href="mailto:info@forusfl.co.zm" class="help-card">
         <div class="help-icon" style="background: #fff7ed; color: #ea580c;"><i class="fas fa-envelope-open-text"></i></div>
         <h3>Email Ticket</h3>
         <p>Open a support ticket via email and our regional managers will respond within 2 hours.</p>
@@ -128,7 +128,17 @@
     
     <div class="faq-item">
         <h4><i class="fas fa-circle-question"></i> How do I track my shipment?</h4>
-        <p>Go to "Real-time Tracking" in your sidebar and enter your tracking number. You'll see live location data and current border status updates.</p>
+        <p>Go to "Real-time Tracking" in your sidebar, or visit the public <a href="{{ route('track') }}" style="color:#007f7f;">/track</a> page, and enter your Serial Number (e.g. <strong>RS.12345</strong>) or carrier Tracking Number. You'll see live location data and current border status updates.</p>
+    </div>
+
+    <div class="faq-item">
+        <h4><i class="fas fa-circle-question"></i> Which address should I use for my online orders?</h4>
+        <p>Ship every online order to our China warehouse: <strong>{{ config('forus.forwarding_address.name') }}</strong>, {{ config('forus.forwarding_address.line1') }}, {{ config('forus.forwarding_address.line2') }}, {{ config('forus.forwarding_address.line3') }}, {{ config('forus.forwarding_address.country') }} ({{ config('forus.forwarding_address.address_cn') }}). Contact: {{ config('forus.forwarding_address.phone') }} / {{ config('forus.forwarding_address.email') }}. Use this as the delivery address when ordering from Alibaba, eBay, Amazon, Shein and other stores.</p>
+    </div>
+
+    <div class="faq-item">
+        <h4><i class="fas fa-circle-question"></i> How do I name my parcel so it comes to Zambia, not Ghana?</h4>
+        <p>Always add our <strong>Shipping Mark</strong> <strong>ZMFFL</strong> on the name / first address line of the parcel, together with your <strong>customer name</strong> and <strong>contact details</strong>. <strong>ZMFFL</strong> routes parcels to <strong>Zambia</strong>, while <strong>GHFFL</strong> would route them to <strong>Ghana</strong>. Your unique Customer ID (e.g. <strong>ZMFFL 123456</strong>) is auto-generated for you on the "New Request" page — see the orange "name your parcel correctly" box.</p>
     </div>
 
     <div class="faq-item">

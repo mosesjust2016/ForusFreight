@@ -18,7 +18,12 @@ new #[Layout('layouts.guest')] class extends Component
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::guard('web')->validate([
+        // Staff and clients authenticate on different guards (see
+        // config/auth.php) — validate against whichever one is actually
+        // signed in for this request, not always 'web'.
+        $guard = Auth::user()->isStaff() ? 'admin' : 'web';
+
+        if (! Auth::guard($guard)->validate([
             'email' => Auth::user()->email,
             'password' => $this->password,
         ])) {
@@ -29,7 +34,11 @@ new #[Layout('layouts.guest')] class extends Component
 
         session(['auth.password_confirmed_at' => time()]);
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $default = Auth::user()->isStaff()
+            ? route('admin.dashboard', absolute: false)
+            : route('dashboard', absolute: false);
+
+        $this->redirectIntended(default: $default, navigate: true);
     }
 }; ?>
 

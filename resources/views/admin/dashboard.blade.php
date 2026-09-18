@@ -388,7 +388,7 @@
             <div class="stat-icon"><i class="fas fa-box"></i></div>
             <div class="stat-label">All Shipments</div>
         </div>
-        <div class="stat-value">{{ $shipments->count() }}</div>
+        <div class="stat-value">{{ $shipmentStats['total'] }}</div>
         <div class="stat-change up"><i class="fas fa-arrow-up"></i> Global Total</div>
         <div class="stat-chart">
             <svg viewBox="0 0 100 40" class="mini-chart">
@@ -402,7 +402,7 @@
             <div class="stat-icon" style="background: #fff8e1; color: #ff8f00;"><i class="fas fa-truck-ramp-box"></i></div>
             <div class="stat-label">Active Deliveries</div>
         </div>
-        <div class="stat-value">{{ $shipments->whereIn('status', ['In Transit', 'Out for Delivery'])->count() }}</div>
+        <div class="stat-value">{{ $shipmentStats['inTransit'] }}</div>
         <div class="stat-change up"><i class="fas fa-arrow-up"></i> Global Traffic</div>
         <div class="stat-chart">
             <svg viewBox="0 0 100 40" class="mini-chart">
@@ -434,7 +434,7 @@
             <div class="stat-icon" style="background: #f3e5f5; color: #8e24aa;"><i class="fas fa-clock"></i></div>
             <div class="stat-label">Pending Requests</div>
         </div>
-        <div class="stat-value">{{ $shipments->whereIn('status', ['Order Placed', 'Pending'])->count() }}</div>
+        <div class="stat-value">{{ $shipmentStats['pending'] }}</div>
         <div class="stat-change down"><i class="fas fa-arrow-down"></i> Action Required</div>
         <div class="stat-chart">
             <svg viewBox="0 0 100 40" class="mini-chart">
@@ -497,6 +497,12 @@
                 <p>No shipments in system.</p>
             </div>
         @endforelse
+
+        @if(method_exists($shipments, 'links'))
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9;">
+                {{ $shipments->links('vendor.pagination.bootstrap-5') }}
+            </div>
+        @endif
     </div>
 
     <!-- Right Side -->
@@ -510,7 +516,7 @@
 
         <div class="status-list">
             <h3 style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-gray);">Recent Updates</h3>
-            @foreach($shipments->take(5) as $shipment)
+            @foreach($recentUpdates as $shipment)
                 <div class="status-item">
                     <div class="status-left">
                         <i class="fas fa-circle-dot" style="color: var(--primary-green); font-size: 0.5rem;"></i>
@@ -563,7 +569,11 @@
         <div style="font-size:0.8rem;color:#64748b;">Handle customer issues</div>
     </a>
     @endif
-    @if($authUser->hasPermission('crm.contacts.view'))
+    {{-- Was gated on crm.contacts.view but pointed at admin.clients, which
+         needs the separate admin.clients.view permission — a dead end for
+         Sales (has the former, not the latter). Gate on what the
+         destination actually requires instead. --}}
+    @if($authUser->hasPermission('admin.clients.view'))
     <a href="{{ route('admin.clients') }}" style="background:white; border-radius:16px; padding:1.5rem; box-shadow:var(--shadow); text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:0.5rem;">
         <div style="width:40px;height:40px;border-radius:10px;background:#f3e5f5;color:#8e24aa;display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i class="fas fa-address-book"></i></div>
         <div style="font-weight:800;">Contacts</div>

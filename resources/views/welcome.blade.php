@@ -10,10 +10,52 @@ try {
 }
 @endphp
 @section('title', ($page?->title ?? 'Forus Freight') . ' - Global Logistics Solutions')
+@section('meta_description', 'Forus Freight Limited provides road, air, and sea freight, customs brokerage, warehousing, and real-time shipment tracking connecting Zambia, South Africa, China, and the UAE. Request a quote today.')
+
+@section('structured_data')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How long does shipping typically take?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Shipping times depend on the destination and service type. Road freight typically takes 2-7 days within SADC countries. Air freight is available for urgent shipments (1-3 days). We'll provide a specific timeframe when you request a quote." }
+        },
+        {
+            "@type": "Question",
+            "name": "Can you handle international shipments?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. We specialize in international logistics across Africa and beyond. Our services include customs clearance, documentation, and coordination with international partners to ensure smooth delivery." }
+        },
+        {
+            "@type": "Question",
+            "name": "What insurance options are available?",
+            "acceptedAnswer": { "@type": "Answer", "text": "We offer comprehensive insurance coverage for all shipments. Standard coverage is included, with options for additional coverage based on cargo value. Full details are available in your shipment quote." }
+        },
+        {
+            "@type": "Question",
+            "name": "How do I track my shipment?",
+            "acceptedAnswer": { "@type": "Answer", "text": "You can track your shipment through our online portal. Log in with your account or use the tracking number provided. Real-time updates are sent via SMS and email throughout the delivery process." }
+        },
+        {
+            "@type": "Question",
+            "name": "What payment methods do you accept?",
+            "acceptedAnswer": { "@type": "Answer", "text": "We accept bank transfer and mobile money. Contact us for full payment details for your shipment." }
+        },
+        {
+            "@type": "Question",
+            "name": "Do you offer warehousing services?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes, we operate warehousing facilities. Services include storage, inventory management, order fulfillment, and cross-docking. Contact us for facility details and rates." }
+        }
+    ]
+}
+</script>
+@endsection
 
 @section('styles')
     <!-- Globe.gl Library -->
-    <script src="//unpkg.com/globe.gl"></script>
+    <script src="//unpkg.com/globe.gl@2.46.2/dist/globe.gl.min.js"></script>
     
     <style>
         /* COLOR VARIABLES - YOUR BRAND COLORS */
@@ -552,6 +594,11 @@ try {
             border: 2px solid #007f7f;
         }
 
+        .country-item:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
         .country-marker {
             width: 20px;
             height: 20px;
@@ -559,7 +606,7 @@ try {
             flex-shrink: 0;
         }
 
-        .country-item h4 {
+        .country-item h3 {
             font-size: 1rem;
             font-weight: 700;
             color: #1e293b;
@@ -568,7 +615,7 @@ try {
 
         .country-item p {
             font-size: 0.875rem;
-            color: #64748b;
+            color: #475569;
         }
 
         /* Network Stats below globe */
@@ -578,6 +625,7 @@ try {
             gap: 2rem;
             margin-top: 3rem;
             text-align: center;
+            width: 100%;
         }
 
         .network-stat {
@@ -679,6 +727,86 @@ try {
             margin: 0.25rem 0 0 0;
         }
 
+        /* How It Works Section */
+        .how-it-works-section {
+            padding: 5rem 0;
+            background: #f8fafc;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .step-card {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem 1.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 10px rgba(255, 98, 0, 0.35);
+        }
+
+        .step-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(0, 127, 127, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0.5rem auto 1.25rem;
+            font-size: 1.6rem;
+            color: var(--primary);
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.6rem;
+        }
+
+        .step-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .step-arrow {
+            display: block;
+            position: absolute;
+            top: 50%;
+            right: -2.35rem;
+            transform: translateY(-50%);
+            color: var(--tertiary);
+            font-size: 1.4rem;
+        }
+
         /* Benefits Section */
         .benefits-section {
             padding: 5rem 0;
@@ -775,6 +903,11 @@ try {
             color: #1e293b;
             user-select: none;
             transition: background 0.3s;
+        }
+
+        .faq-question:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: -2px;
         }
 
         .faq-item.active .faq-question {
@@ -888,7 +1021,7 @@ try {
 
         .btn-cta {
             background: var(--secondary);
-            color: white;
+            color: #1e293b;
             padding: 1rem 3rem;
             border-radius: 50px;
             text-decoration: none;
@@ -903,7 +1036,7 @@ try {
             transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(255, 98, 0, 0.4);
             background: white;
-            color: var(--secondary);
+            color: #1e293b;
         }
 
         /* Responsive */
@@ -939,6 +1072,14 @@ try {
             
             .network-stats {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .step-arrow {
+                display: none;
             }
 
             .benefits-grid {
@@ -995,6 +1136,10 @@ try {
                 grid-template-columns: 1fr;
             }
 
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
             .benefits-grid {
                 grid-template-columns: 1fr;
             }
@@ -1007,6 +1152,8 @@ try {
 @endsection
 
 @section('content')
+    <noscript><style>section { opacity: 1 !important; transform: none !important; }</style></noscript>
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-bg"></div>
@@ -1014,7 +1161,7 @@ try {
         
         <div class="hero-content">
             <h1 class="hero-title">{{ $sections['hero_title'] ?? 'Global Logistics Solutions' }}</h1>
-            <p class="hero-subtitle">{{ $sections['hero_subtitle'] ?? 'Worldwide freight solutions across Zambia & the SADC region' }}</p>
+            <p class="hero-subtitle">{{ $sections['hero_subtitle'] ?? 'Reliable freight solutions connecting Zambia, South Africa, China & the UAE' }}</p>
             <div class="hero-buttons">
                 <a href="{{ $sections['hero_cta_link'] ?? route('quote') }}" class="btn btn-primary">{{ $sections['hero_cta_text'] ?? 'Get a Free Quote' }}</a>
                 <a href="{{ route('about') }}" class="btn btn-outline">Learn More</a>
@@ -1103,39 +1250,12 @@ try {
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="section-title">
-                <h2 style="color: white;">Forus Freight in Numbers</h2>
-                <p style="color: rgba(255,255,255,0.8);">Growing with our clients for over a decade</p>
-            </div>
-
-            <div class="stats-grid">
-                @foreach($sections['stats'] ?? [['number'=>'150+','label'=>'Fleet Vehicles'],['number'=>'20+','label'=>'Warehouses'],['number'=>'75K+','label'=>'Shipments Annually'],['number'=>'12','label'=>'SADC Countries']] as $stat)
-                <div class="stat-item">
-                    <div class="stat-number">{{ $stat['number'] }}</div>
-                    <div class="stat-label">{{ $stat['label'] }}</div>
-                </div>
-                @endforeach
-                <div class="stat-item">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Support Available</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">Happy Clients</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Global Network -->
     <section class="network-section">
         <div class="container">
             <div class="section-title">
                 <h2>Global Network Coverage</h2>
-                <p>Moving goods across Africa and beyond with direct presence</p>
+                <p>Connecting Zambia, South Africa, China & the UAE with reliable freight solutions</p>
             </div>
 
             <div class="network-map">
@@ -1146,17 +1266,17 @@ try {
                         
                         <!-- Globe Controls -->
                         <div class="globe-controls">
-                            <button class="globe-control-btn" id="zoomIn">
-                                <i class="fas fa-plus"></i>
+                            <button class="globe-control-btn" id="zoomIn" aria-label="Zoom in on map">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
                             </button>
-                            <button class="globe-control-btn" id="zoomOut">
-                                <i class="fas fa-minus"></i>
+                            <button class="globe-control-btn" id="zoomOut" aria-label="Zoom out on map">
+                                <i class="fas fa-minus" aria-hidden="true"></i>
                             </button>
-                            <button class="globe-control-btn" id="resetView">
-                                <i class="fas fa-sync-alt"></i>
+                            <button class="globe-control-btn" id="resetView" aria-label="Reset map view">
+                                <i class="fas fa-sync-alt" aria-hidden="true"></i>
                             </button>
-                            <button class="globe-control-btn" id="rotateToggle">
-                                <i class="fas fa-play"></i>
+                            <button class="globe-control-btn" id="rotateToggle" aria-label="Toggle globe auto-rotation">
+                                <i class="fas fa-play" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
@@ -1164,39 +1284,32 @@ try {
                     <!-- Country Info Panel -->
                     <div class="country-info">
                         <div class="country-list">
-                            <div class="country-item active" data-country="Zambia">
+                            <div class="country-item active" data-country="Zambia" role="button" tabindex="0" aria-pressed="true">
                                 <div class="country-marker" style="background: #007f7f;"></div>
                                 <div>
-                                    <h4>Zambia</h4>
+                                    <h3>Zambia</h3>
                                     <p>Headquarters & Main Operations</p>
                                 </div>
                             </div>
-                            <div class="country-item" data-country="South Africa">
+                            <div class="country-item" data-country="South Africa" role="button" tabindex="0" aria-pressed="false">
                                 <div class="country-marker" style="background: #ff6200;"></div>
                                 <div>
-                                    <h4>South Africa</h4>
+                                    <h3>South Africa</h3>
                                     <p>Major Hub for Southern Africa</p>
                                 </div>
                             </div>
-                            <div class="country-item" data-country="Tanzania">
-                                <div class="country-marker" style="background: #059669;"></div>
-                                <div>
-                                    <h4>Tanzania</h4>
-                                    <p>East Africa Gateway</p>
-                                </div>
-                            </div>
-                            <div class="country-item" data-country="Botswana">
+                            <div class="country-item" data-country="China" role="button" tabindex="0" aria-pressed="false">
                                 <div class="country-marker" style="background: #8b5cf6;"></div>
                                 <div>
-                                    <h4>Botswana</h4>
-                                    <p>Regional Distribution Center</p>
+                                    <h3>China</h3>
+                                    <p>Key Sourcing & Trade Partner</p>
                                 </div>
                             </div>
-                            <div class="country-item" data-country="Mozambique">
-                                <div class="country-marker" style="background: #f59e0b;"></div>
+                            <div class="country-item" data-country="UAE" role="button" tabindex="0" aria-pressed="false">
+                                <div class="country-marker" style="background: #059669;"></div>
                                 <div>
-                                    <h4>Mozambique</h4>
-                                    <p>Port Operations</p>
+                                    <h3>UAE</h3>
+                                    <p>Middle East Trade Hub</p>
                                 </div>
                             </div>
                         </div>
@@ -1205,7 +1318,7 @@ try {
                     <!-- Network Stats -->
                     <div class="network-stats">
                         <div class="network-stat">
-                            <div class="network-stat-number">12+</div>
+                            <div class="network-stat-number">4</div>
                             <div class="network-stat-label">Countries Served</div>
                         </div>
                         <div class="network-stat">
@@ -1226,49 +1339,41 @@ try {
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials-section">
+    <!-- How It Works -->
+    <section class="how-it-works-section">
         <div class="container">
             <div class="section-title">
-                <h2>What Our Clients Say</h2>
-                <p>Trusted by businesses across Africa and beyond</p>
+                <h2>How It Works</h2>
+                <p>Getting your cargo moving is simple</p>
             </div>
 
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-quote">"Forus Freight has been a game-changer for our logistics. Reliable, efficient, and always on time. Highly recommended!"</div>
-                    <div class="testimonial-stars">★★★★★</div>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar">JM</div>
-                        <div class="testimonial-info">
-                            <h4>John Mwale</h4>
-                            <p>CEO, Mwale Trading Co.</p>
-                        </div>
-                    </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></div>
+                    <h3 class="step-title">Request a Quote</h3>
+                    <p class="step-description">Tell us your shipment's weight, dimensions, and destination. We respond within 2 hours.</p>
+                    <i class="fas fa-chevron-right step-arrow" aria-hidden="true"></i>
                 </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-quote">"The transparency and communication from Forus Freight is exceptional. We always know where our shipments are."</div>
-                    <div class="testimonial-stars">★★★★★</div>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar">SN</div>
-                        <div class="testimonial-info">
-                            <h4>Sarah Nkosi</h4>
-                            <p>Operations Manager, RetailHub Africa</p>
-                        </div>
-                    </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-clipboard-check" aria-hidden="true"></i></div>
+                    <h3 class="step-title">We Arrange Everything</h3>
+                    <p class="step-description">Pickup, customs clearance, and documentation handled for you across Zambia, South Africa, China & the UAE.</p>
+                    <i class="fas fa-chevron-right step-arrow" aria-hidden="true"></i>
                 </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-quote">"Working with Forus Freight reduced our shipping costs by 30% while improving delivery times. Outstanding value!"</div>
-                    <div class="testimonial-stars">★★★★★</div>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar">PM</div>
-                        <div class="testimonial-info">
-                            <h4>Paul Musonda</h4>
-                            <p>Supply Chain Director, TechImports Ltd</p>
-                        </div>
-                    </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-location-crosshairs" aria-hidden="true"></i></div>
+                    <h3 class="step-title">Track in Real-Time</h3>
+                    <p class="step-description">Follow your shipment's journey with live status updates using your tracking number.</p>
+                    <i class="fas fa-chevron-right step-arrow" aria-hidden="true"></i>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon"><i class="fas fa-box-open" aria-hidden="true"></i></div>
+                    <h3 class="step-title">Delivered On Time</h3>
+                    <p class="step-description">Your cargo arrives safely and on schedule, with 99% on-time delivery.</p>
                 </div>
             </div>
         </div>
@@ -1310,7 +1415,7 @@ try {
                 <div class="benefit-card">
                     <div class="benefit-icon">🌍</div>
                     <h3 class="benefit-title">Wide Coverage</h3>
-                    <p class="benefit-description">Operating across 12+ SADC countries with local expertise and global reach for your shipments.</p>
+                    <p class="benefit-description">Connecting Zambia to South Africa, China & the UAE with local expertise and global reach for your shipments.</p>
                 </div>
 
                 <div class="benefit-card">
@@ -1332,101 +1437,62 @@ try {
 
             <div class="faq-container">
                 <div class="faq-item">
-                    <div class="faq-question">
+                    <div class="faq-question" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-answer-1" id="faq-question-1">
                         <span>How long does shipping typically take?</span>
                         <i class="fas fa-chevron-down faq-icon"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" id="faq-answer-1" role="region" aria-labelledby="faq-question-1">
                         Shipping times depend on the destination and service type. Road freight typically takes 2-7 days within SADC countries. Air freight is available for urgent shipments (1-3 days). We'll provide a specific timeframe when you request a quote.
                     </div>
                 </div>
 
                 <div class="faq-item">
-                    <div class="faq-question">
+                    <div class="faq-question" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-answer-2" id="faq-question-2">
                         <span>Can you handle international shipments?</span>
                         <i class="fas fa-chevron-down faq-icon"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" id="faq-answer-2" role="region" aria-labelledby="faq-question-2">
                         Yes! We specialize in international logistics across Africa and beyond. Our services include customs clearance, documentation, and coordination with international partners to ensure smooth delivery worldwide.
                     </div>
                 </div>
 
                 <div class="faq-item">
-                    <div class="faq-question">
+                    <div class="faq-question" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-answer-3" id="faq-question-3">
                         <span>What insurance options are available?</span>
                         <i class="fas fa-chevron-down faq-icon"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" id="faq-answer-3" role="region" aria-labelledby="faq-question-3">
                         We offer comprehensive insurance coverage for all shipments. Standard coverage is included, with options for additional coverage based on cargo value. Full details are available in your shipment quote.
                     </div>
                 </div>
 
                 <div class="faq-item">
-                    <div class="faq-question">
+                    <div class="faq-question" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-answer-4" id="faq-question-4">
                         <span>How do I track my shipment?</span>
                         <i class="fas fa-chevron-down faq-icon"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" id="faq-answer-4" role="region" aria-labelledby="faq-question-4">
                         You can track your shipment 24/7 through our online portal. Simply log in with your account or use the tracking number provided. Real-time updates are sent via SMS and email throughout the delivery process.
                     </div>
                 </div>
 
                 <div class="faq-item">
-                    <div class="faq-question">
+                    <div class="faq-question" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-answer-5" id="faq-question-5">
                         <span>What payment methods do you accept?</span>
                         <i class="fas fa-chevron-down faq-icon"></i>
                     </div>
-                    <div class="faq-answer">
-                        We accept bank transfers, mobile money (Airtel Money, Zamtel Money), credit/debit cards, and cash on delivery. Corporate accounts can arrange credit terms based on creditworthiness and shipment volume.
+                    <div class="faq-answer" id="faq-answer-5" role="region" aria-labelledby="faq-question-5">
+                        We accept bank transfer and mobile money. Contact us for full payment details for your shipment.
                     </div>
                 </div>
 
                 <div class="faq-item">
-                    <div class="faq-question">
+                    <div class="faq-question" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-answer-6" id="faq-question-6">
                         <span>Do you offer warehousing services?</span>
                         <i class="fas fa-chevron-down faq-icon"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" id="faq-answer-6" role="region" aria-labelledby="faq-question-6">
                         Yes, we operate modern warehousing facilities across the region. Services include storage, inventory management, order fulfillment, and cross-docking. Contact us for facility details and rates.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- News Section -->
-    <section class="news-section">
-        <div class="container">
-            <div class="section-title">
-                <h2>Latest News & Updates</h2>
-                <p>Stay informed about our latest developments</p>
-            </div>
-
-            <div class="news-grid">
-                <div class="news-card">
-                    <div class="news-image"></div>
-                    <div class="news-content">
-                        <h3 class="news-title">Fleet Expansion Announcement</h3>
-                        <p class="news-excerpt">Forus Freight expands operations with 50 new trucks to serve the SADC region better.</p>
-                        <a href="#" class="news-link">Read More →</a>
-                    </div>
-                </div>
-
-                <div class="news-card">
-                    <div class="news-image"></div>
-                    <div class="news-content">
-                        <h3 class="news-title">New Warehouse Opens in Lusaka</h3>
-                        <p class="news-excerpt">State-of-the-art 15,000 sqm facility now operational for enhanced storage solutions.</p>
-                        <a href="#" class="news-link">Read More →</a>
-                    </div>
-                </div>
-
-                <div class="news-card">
-                    <div class="news-image"></div>
-                    <div class="news-content">
-                        <h3 class="news-title">Award-Winning Service Excellence</h3>
-                        <p class="news-excerpt">Recognized as Best Logistics Provider 2024 for outstanding customer service.</p>
-                        <a href="#" class="news-link">Read More →</a>
                     </div>
                 </div>
             </div>
@@ -1440,7 +1506,7 @@ try {
             <p class="cta-subtitle">Get started today with a free, no-obligation quote</p>
             <a href="{{ route('quote') }}" class="btn-cta">Request Free Quote</a>
             @guest
-                <a href="{{ route('login') }}" class="btn-cta" style="background: white; color: var(--secondary);">Login to Account</a>
+                <a href="{{ route('login') }}" class="btn-cta" style="background: white; color: #1e293b;">Login to Account</a>
             @endguest
         </div>
     </section>
@@ -1455,24 +1521,13 @@ try {
             const countries = {
                 'Zambia':       { lat: -13.1339, lng: 27.8493, color: '#007f7f', size: 0.7 },
                 'South Africa': { lat: -30.5595, lng: 22.9375, color: '#ff6200', size: 0.6 },
-                'Zimbabwe':     { lat: -19.0154, lng: 29.1549, color: '#007f7f', size: 0.6 },
-                'China':        { lat:  35.8617, lng: 104.1954, color: '#ff6200', size: 0.7 },
+                'China':        { lat:  35.8617, lng: 104.1954, color: '#8b5cf6', size: 0.6 },
                 'UAE':          { lat:  23.4241, lng: 53.8478, color: '#059669', size: 0.6 },
-                'Tanzania':     { lat:  -6.3690, lng: 34.8888, color: '#059669', size: 0.5 },
-                'Botswana':     { lat: -22.3285, lng: 24.6849, color: '#8b5cf6', size: 0.5 },
-                'Mozambique':   { lat: -18.6657, lng: 35.5296, color: '#f59e0b', size: 0.5 },
-                'DRC':          { lat:  -4.0383, lng: 21.7587, color: '#ff6200', size: 0.4 },
-                'Angola':       { lat: -11.2027, lng: 17.8739, color: '#007f7f', size: 0.4 },
-                'Kenya':        { lat:   1.2921, lng: 36.8219, color: '#059669', size: 0.4 },
-                'Ethiopia':     { lat:   9.1450, lng: 40.4897, color: '#f59e0b', size: 0.4 },
             };
 
             const connections = [
-                ['Zambia','South Africa'],['Zambia','Tanzania'],['Zambia','Botswana'],
-                ['Zambia','Mozambique'],['Zambia','Zimbabwe'],['Zambia','DRC'],
-                ['Zambia','Angola'],['Zambia','UAE'],['Zambia','China'],
-                ['South Africa','Botswana'],['South Africa','China'],
-                ['Tanzania','Kenya'],['Kenya','Ethiopia'],['UAE','China'],
+                ['Zambia','South Africa'],['Zambia','China'],['Zambia','UAE'],
+                ['South Africa','China'],['UAE','China'],
             ];
 
             const points = Object.entries(countries).map(([name, d]) => ({
@@ -1485,12 +1540,13 @@ try {
                 color: ['rgba(0,127,127,0.6)', 'rgba(0,127,127,0.6)'],
             }));
 
+            try {
             const myGlobe = Globe()
                 .width(container.clientWidth)
                 .height(container.clientHeight)
                 .backgroundColor('rgba(0,0,0,0)')
-                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-                .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+                .globeImageUrl('//unpkg.com/three-globe@2.45.2/example/img/earth-blue-marble.jpg')
+                .bumpImageUrl('//unpkg.com/three-globe@2.45.2/example/img/earth-topology.png')
                 .pointsData(points)
                 .pointColor(d => d.color)
                 .pointAltitude(0.02)
@@ -1529,23 +1585,46 @@ try {
             });
 
             document.querySelectorAll('.country-item').forEach(item => {
-                item.addEventListener('click', () => {
+                const selectCountry = () => {
                     const name = item.getAttribute('data-country');
                     const d = countries[name];
                     if (d) myGlobe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 1.2 }, 800);
-                    document.querySelectorAll('.country-item').forEach(i => i.classList.remove('active'));
+                    document.querySelectorAll('.country-item').forEach(i => {
+                        i.classList.remove('active');
+                        i.setAttribute('aria-pressed', 'false');
+                    });
                     item.classList.add('active');
+                    item.setAttribute('aria-pressed', 'true');
+                };
+                item.addEventListener('click', selectCountry);
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectCountry();
+                    }
                 });
             });
 
             window.addEventListener('resize', () => {
                 myGlobe.width(container.clientWidth).height(container.clientHeight);
             });
+            } catch (err) {
+                console.error('Globe visualization failed to load:', err);
+            }
 
             // FAQ toggle functionality
             document.querySelectorAll('.faq-item').forEach(item => {
-                item.querySelector('.faq-question').addEventListener('click', () => {
-                    item.classList.toggle('active');
+                const question = item.querySelector('.faq-question');
+                const toggleFaq = () => {
+                    const isOpen = item.classList.toggle('active');
+                    question.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                };
+                question.addEventListener('click', toggleFaq);
+                question.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleFaq();
+                    }
                 });
             });
 
@@ -1561,48 +1640,39 @@ try {
                 });
             });
             
-            // Intersection Observer for fade-in animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-            
-            // Observe all sections
-            document.querySelectorAll('section').forEach(section => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-                section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-                observer.observe(section);
-            });
-            
+            // Note: a scroll-triggered fade-in (IntersectionObserver toggling
+            // opacity 0->1 per section) was tried here and removed — it proved
+            // unreliable across fast scrolls, keyboard-driven jumps, and page
+            // load timing, in some cases leaving whole sections permanently
+            // invisible. Content visibility isn't worth trading for that effect,
+            // so sections are simply visible at their normal CSS opacity.
+
+
             // Add animation to stats on scroll
-            const statsSection = document.querySelector('.stats-section');
+            const statsSection = document.querySelector('.network-stats');
             if (statsSection) {
                 const statsObserver = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
-                            const stats = entry.target.querySelectorAll('.stat-number');
+                            const stats = entry.target.querySelectorAll('.network-stat-number');
                             stats.forEach(stat => {
-                                const text = stat.textContent;
-                                const target = parseInt(text.replace('+', ''));
+                                const text = stat.textContent.trim();
+                                // Only animate plain numeric values (with an optional
+                                // trailing + or %) — formats like "24/7" aren't a
+                                // magnitude to count up to, so leave those static.
+                                const match = text.match(/^(\d+)(\+|%)?$/);
+                                if (!match) return;
+                                const target = parseInt(match[1], 10);
+                                const suffix = match[2] || '';
                                 let current = 0;
-                                const increment = target / 50;
+                                const increment = Math.max(target / 50, 1);
                                 const timer = setInterval(() => {
                                     current += increment;
                                     if (current >= target) {
                                         stat.textContent = text;
                                         clearInterval(timer);
                                     } else {
-                                        stat.textContent = Math.floor(current) + (text.includes('+') ? '+' : '');
+                                        stat.textContent = Math.floor(current) + suffix;
                                     }
                                 }, 30);
                             });

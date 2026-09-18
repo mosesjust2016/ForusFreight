@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'fully_verified' => \App\Http\Middleware\EnsureFullyVerified::class,
         'role' => \App\Http\Middleware\CheckRole::class,
         'permission' => \App\Http\Middleware\CheckPermission::class,
+        'password.change_required' => \App\Http\Middleware\EnsurePasswordChanged::class,
     ];
 }

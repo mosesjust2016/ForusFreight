@@ -56,4 +56,14 @@ return [
         'base_url'    => env('GREEN_API_BASE_URL', 'https://api.green-api.com'),
     ],
 
+    /*
+    | Shipment owner notifications sent after bulk imports.
+    | Outside of production, every notification is redirected to
+    | NOTIFY_TEST_PHONE so real clients are never contacted from dev.
+    */
+    'notify' => [
+        'test_phone'    => env('NOTIFY_TEST_PHONE', '+260770826668'),
+        'send_delay_ms' => (int) env('NOTIFY_SEND_DELAY_MS', 500),
+    ],
+
 ];

@@ -44,8 +44,13 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
+        // current_password validates against the DEFAULT guard ('web')
+        // unless told otherwise — a staff member has no 'web' session at
+        // all, so without this the check would always fail for them.
+        $guard = Auth::user()->isStaff() ? 'admin' : 'web';
+
         $validated = $request->validateWithBag('updatePassword', [
-            'current_password' => ['required', 'current_password'],
+            'current_password' => ['required', "current_password:{$guard}"],
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
@@ -61,5 +66,34 @@ class ProfileController extends Controller
     public function help()
     {
         return view('client.help');
+    }
+
+    public function gettingStarted()
+    {
+        return view('client.getting-started');
+    }
+
+    /* ──────────────────────────────────────────────────────────
+       Forced password change (new system users)
+       ────────────────────────────────────────────────────────── */
+
+    public function forcePasswordChange()
+    {
+        return view('admin.force-password-change');
+    }
+
+    public function updateForcedPassword(Request $request)
+    {
+        $validated = $request->validateWithBag('updateForcedPassword', [
+            'current_password' => ['required', 'current_password:admin'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => $validated['password'],
+            'must_change_password' => false,
+        ]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Password changed successfully. Welcome to Forus Freight.');
     }
 }

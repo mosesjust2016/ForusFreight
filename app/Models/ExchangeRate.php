@@ -27,6 +27,19 @@ class ExchangeRate extends Model
         'recorded_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        // The manual "Sync" button on the admin Exchange Rates page (and the
+        // daily scheduled sync) both just insert a new row — neither knew to
+        // invalidate the cache below, so a freshly synced rate silently had
+        // no effect on any USD price shown anywhere for up to 10 minutes.
+        // A model event catches every way a new rate can be created, not
+        // just the current sync code paths.
+        static::created(function () {
+            Cache::forget('latest_exchange_rate_mid');
+        });
+    }
+
     /**
      * The most recent USD/ZMW mid rate (ZMW per 1 USD), cached briefly so
      * every currency conversion on a page doesn't hit the database

@@ -196,29 +196,50 @@
     </div>
 </div>
 
-@if(session('success'))
-    <div class="alert-success">
-        <i class="fas fa-check-circle"></i> {{ session('success') }}
-    </div>
-@endif
 
 <div class="edit-grid">
     <!-- Left: Shipment Details Form -->
     <div class="edit-card">
         <h2><i class="fas fa-pen-to-square" style="color: var(--primary-green);"></i> Shipment Details</h2>
 
-        <form method="POST" action="{{ route('admin.shipments.update', $shipment) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.shipments.update', $shipment) }}" enctype="multipart/form-data" data-loading-label="Saving shipment…">
             @csrf
             @method('PUT')
+
+            @include('admin.shipments._client-picker', [
+                'pickerClients'  => $clients,
+                'pickerField'    => 'user_id',
+                'pickerSelected' => $shipment->user_id,
+                'pickerRequired' => true,
+            ])
 
             <div class="form-group">
                 <label>Status</label>
                 <select name="status">
-                    @foreach($statuses as $s)
-                        <option value="{{ $s }}" {{ $shipment->status === $s ? 'selected' : '' }}>{{ $s }}</option>
-                    @endforeach
-                </select>
+                        @php $currentCanonical = \App\Models\Shipment::canonicalStatus($shipment->status); @endphp
+                        @foreach($statuses as $code => $label)
+                            <option value="{{ $code }}" {{ ($currentCanonical ?? $shipment->status) === $code ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 @error('status')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Serial Number <span style="font-weight:500;text-transform:none;color:#94a3b8;">(editable — new shipments auto-generate ZMFFL-xxxxxx)</span></label>
+                <input type="text" name="serial_no" value="{{ old('serial_no', $shipment->serial_no) }}" placeholder="e.g. ZMFFL-000001">
+                @error('serial_no')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Reference <span style="font-weight:500;text-transform:none;color:#94a3b8;">(your order/reference no.)</span></label>
+                <input type="text" name="reference" value="{{ old('reference', $shipment->reference) }}" placeholder="e.g. REF-2026-001">
+                @error('reference')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone_number" value="{{ old('phone_number', $shipment->phone_number) }}" placeholder="e.g. +260 97 123 4567">
+                @error('phone_number')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
 
             <div class="form-group">
@@ -241,14 +262,38 @@
 
             <div class="form-group">
                 <label>Cost (ZMW)</label>
-                <input type="number" step="0.01" min="0" name="cost" value="{{ old('cost', $shipment->cost) }}">
+                <input type="number" step="any" min="0" name="cost" value="{{ old('cost', $shipment->cost) }}">
                 @error('cost')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
 
             <div class="form-group">
-                <label>Estimated Delivery</label>
+                <label>Estimated Delivery (ETA)</label>
                 <input type="date" name="estimated_delivery" value="{{ old('estimated_delivery', $shipment->estimated_delivery?->format('Y-m-d')) }}">
                 @error('estimated_delivery')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Date of Load</label>
+                <input type="date" name="date_of_load" value="{{ old('date_of_load', $shipment->date_of_load?->format('Y-m-d')) }}">
+                @error('date_of_load')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>CBM / Volume (m³)</label>
+                <input type="number" step="any" min="0" name="cbm_volume" value="{{ old('cbm_volume', $shipment->cbm_volume) }}" placeholder="e.g. 0.6">
+                @error('cbm_volume')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>KGS / Gross Weight</label>
+                <input type="number" step="any" min="0" name="gross_weight" value="{{ old('gross_weight', $shipment->gross_weight) }}" placeholder="e.g. 136">
+                @error('gross_weight')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>No. of Parcels</label>
+                <input type="number" min="1" name="no_of_parcels" value="{{ old('no_of_parcels', $shipment->no_of_parcels) }}" placeholder="e.g. 3">
+                @error('no_of_parcels')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
 
             {{-- Existing images --}}
@@ -287,6 +332,7 @@
                     <span>JPG, PNG, WebP · max 5 MB each</span>
                 </div>
                 <div class="img-grid" id="previewGrid"></div>
+                <div id="uploadErrors"></div>
                 @error('images.*')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
 
@@ -301,7 +347,7 @@
         <div class="edit-card" id="add-event">
             <h2><i class="fas fa-location-dot" style="color: var(--primary-green);"></i> Add Tracking Event</h2>
 
-            <form method="POST" action="{{ route('admin.shipments.events.store', $shipment) }}">
+            <form method="POST" action="{{ route('admin.shipments.events.store', $shipment) }}" data-loading-label="Adding event…">
                 @csrf
 
                 <div class="form-group">
@@ -320,8 +366,8 @@
                     <label>Update Shipment Status <span style="font-weight:500;text-transform:none;color:#94a3b8;">(optional — updates the shipment's status)</span></label>
                     <select name="status">
                         <option value="">— Keep current status —</option>
-                        @foreach($statuses as $s)
-                            <option value="{{ $s }}" {{ old('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
+                        @foreach($statuses as $code => $label)
+                            <option value="{{ $code }}" {{ old('status') === $code ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
                     @error('status')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
@@ -330,12 +376,12 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Latitude <span style="font-weight:500;text-transform:none;color:#94a3b8;">(optional)</span></label>
-                        <input type="number" step="0.0000001" name="latitude" placeholder="-15.3875" value="{{ old('latitude') }}">
+                        <input type="number" step="any" name="latitude" placeholder="-15.3875" value="{{ old('latitude') }}">
                         @error('latitude')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Longitude <span style="font-weight:500;text-transform:none;color:#94a3b8;">(optional)</span></label>
-                        <input type="number" step="0.0000001" name="longitude" placeholder="28.3228" value="{{ old('longitude') }}">
+                        <input type="number" step="any" name="longitude" placeholder="28.3228" value="{{ old('longitude') }}">
                         @error('longitude')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
                     </div>
                 </div>
@@ -372,7 +418,7 @@
                                     <span><i class="fas fa-location-dot" style="font-size:0.65rem;"></i> {{ $event->location }}</span>
                                     @if($event->status)
                                         <span style="color: var(--primary-green); font-weight: 800;">
-                                            <i class="fas fa-circle-dot" style="font-size:0.65rem;"></i> {{ $event->status }}
+                                            <i class="fas fa-circle-dot" style="font-size:0.65rem;"></i> {{ \App\Models\Shipment::statusLabelFor($event->status) }}
                                         </span>
                                     @endif
                                     @if($event->latitude && $event->longitude)
@@ -439,8 +485,36 @@
         });
     }
 
+    /* Client-side only — a fast, friendly first check so people don't wait
+       for a round-trip to find out a file is the wrong type or too big.
+       This is NOT the real security boundary: the server always re-checks
+       and re-encodes every image regardless of what the browser reports
+       here, since a script can trivially send whatever it wants. */
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+    function showUploadErrors(messages) {
+        const box = document.getElementById('uploadErrors');
+        if (!messages.length) { box.innerHTML = ''; return; }
+        box.innerHTML = messages
+            .map(m => `<div style="color:#ef4444;font-size:0.75rem;margin-top:0.25rem;">${m}</div>`)
+            .join('');
+    }
+
     function handleFiles(files) {
-        Array.from(files).forEach(f => stagedFiles.items.add(f));
+        const errors = [];
+        Array.from(files).forEach(f => {
+            if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
+                errors.push(`"${f.name}" isn't a supported image type (JPG, PNG, or WebP only).`);
+                return;
+            }
+            if (f.size > MAX_IMAGE_BYTES) {
+                errors.push(`"${f.name}" is ${(f.size / (1024 * 1024)).toFixed(1)} MB — the limit is 5 MB.`);
+                return;
+            }
+            stagedFiles.items.add(f);
+        });
+        showUploadErrors(errors);
         syncInput();
         renderPreviews();
     }

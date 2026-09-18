@@ -169,17 +169,6 @@
     </div>
 </div>
 
-@if(session('success'))
-    <div style="background: #f0fdf4; border-left: 4px solid #16a34a; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; color: #166534; font-weight: 700;">
-        <i class="fas fa-check-circle"></i> {{ session('success') }}
-    </div>
-@endif
-
-@if(session('error'))
-    <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; color: #991b1b; font-weight: 700;">
-        <i class="fas fa-circle-exclamation"></i> {{ session('error') }}
-    </div>
-@endif
 
 <!-- Current Rate Card -->
 <div class="rate-card">

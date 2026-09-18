@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
 @section('title', 'Track Your Shipment - Forus Freight')
+@section('meta_description', 'Track your Forus Freight shipment in real time by entering your tracking number.')
 
 @section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'Track Shipment', 'url' => null]]])
 <section style="padding: 4rem 0; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%);">
     <div class="container">
         <div style="max-width: 720px; margin:auto; text-align:center; color:white;">
@@ -32,12 +34,12 @@
             <!-- TRACKING FORM -->
             <form method="POST" action="{{ route('track.check') }}">
                 @csrf
-                <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:0.5rem;">Tracking Number</label>
+                <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:0.5rem;">Tracking / Serial Number</label>
                 <div style="display:flex; gap:1rem; margin-top:.5rem;">
-                    <input type="text" name="tracking_number" placeholder="e.g. 773421428627451"
+                    <input type="text" name="tracking_number" placeholder="e.g. DUR.37977 or 773421428627451"
                         value="{{ old('tracking_number', session('tracking_attempt') ?? '') }}"
                         style="flex:1; padding:1rem; border-radius:12px; border:2px solid #007f7f; font-size:1rem;">
-                    <button type="submit" style="padding:1rem 2rem; border-radius:12px; font-weight:700; color:white; background: #ff6200; border:none; cursor:pointer; transition:all 0.3s;">
+                    <button type="submit" style="padding:1rem 2rem; border-radius:12px; font-weight:700; color:#1e293b; background: #ff6200; border:none; cursor:pointer; transition:all 0.3s;">
                         <i class="fas fa-search" style="margin-right: 0.5rem;"></i> Track Shipment
                     </button>
                 </div>
@@ -50,17 +52,17 @@
             @if(isset($shipment) && $shipment)
             <div id="results" style="margin-top:3rem; padding:2rem; background:linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius:12px; border: 2px solid #007f7f;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3 style="font-weight:700; color:#1e293b; margin:0;">Shipment Details</h3>
+                    <h2 style="font-weight:700; color:#1e293b; margin:0; font-size:1.25rem;">Shipment Details</h2>
                     <span style="padding: 0.5rem 1rem; background: #007f7f; color: white; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
-                        {{ strtoupper($shipment->status) }}
+                        {{ $shipment->status_label }}
                     </span>
                 </div>
 
                 <!-- Shipment Info -->
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
                     <div>
-                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Tracking Number</p>
-                        <p style="color: #1e293b; font-weight: 600; font-size: 1.25rem;">{{ $shipment->tracking_number }}</p>
+                        <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Tracking / Serial Number</p>
+                        <p style="color: #1e293b; font-weight: 600; font-size: 1.25rem;">{{ $shipment->tracking_number ?: $shipment->serial_no }}</p>
                     </div>
                     <div>
                         <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Cargo</p>
@@ -76,7 +78,7 @@
                     </div>
                     <div>
                         <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Current Location</p>
-                        <p style="color: #1e293b; font-weight: 600;">{{ $shipment->current_border ?: 'N/A' }}</p>
+                        <p style="color: #1e293b; font-weight: 600;">{{ $shipment->current_location_display ?: 'N/A' }}</p>
                     </div>
                     <div>
                         <p style="color: #64748b; margin-bottom: 0.25rem; font-size: 0.875rem;">Days in Transit</p>
@@ -101,12 +103,13 @@
                 @endphp
                 @if(!empty($images))
                 <div style="margin-top: 2rem;">
-                    <h4 style="font-weight:600; color:#1e293b; margin-bottom:1rem;">Shipment Images</h4>
+                    <h3 style="font-weight:600; color:#1e293b; margin-bottom:1rem; font-size:1.05rem;">Shipment Images</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                         @foreach($images as $image)
                         <div style="border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;">
                             <img src="{{ asset('storage/' . $image) }}"
                                  alt="Shipment image"
+                                 loading="lazy"
                                  style="width: 100%; height: 150px; object-fit: cover;"
                                  onclick="this.style.maxWidth='100%'; this.style.cursor='zoom-in';"
                                  data-lightbox="shipment-images">
@@ -118,7 +121,7 @@
 
                 <!-- Tracking Timeline -->
                 <div style="margin-top: 2rem;">
-                    <h4 style="font-weight:600; color:#1e293b; margin-bottom:1.5rem;">Shipment Timeline</h4>
+                    <h3 style="font-weight:600; color:#1e293b; margin-bottom:1.5rem; font-size:1.05rem;">Shipment Timeline</h3>
                     <div style="position:relative; padding-left:2rem;">
                         @forelse($shipment->trackingEvents as $index => $event)
                         <div style="position:relative; margin-bottom:2rem;">
@@ -160,28 +163,6 @@
             </div>
             @endif
 
-            <!-- Demo Numbers Section (only show if no shipment found) -->
-            @if(!isset($shipment) || !$shipment)
-            <div style="margin-top:3rem; padding:2rem; background:linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius:12px; border: 2px solid #cccccc;">
-                <h4 style="font-weight:700; color:#1e293b; margin-bottom:1rem;">Demo Tracking Numbers</h4>
-                <p style="color:#64748b; margin-bottom:1.5rem;">Try these example tracking numbers to see how our tracking system works:</p>
-                <div style="display:flex; flex-wrap:wrap; gap:1rem;">
-                    <button onclick="document.querySelector('input[name=\"tracking_number\"]').value='610080707216'; document.querySelector('form').submit();"
-                            style="padding:0.75rem 1.5rem; background:white; border:2px solid #007f7f; border-radius:8px; color:#007f7f; font-weight:600; cursor:pointer; transition:all 0.3s;">
-                        610080707216
-                    </button>
-                    <button onclick="document.querySelector('input[name=\"tracking_number\"]').value='700912765254'; document.querySelector('form').submit();"
-                            style="padding:0.75rem 1.5rem; background:white; border:2px solid #007f7f; border-radius:8px; color:#007f7f; font-weight:600; cursor:pointer; transition:all 0.3s;">
-                        700912765254
-                    </button>
-                    <button onclick="document.querySelector('input[name=\"tracking_number\"]').value='703003614399'; document.querySelector('form').submit();"
-                            style="padding:0.75rem 1.5rem; background:white; border:2px solid #007f7f; border-radius:8px; color:#007f7f; font-weight:600; cursor:pointer; transition:all 0.3s;">
-                        703003614399
-                    </button>
-                </div>
-            </div>
-            @endif
-
             <!-- Contact Support -->
             <div style="margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; color: white;">
                 <div style="display: flex; align-items: start; gap: 1.5rem;">
@@ -189,22 +170,22 @@
                         <i class="fas fa-headset" style="color: #059669; font-size: 2rem;"></i>
                     </div>
                     <div>
-                        <h4 style="font-weight: 700; margin-bottom: 0.75rem;">Need Help With Your Shipment?</h4>
+                        <h2 style="font-weight: 700; margin-bottom: 0.75rem; font-size:1.25rem;">Need Help With Your Shipment?</h2>
                         <p style="color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">
                             Our customer support team is available 24/7 to assist you with any questions about your shipment.
                         </p>
                         <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fas fa-phone" style="color: #059669;"></i>
-                                <span>+260 96 123 4567</span>
+                                <span>+260 572 788 685</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fab fa-whatsapp" style="color: #059669;"></i>
-                                <span>WhatsApp: +260 96 123 4567</span>
+                                <span>WhatsApp: +260 572 788 685</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fas fa-envelope" style="color: #059669;"></i>
-                                <span>support@forusfreight.co.zm</span>
+                                <span>info@forusfl.co.zm</span>
                             </div>
                         </div>
                     </div>

@@ -39,7 +39,7 @@ class GreenApiService
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post($url, [
+            ])->timeout(12)->connectTimeout(6)->post($url, [
                 'chatId'  => $phone,
                 'message' => $message,
             ]);
@@ -241,7 +241,7 @@ class GreenApiService
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post($url, [
+            ])->timeout(10)->connectTimeout(5)->post($url, [
                 'phoneNumber' => (int) str_replace('@c.us', '', $phone),
             ]);
 

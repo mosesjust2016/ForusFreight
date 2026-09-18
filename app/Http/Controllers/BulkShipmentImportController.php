@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Shipment;
 use App\Models\TrackingEvent;
 use App\Models\User;
+use App\Services\ShipmentNotifierService;
 
 class BulkShipmentImportController extends Controller
 {
@@ -23,6 +24,8 @@ class BulkShipmentImportController extends Controller
         'code' => ['cargo code', 'code'],
         'serial_no' => ['serial number', 'serial no', 'serial'],
         'client_name' => ['client name', 'client'],
+        'reference' => ['reference', 'ref'],
+        'phone_number' => ['phone number'],
         'origin' => ['origin', 'origin country'],
         'port_of_origin' => ['origin port', 'port of origin'],
         'current_border' => ['current location', 'current border'],
@@ -40,10 +43,11 @@ class BulkShipmentImportController extends Controller
         'gross_weight' => ['weight (kg)', 'weight'],
         'cost' => ['cost (zmw)', 'cost'],
         'cbm_volume' => ['cbm', 'cbm volume', 'volume'],
-        'client_phone' => ['phone', 'client phone', 'phone number'],
+        'client_phone' => ['client phone', 'phone'],
+        'service' => ['cargo / service type', 'cargo service type', 'service type', 'service'],
     ];
 
-    private const REQUIRED_SHIPMENT_FIELDS = ['tracking_number', 'client_name', 'origin', 'destination'];
+    private const REQUIRED_SHIPMENT_FIELDS = ['client_name', 'origin', 'destination'];
 
     private const EVENT_HEADER_ALIASES = [
         'tracking_number' => ['tracking number', 'trackingno', 'tracking'],
@@ -57,7 +61,7 @@ class BulkShipmentImportController extends Controller
 
     private function checkAdmin()
     {
-        if (!Auth::check() || !Auth::user()->is_admin) {
+        if (!Auth::check() || !Auth::user()->isStaff()) {
             return redirect()->route('dashboard')->with('error', 'Access denied. Admin privileges required.');
         }
         return null;
@@ -71,6 +75,9 @@ class BulkShipmentImportController extends Controller
 
     public function import(Request $request)
     {
+        @set_time_limit(900);
+        @ini_set('memory_limit', '512M');
+
         if ($redirect = $this->checkAdmin()) return $redirect;
 
         $request->validate([
@@ -100,7 +107,7 @@ class BulkShipmentImportController extends Controller
             )) . '. Found headers: ' . implode(', ', $header));
         }
 
-        $results = ['success' => 0, 'updated' => 0, 'failed' => 0, 'errors' => [], 'shipments' => []];
+        $results = ['success' => 0, 'updated' => 0, 'failed' => 0, 'errors' => [], 'shipments' => [], 'notifications' => []];
 
         foreach ($rows as $rowNum => $row) {
             $rowNum += 2; // header row + 1-indexed
@@ -110,6 +117,13 @@ class BulkShipmentImportController extends Controller
             $result = $this->upsertShipmentFromRow($row, $map, $rowNum);
 
             if ($result['success']) {
+                // Notify the owner (WhatsApp first, SMS fallback). Locally the
+                // notifier redirects everything to the configured test phone.
+                $notifier = app(ShipmentNotifierService::class);
+                $notify   = $notifier->notifyOwner($result['model'], !$result['updated']);
+                $result['shipment']['notify'] = $notify;
+                $results['notifications'][$notify['status']] = ($results['notifications'][$notify['status']] ?? 0) + 1;
+
                 $results[$result['updated'] ? 'updated' : 'success']++;
                 $results['shipments'][] = $result['shipment'];
             } else {
@@ -118,8 +132,17 @@ class BulkShipmentImportController extends Controller
             }
         }
 
+        $notifySummary = '';
+        if (!empty($results['notifications'])) {
+            $parts = [];
+            if (!empty($results['notifications']['sent']))   $parts[] = $results['notifications']['sent'] . ' notified';
+            if (!empty($results['notifications']['failed'])) $parts[] = $results['notifications']['failed'] . ' failed';
+            if (!empty($results['notifications']['skipped']))$parts[] = $results['notifications']['skipped'] . ' no-phone/skipped';
+            $notifySummary = ' · Notifications: ' . implode(', ', $parts);
+        }
+
         return back()->with('import_results', $results)
-            ->with('success', "Bulk import completed. {$results['success']} created, {$results['updated']} updated, {$results['failed']} failed.");
+            ->with('success', "Bulk import completed. {$results['success']} created, {$results['updated']} updated, {$results['failed']} failed.{$notifySummary}");
     }
 
     public function importTrackingEvents(Request $request)
@@ -296,10 +319,17 @@ class BulkShipmentImportController extends Controller
             $origin = $get('origin');
             $destination = $get('destination');
 
-            if (!$trackingNumber) return ['success' => false, 'error' => "Row $rowNum: Tracking Number is required"];
             if (!$clientName) return ['success' => false, 'error' => "Row $rowNum: Client name is required"];
             if (!$origin) return ['success' => false, 'error' => "Row $rowNum: Origin is required"];
             if (!$destination) return ['success' => false, 'error' => "Row $rowNum: Destination is required"];
+
+            // Tracking Number is optional, just like in "Create New Shipment".
+            // Supplying one matches/updates an existing shipment; leaving it
+            // blank auto-generates a unique number for a brand-new shipment.
+            $shipment = $trackingNumber ? Shipment::where('tracking_number', $trackingNumber)->first() : null;
+            if (!$trackingNumber) {
+                $trackingNumber = $this->generateTrackingNumber();
+            }
 
             $serialNumber = $this->cleanNumericString($get('serial_no'));
             $weight = (float) preg_replace('/[^0-9.]/', '', $get('gross_weight', '0'));
@@ -309,13 +339,10 @@ class BulkShipmentImportController extends Controller
             $deliveryDate = $this->parseDate($get('delivery_date'));
             $dateOfLoad = $this->parseDate($get('date_of_load'));
 
-            $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
-
             // Auto-generate a serial number only for brand-new shipments that
             // didn't supply one; never overwrite an existing serial number.
             if (!$serialNumber) {
-                $serialNumber = $shipment?->serial_no
-                    ?? ('ZML-' . strtoupper(substr(uniqid(), -8)));
+                $serialNumber = $shipment?->serial_no ?? Shipment::nextSerialNumber();
             }
             if (!$shipment) {
                 $baseSerial = $serialNumber;
@@ -330,12 +357,16 @@ class BulkShipmentImportController extends Controller
                 'client_name' => $clientName,
                 'serial_no' => $serialNumber,
                 'code' => $get('code') ?: null,
+                'reference' => $get('reference') ?: null,
+                'phone_number' => $get('phone_number') ?: null,
+                'client_phone' => $get('client_phone') ?: null,
+                'service' => $get('service') ?: null,
                 'origin' => $origin,
                 'port_of_origin' => $get('port_of_origin') ?: null,
                 'current_border' => $get('current_border') ?: null,
                 'destination' => $destination,
                 'shipping_method' => $get('shipping_method') ?: null,
-                'status' => $get('status') ?: 'Order Placed',
+                'status' => $get('status') ?: 'CREATED',
                 'date_of_load' => $dateOfLoad,
                 'estimated_delivery' => $estimatedDelivery,
                 'delivery_date' => $deliveryDate,
@@ -347,6 +378,7 @@ class BulkShipmentImportController extends Controller
                 'quantity' => $quantity > 0 ? $quantity : null,
                 'gross_weight' => $weight > 0 ? $weight : null,
                 'weight' => $weight > 0 ? $weight : null,
+                'cbm_volume' => $this->cleanNumericString($get('cbm_volume')) ?: null,
                 'cost' => $cost,
             ];
 
@@ -369,6 +401,7 @@ class BulkShipmentImportController extends Controller
             return [
                 'success' => true,
                 'updated' => $updated,
+                'model'   => $shipment,
                 'shipment' => [
                     'tracking_number' => $trackingNumber,
                     'serial' => $serialNumber,
@@ -381,6 +414,20 @@ class BulkShipmentImportController extends Controller
         } catch (\Exception $e) {
             return ['success' => false, 'error' => "Row $rowNum: {$e->getMessage()}"];
         }
+    }
+
+    /**
+     * Generate a unique Tracking Number of the form "RS.########" when a
+     * row leaves the column blank (mirrors the existing tracking-number
+     * format in the data, e.g. RS.26052049).
+     */
+    private function generateTrackingNumber(): string
+    {
+        do {
+            $code = 'RS.' . random_int(10000000, 99999999);
+        } while (Shipment::where('tracking_number', $code)->exists());
+
+        return $code;
     }
 
     private function findOrCreateClient(string $clientName): User
@@ -453,17 +500,27 @@ class BulkShipmentImportController extends Controller
         if ($redirect = $this->checkAdmin()) return $redirect;
 
         $headers = [
-            'Tracking Number', 'Cargo Code', 'Serial Number', 'Client Name', 'Origin', 'Origin Port',
-            'Current Location', 'Destination', 'Shipping Method', 'Status', 'Date Loaded', 'ETA',
+            // Required columns first, in the same order as the "Required
+            // Columns" list, then the optional columns following the
+            // "Create New Shipment" form order (serial, reference, phone,
+            // origin-quantity fields), then bulk-only extras.
+            'Tracking Number', 'Client Name', 'Origin', 'Destination',
+            'Serial Number', 'Reference', 'Phone Number',
+            'Cargo / Service Type', 'Status', 'ETA', 'Date Loaded',
+            'CBM (m³)', 'Weight (KG)', 'Parcel Quantity', 'Cost (ZMW)',
+            'Cargo Code', 'Origin Port', 'Current Location', 'Shipping Method',
             'Driver', 'Vehicle Registration', 'Delivery Date', 'Proof of Delivery',
-            'Cargo Description', 'Parcel Quantity', 'Weight (KG)', 'Cost (ZMW)',
+            'Cargo Description',
         ];
 
         return $this->csvResponse('shipments_import_template.csv', $headers, [
-            ['773421428627451', 'ZMFFL 6982', 'RS.26060617', 'Womba Kadimba', 'China', 'Guangzhou Port',
-                'Port of Beira', 'Lusaka, Zambia', 'Sea', 'Ordered', '25/06/2026', '24/08/2026',
+            ['773421428627451', 'Womba Kadimba', 'China', 'Lusaka, Zambia',
+                'ZMFFL-000001', 'REF-2026-001', '+260 97 123 4567',
+                'General Cargo', 'Ordered', '24/08/2026', '25/06/2026',
+                '0.6', '500', '5', '15500.00',
+                'ZMFFL 6982', 'Guangzhou Port', 'Port of Beira', 'Sea',
                 '', '', '', '',
-                'Toilet Cleaner', '5', '500', '15500.00'],
+                'Toilet Cleaner'],
         ]);
     }
 

@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Forus Freight') }} - @yield('title', 'Authentication')</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+        <meta name="robots" content="noindex, nofollow">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

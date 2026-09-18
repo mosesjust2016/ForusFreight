@@ -106,6 +106,24 @@ class BrevoMailService
         return $this->send($toEmail, $toName, 'Your Email Verification Code', $html);
     }
 
+    /**
+     * Sends a new system user their temporary login credentials. The
+     * password is only ever transmitted this once — must_change_password
+     * forces them to set their own on first login.
+     */
+    public function sendStaffWelcome(string $toEmail, string $toName, string $roleName, string $temporaryPassword): bool
+    {
+        $html = view('emails.staff-welcome', [
+            'name'              => $toName,
+            'email'             => $toEmail,
+            'roleName'          => $roleName,
+            'temporaryPassword' => $temporaryPassword,
+            'loginUrl'          => route('admin.login'),
+        ])->render();
+
+        return $this->send($toEmail, $toName, 'Your Forus Freight Admin Portal Account', $html);
+    }
+
     /* ─── Shipment Emails ──────────────────────────────────── */
 
     public function sendShipmentCreated(Shipment $shipment): bool
@@ -123,7 +141,7 @@ class BrevoMailService
             'weight'           => $shipment->weight,
             'estimatedDelivery'=> $shipment->estimated_delivery,
             'cost'             => $shipment->cost,
-            'trackingUrl'      => url("/track?serial_no={$shipment->serial_no}"),
+            'trackingUrl'      => $this->trackingUrl($shipment),
         ])->render();
 
         return $this->send(
@@ -139,14 +157,18 @@ class BrevoMailService
         $user = $shipment->user;
         if (!$user || !$user->email) return false;
 
-        $statusEmoji = match($newStatus) {
-            'Delivered'       => '✅',
-            'In Transit'      => '🚚',
-            'At Border'       => '📍',
-            'Cleared'         => '✓',
-            'Out for Delivery'=> '📦',
-            'Cancelled'       => '❌',
-            default           => '📋',
+        $canonicalStatus = \App\Models\Shipment::canonicalStatus($newStatus);
+        $statusEmoji = match($canonicalStatus) {
+            'DELIVERED'           => '✅',
+            'OUT_FOR_DELIVERY'    => '📦',
+            'READY_FOR_COLLECTION'=> '📦',
+            'IN_TRANSIT'          => '🚚',
+            'ARRIVED_ZM'          => '📍',
+            'CLEARED'             => '✓',
+            'CUSTOMS_CLEARANCE'   => '✓',
+            'EXCEPTION'           => '❌',
+            'ON_HOLD'             => '⏸',
+            default               => '📋',
         };
 
         $html = view('emails.shipment-status-updated', [
@@ -159,8 +181,8 @@ class BrevoMailService
             'origin'           => $shipment->origin,
             'destination'      => $shipment->destination,
             'estimatedDelivery'=> $shipment->estimated_delivery,
-            'trackingUrl'      => url("/track?serial_no={$shipment->serial_no}"),
-            'dashboardUrl'     => url("/dashboard"),
+            'trackingUrl'      => $this->trackingUrl($shipment),
+            'dashboardUrl'     => $this->appUrl('/dashboard'),
         ])->render();
 
         return $this->send(
@@ -169,6 +191,23 @@ class BrevoMailService
             "Shipment Update - {$newStatus} - {$shipment->serial_no}",
             $html
         );
+    }
+
+    /* ─── URL helpers ─────────────────────────────────────── */
+
+    /**
+     * Absolute URL built from the configured APP_URL so email links keep
+     * working no matter which host actually served the request (SSL-off load
+     * balancers, queue workers, artisan CLI, localhost dev).
+     */
+    protected function appUrl(string $path = ''): string
+    {
+        return rtrim((string) config('app.url'), '/') . '/' . ltrim($path, '/');
+    }
+
+    protected function trackingUrl(Shipment $shipment): string
+    {
+        return $this->appUrl() . 'track?serial_no=' . urlencode($shipment->serial_no);
     }
 
     /* ─── Security Alert ───────────────────────────────────── */

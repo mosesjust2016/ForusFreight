@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\SecureImageUploadService;
 
 class ShipmentController extends Controller
 {
@@ -29,7 +30,42 @@ class ShipmentController extends Controller
      */
     public function create()
     {
-        return view('client.create-shipment');
+        $parcelCode = $this->generateParcelCode();
+
+        return view('client.create-shipment', compact('parcelCode'));
+    }
+
+    /**
+     * Generate a unique client parcel code of the form "ZMFFL <6 digits>".
+     * The client writes this code on their parcel so it is routed to Zambia
+     * (ZMFFL) rather than Ghana (GHFFL).
+     */
+    private function generateParcelCode(): string
+    {
+        $prefix = config('forus.parcel_code_prefix', 'ZMFFL');
+
+        do {
+            $code = $prefix . ' ' . str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (Shipment::where('code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Generate a unique serial number of the form "<PREFIX>.#####" where the
+     * prefix comes from the origin city (e.g. Durban -> DUR.37977). Mirrors
+     * the AdminController behaviour so client-created shipments look identical.
+     */
+    private function generateSerialNo(string $originCity, string $originCountry): string
+    {
+        $source = $originCity ?: $originCountry;
+        $prefix = strtoupper(substr(trim($source), 0, 3));
+
+        do {
+            $number = random_int(10000, 99999);
+        } while (Shipment::where('serial_no', "{$prefix}.{$number}")->exists());
+
+        return "{$prefix}.{$number}";
     }
 
     /**
@@ -44,8 +80,7 @@ class ShipmentController extends Controller
         $validated = $request->validate([
             'client_name' => 'required|string|max:255',
             'client_phone' => 'required|string|max:20',
-            'serial_no' => 'required|string|unique:shipments,serial_no|max:255',
-            'tracking_number' => 'nullable|string|max:255',
+            'tracking_number' => 'nullable|string|max:255|unique:shipments,tracking_number',
             'code' => 'nullable|string|max:50',
             'origin_country' => 'required|string|max:255',
             'origin_city' => 'required|string|max:255',
@@ -55,20 +90,32 @@ class ShipmentController extends Controller
             'port_destination' => 'nullable|string|max:255',
             'service_type' => 'required|string',
             'shipping_method' => 'required|string',
-            'initial_status' => 'required|string',
-            'date_of_load' => 'required|date',
-            'estimated_delivery' => 'required|date|after_or_equal:date_of_load',
-            'description' => 'required|string',
+            'description' => 'required|string|max:255',
             'no_of_parcels' => 'required|integer|min:1',
-            'cbm_volume' => 'required|numeric|min:0',
-            'gross_weight' => 'required|numeric|min:0',
-            'cost' => 'nullable|numeric|min:0',
             'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ], [
+            'tracking_number.unique' => 'That tracking number is already registered to another shipment. Check the number, or leave it blank and our team will assign one.',
         ]);
 
         $origin = $validated['origin_country'] . ', ' . $validated['origin_city'];
         $destination = $validated['destination_country'] . ', ' . $validated['destination_city'];
+
+        // Serial number is auto-generated (the client no longer types one).
+        $serialNo = $this->generateSerialNo($validated['origin_city'], $validated['origin_country']);
+
+        // New client requests always start at "Shipment Created" — logistics
+        // dates, weights, volumes and costs are confirmed by the ops team.
+        $initialStatus = 'CREATED';
+
+        // The parcel code is auto-generated on the create page and echoed back
+        // via a hidden field. Guard against a collision anyway.
+        $code = isset($validated['code']) ? strtoupper(trim($validated['code'])) : null;
+        if ($code) {
+            while (Shipment::where('code', $code)->exists()) {
+                $code = $this->generateParcelCode();
+            }
+        }
 
         $user = Auth::user();
         $isGuest = !$user;
@@ -88,8 +135,11 @@ class ShipmentController extends Controller
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('shipment-images', 'public');
-                $imagePaths[] = $path;
+                try {
+                    $imagePaths[] = SecureImageUploadService::store($image, 'shipment-images');
+                } catch (\RuntimeException $e) {
+                    return back()->withErrors(['images' => $e->getMessage()])->withInput();
+                }
             }
         }
 
@@ -97,23 +147,18 @@ class ShipmentController extends Controller
             'user_id' => $user->id,
             'client_name' => $validated['client_name'],
             'client_phone' => $validated['client_phone'],
-            'serial_no' => $validated['serial_no'],
+            'serial_no' => $serialNo,
             'tracking_number' => $validated['tracking_number'] ?? null,
-            'code' => $validated['code'] ?? null,
+            'code' => $code,
             'origin' => $origin,
             'destination' => $destination,
             'port_of_origin' => $validated['port_of_origin'] ?? null,
             'port_destination' => $validated['port_destination'] ?? null,
             'service_type' => $validated['service_type'],
             'shipping_method' => $validated['shipping_method'],
-            'status' => $validated['initial_status'],
-            'date_of_load' => $validated['date_of_load'],
-            'estimated_delivery' => $validated['estimated_delivery'],
+            'status' => $initialStatus,
             'description' => $validated['description'],
             'no_of_parcels' => $validated['no_of_parcels'],
-            'cbm_volume' => $validated['cbm_volume'],
-            'gross_weight' => $validated['gross_weight'],
-            'cost' => $validated['cost'] ?? 0,
             'images' => !empty($imagePaths) ? $imagePaths : null,
         ]);
 

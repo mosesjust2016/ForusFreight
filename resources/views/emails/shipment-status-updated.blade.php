@@ -58,67 +58,62 @@
             <div class="status-card">
                 <h3 style="margin-top: 0; color: rgb(0, 127, 127);">Journey Timeline</h3>
                 <div class="timeline">
-                    @switch($newStatus)
-                        @case('Order Placed')
-                            <div class="timeline-item">Shipment Created</div>
-                            @break
-                        @case('Pending')
-                            <div class="timeline-item">Shipment Created</div>
-                            <div class="timeline-item">Awaiting Pickup</div>
-                            @break
-                        @case('In Transit')
-                            <div class="timeline-item">Shipment Created</div>
-                            <div class="timeline-item">Picked Up</div>
-                            <div class="timeline-item">In Transit</div>
-                            @break
-                        @case('At Border')
-                            <div class="timeline-item">Shipment Created</div>
-                            <div class="timeline-item">Picked Up</div>
-                            <div class="timeline-item">In Transit</div>
-                            <div class="timeline-item">At Border Checkpoint</div>
-                            @break
-                        @case('Cleared')
-                            <div class="timeline-item">Shipment Created</div>
-                            <div class="timeline-item">Picked Up</div>
-                            <div class="timeline-item">In Transit</div>
-                            <div class="timeline-item">At Border Checkpoint</div>
-                            <div class="timeline-item">Cleared & Approved</div>
-                            @break
-                        @case('Out for Delivery')
-                            <div class="timeline-item">Shipment Created</div>
-                            <div class="timeline-item">Picked Up</div>
-                            <div class="timeline-item">In Transit</div>
-                            <div class="timeline-item">At Border Checkpoint</div>
-                            <div class="timeline-item">Cleared & Approved</div>
-                            <div class="timeline-item">Out for Delivery</div>
-                            @break
-                        @case('Delivered')
-                            <div class="timeline-item">Shipment Created</div>
-                            <div class="timeline-item">Picked Up</div>
-                            <div class="timeline-item">In Transit</div>
-                            <div class="timeline-item">At Border Checkpoint</div>
-                            <div class="timeline-item">Cleared & Approved</div>
-                            <div class="timeline-item">Out for Delivery</div>
-                            <div class="timeline-item" style="color: green; font-weight: bold;">Delivered ✓</div>
-                            @break
-                        @case('Cancelled')
-                            <div class="timeline-item" style="color: red; text-decoration: line-through;">Shipment Cancelled</div>
-                            @break
-                    @endswitch
+                    @php $canonicalStatus = \App\Models\Shipment::canonicalStatus($newStatus); @endphp
+                    {{-- Stages before the current one --}}
+                    <div class="timeline-item">Shipment Created</div>
+                    @if (in_array($canonicalStatus, ['AWAITING_RECEIPT', 'RECEIVED_CN', 'PROCESSING', 'CONSOLIDATED', 'READY_TO_SHIP', 'DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Awaiting Arrival at China Warehouse</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['RECEIVED_CN', 'PROCESSING', 'CONSOLIDATED', 'READY_TO_SHIP', 'DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Received at China Warehouse</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['PROCESSING', 'CONSOLIDATED', 'READY_TO_SHIP', 'DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Shipment Being Processed &amp; Consolidated</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['READY_TO_SHIP', 'DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Ready for Shipment</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Departed China</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['IN_TRANSIT', 'ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">In Transit to Zambia</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['ARRIVED_ZM', 'CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Arrived in Zambia</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['CUSTOMS_CLEARANCE', 'CLEARED', 'READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        <div class="timeline-item">Customs Clearance</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['READY_FOR_COLLECTION', 'OUT_FOR_DELIVERY', 'DELIVERED'], true))
+                        @if (in_array($canonicalStatus, ['READY_FOR_COLLECTION'], true))
+                            <div class="timeline-item">Ready for Collection</div>
+                        @endif
+                        <div class="timeline-item">Out for Delivery</div>
+                    @endif
+                    @if ($canonicalStatus === 'DELIVERED')
+                        <div class="timeline-item" style="color: green; font-weight: bold;">Delivered ✓</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['EXCEPTION'], true))
+                        <div class="timeline-item" style="color: red;">Shipment Exception</div>
+                    @endif
+                    @if (in_array($canonicalStatus, ['ON_HOLD'], true))
+                        <div class="timeline-item" style="color: #b45309;">Shipment on Hold</div>
+                    @endif
                 </div>
             </div>
 
             <div style="text-align: center;">
-                <a href="{{ $trackingUrl }}" class="button">View Full Tracking Details</a>
+                <a href="{{ $trackingUrl }}" class="button" style="color: #ffffff;">View Full Tracking Details</a>
             </div>
 
             <p style="background: #e8f5f5; padding: 15px; border-radius: 5px; border-left: 4px solid rgb(0, 127, 127);">
-                <strong>💡 Tip:</strong> Save your tracking number <strong>{{ $trackingNumber }}</strong> for future reference. You can track your shipment anytime at <a href="{{ $trackingUrl }}" style="color: rgb(0, 127, 127);">forusfreight.com/track</a>
+                <strong>💡 Tip:</strong> Save your tracking number <strong>{{ $trackingNumber }}</strong> for future reference. You can track your shipment anytime at <a href="{{ $trackingUrl }}" style="color: rgb(0, 127, 127);">forusfl.co.zm/track</a>
             </p>
 
             <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
                 Questions? Contact our support team at <strong>+260572788685</strong> (WhatsApp)<br>
-                or visit <a href="https://forusfreight.com" style="color: rgb(0, 127, 127);">forusfreight.com</a>
+                or visit <a href="https://forusfl.co.zm" style="color: rgb(0, 127, 127);">forusfl.co.zm</a>
             </p>
         </div>
 

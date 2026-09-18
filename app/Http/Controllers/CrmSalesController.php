@@ -16,7 +16,7 @@ class CrmSalesController extends Controller
 {
     private function checkAdmin()
     {
-        if (!Auth::check() || !Auth::user()->is_admin) {
+        if (!Auth::check() || !Auth::user()->isStaff()) {
             return redirect()->route('dashboard')->with('error', 'Access denied. Admin privileges required.');
         }
         return null;

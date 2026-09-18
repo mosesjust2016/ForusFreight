@@ -5,8 +5,10 @@ $sections = $page?->sections ?? [];
 @extends('layouts.app')
 
 @section('title', ($page?->title ?? 'Our Services') . ' - Forus Freight')
+@section('meta_description', 'Forus Freight services: same-day delivery, cross-border shipping, warehousing and storage, and bulk cargo transport across Zambia and the SADC region.')
 
 @section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'Services', 'url' => null]]])
     <!-- Hero Section -->
     <section style="position: relative; padding: 6rem 0; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%);">
         <div class="container" style="position: relative; z-index: 10;">
@@ -57,7 +59,7 @@ $sections = $page?->sections ?? [];
                 </div>
                 
                 <div class="service-image">
-                    <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=800&q=80" alt="Same-Day Delivery">
+                    <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=800&q=80" alt="Same-Day Delivery" loading="lazy">
                 </div>
             </div>
         </div>
@@ -68,7 +70,7 @@ $sections = $page?->sections ?? [];
         <div class="container">
             <div class="service-section" style="grid-template-columns: auto 1fr;">
                 <div class="service-image">
-                    <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80" alt="Cross-Border Shipping">
+                    <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80" alt="Cross-Border Shipping" loading="lazy">
                 </div>
                 
                 <div class="service-content">
@@ -159,7 +161,7 @@ $sections = $page?->sections ?? [];
                 </div>
                 
                 <div class="service-image">
-                    <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80" alt="Warehousing">
+                    <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80" alt="Warehousing" loading="lazy">
                 </div>
             </div>
         </div>
@@ -170,7 +172,7 @@ $sections = $page?->sections ?? [];
         <div class="container">
             <div class="service-section" style="grid-template-columns: auto 1fr;">
                 <div class="service-image">
-                    <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80" alt="Bulk Cargo">
+                    <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80" alt="Bulk Cargo" loading="lazy">
                 </div>
                 
                 <div class="service-content">
@@ -229,10 +231,10 @@ $sections = $page?->sections ?? [];
                     Get a customized quote for your specific logistics needs. Our team will contact you within 24 hours.
                 </p>
                 <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <a href="{{ route('quote') }}" class="cta-button" style="background: #ff6200; color: white; padding: 1rem 2rem; border-radius: 9999px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
+                    <a href="{{ route('quote') }}" class="cta-button" style="background: #ff6200; color: #1e293b; padding: 1rem 2rem; border-radius: 9999px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
                         <i class="fas fa-paper-plane"></i> Get Free Quote
                     </a>
-                    <a href="tel:+1234567890" class="cta-button-alt" style="background: transparent; color: white; padding: 1rem 2rem; border-radius: 9999px; text-decoration: none; font-weight: 600; border: 2px solid white; transition: all 0.3s;">
+                    <a href="tel:+260572788685" class="cta-button-alt" style="background: transparent; color: white; padding: 1rem 2rem; border-radius: 9999px; text-decoration: none; font-weight: 600; border: 2px solid white; transition: all 0.3s;">
                         <i class="fas fa-phone"></i> Call Now
                     </a>
                 </div>

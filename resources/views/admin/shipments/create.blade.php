@@ -7,9 +7,9 @@
     .create-card {
         background: white;
         border-radius: 24px;
-        padding: 2.5rem;
+        padding: 3rem;
         box-shadow: var(--shadow);
-        max-width: 720px;
+        max-width: 860px;
         margin: 0 auto;
     }
 
@@ -31,6 +31,16 @@
 
     .form-group {
         margin-bottom: 1.25rem;
+    }
+
+    .form-group .field-hint {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+        color: #94a3b8;
+        margin: 0.4rem 0 0;
     }
 
     .form-group label {
@@ -152,7 +162,7 @@
 </div>
 
 @if($errors->any())
-    <div class="alert-error" style="max-width: 720px; margin: 0 auto 1.5rem;">
+    <div class="alert-error" style="max-width: 860px; margin: 0 auto 1.5rem;">
         <i class="fas fa-triangle-exclamation"></i>
         <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
             @foreach($errors->all() as $error)
@@ -165,20 +175,35 @@
 <div class="create-card">
     <h2><i class="fas fa-truck-ramp-box" style="color: var(--primary-green);"></i> Shipment Details</h2>
 
-    <form method="POST" action="{{ route('admin.shipments.store') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.shipments.store') }}" enctype="multipart/form-data" data-loading-label="Creating shipment…">
         @csrf
 
+        <div class="form-group" style="margin-bottom:1.5rem;">
+            @include('admin.shipments._client-picker', [
+                'pickerClients'  => $clients,
+                'pickerField'    => 'user_id',
+                'pickerSelected' => null,
+                'pickerRequired' => true,
+            ])
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Serial Number <span style="font-weight:500;text-transform:none;color:#94a3b8;">(auto-generated)</span></label>
+                <input type="text" name="serial_no" value="{{ $nextSerial }}" readonly style="background:#f8fafc; color:#475569; cursor:not-allowed;">
+                @error('serial_no')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+            <div class="form-group">
+                <label>Reference</label>
+                <input type="text" name="reference" value="{{ old('reference') }}" placeholder="e.g. REF-2026-001">
+                @error('reference')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+        </div>
+
         <div class="form-group">
-            <label>Assign to Client</label>
-            <select name="user_id" required>
-                <option value="">— Select a client —</option>
-                @foreach($clients as $client)
-                    <option value="{{ $client->id }}" {{ old('user_id') == $client->id ? 'selected' : '' }}>
-                        {{ $client->name }} ({{ $client->email ?: 'no email on file' }})
-                    </option>
-                @endforeach
-            </select>
-            @error('user_id')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            <label>Phone Number</label>
+            <input type="text" name="phone_number" value="{{ old('phone_number') }}" placeholder="e.g. +260 97 123 4567">
+            @error('phone_number')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
         </div>
 
         <div class="form-row">
@@ -203,20 +228,47 @@
             <div class="form-group">
                 <label>Initial Status</label>
                 <select name="status" required>
-                    @foreach($statuses as $s)
-                        <option value="{{ $s }}" {{ old('status', 'Order Placed') === $s ? 'selected' : '' }}>{{ $s }}</option>
+                    @foreach($statuses as $code => $label)
+                        <option value="{{ $code }}" {{ old('status', 'CREATED') === $code ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
                 @error('status')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
         </div>
 
+<div class="form-row">
+            <div class="form-group">
+                <label>Estimated Delivery (ETA)</label>
+                <input type="date" name="estimated_delivery" value="{{ old('estimated_delivery') }}">
+                @error('estimated_delivery')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+            <div class="form-group">
+                <label>Date of Load</label>
+                <input type="date" name="date_of_load" value="{{ old('date_of_load') }}">
+                @error('date_of_load')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+        </div>
+
         <div class="form-row">
             <div class="form-group">
-                <label>Cost (ZMW)</label>
-                <input type="number" step="0.01" min="0" name="cost" value="{{ old('cost', 0) }}" required>
-                @error('cost')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+                <label>CBM / Volume (m³)</label>
+                <input type="number" step="any" min="0" name="cbm_volume" value="{{ old('cbm_volume') }}" placeholder="e.g. 0.6">
+                @error('cbm_volume')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
+            <div class="form-group">
+                <label>KGS / Gross Weight</label>
+                <input type="number" step="any" min="0" name="gross_weight" value="{{ old('gross_weight') }}" placeholder="e.g. 136">
+                @error('gross_weight')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>No. of Parcels</label>
+                <input type="number" min="1" name="no_of_parcels" value="{{ old('no_of_parcels') }}" placeholder="e.g. 3">
+                @error('no_of_parcels')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+        </div>
             <div class="form-group">
                 <label>Estimated Delivery</label>
                 <input type="date" name="estimated_delivery" value="{{ old('estimated_delivery') }}">
@@ -234,6 +286,7 @@
                 <span>Supports: JPG, PNG, WebP</span>
             </div>
             <div class="preview-grid" id="previewGrid"></div>
+            <div id="uploadErrors"></div>
             @error('images.*')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
         </div>
 
@@ -266,8 +319,36 @@
         });
     }
 
+    /* Client-side only — a fast, friendly first check so people don't wait
+       for a round-trip to find out a file is the wrong type or too big.
+       This is NOT the real security boundary: the server always re-checks
+       and re-encodes every image regardless of what the browser reports
+       here, since a script can trivially send whatever it wants. */
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+    function showUploadErrors(messages) {
+        const box = document.getElementById('uploadErrors');
+        if (!messages.length) { box.innerHTML = ''; return; }
+        box.innerHTML = messages
+            .map(m => `<div style="color:#ef4444;font-size:0.75rem;margin-top:0.25rem;">${m}</div>`)
+            .join('');
+    }
+
     function handleFiles(files) {
-        Array.from(files).forEach(f => stagedFiles.items.add(f));
+        const errors = [];
+        Array.from(files).forEach(f => {
+            if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
+                errors.push(`"${f.name}" isn't a supported image type (JPG, PNG, or WebP only).`);
+                return;
+            }
+            if (f.size > MAX_IMAGE_BYTES) {
+                errors.push(`"${f.name}" is ${(f.size / (1024 * 1024)).toFixed(1)} MB — the limit is 5 MB.`);
+                return;
+            }
+            stagedFiles.items.add(f);
+        });
+        showUploadErrors(errors);
         syncInput();
         renderPreviews();
     }

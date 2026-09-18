@@ -122,12 +122,6 @@
     </a>
 </div>
 
-@if(session('success'))
-    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.25rem; border-radius: 16px; margin-bottom: 2.5rem; color: #15803d; font-weight: 600; display: flex; align-items: center; gap: 1rem; animation: slideIn 0.3s ease;">
-        <i class="fas fa-check-circle" style="font-size: 1.25rem;"></i>
-        {{ session('success') }}
-    </div>
-@endif
 
 <div class="shipment-table-card">
     @if($shipments->count() > 0)
@@ -163,14 +157,16 @@
                     </td>
                     <td>
                         @php
-                            $statusClass = 'status-pending';
-                            if($shipment->status == 'Delivered') $statusClass = 'status-delivered';
-                            elseif(in_array($shipment->status, ['In Transit', 'Out for Delivery'])) $statusClass = 'status-transit';
-                            elseif($shipment->status == 'Cancelled') $statusClass = 'status-cancelled';
+                            $canonical = \App\Models\Shipment::canonicalStatus($shipment->status);
+                            $statusClass = match($canonical) {
+                                'DELIVERED' => 'status-delivered',
+                                'EXCEPTION', 'ON_HOLD' => 'status-cancelled',
+                                'IN_TRANSIT', 'OUT_FOR_DELIVERY' => 'status-transit',
+                                default => 'status-pending'
+                            };
                         @endphp
                         <span class="status-pill {{ $statusClass }}">
-                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
-                            {{ $shipment->status }}
+                            {{ $shipment->status_label }}
                         </span>
                     </td>
                     <td>
@@ -201,7 +197,7 @@
         </div>
     @else
         <div class="empty-state">
-            <img src="https://illustrations.popsy.co/emerald/shipping.svg" alt="No shipments">
+            <i class="fas fa-box-open" style="font-size: 5rem; color: #cbd5e1; opacity: 0.6; margin-bottom: 2rem; display: inline-block;" aria-hidden="true"></i>
             <h3 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem;">No Shipments Yet</h3>
             <p style="color: #64748b; margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">Start your first global freight journey with Forus Freight today.</p>
             <a href="{{ route('client.shipments.create') }}" class="btn-create" style="display: inline-flex;">

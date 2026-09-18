@@ -176,9 +176,9 @@
         <div class="invoice-header">
             <div class="company-info">
                 <h2>Forus Freight Limited</h2>
-                <p>Plot 123, Great East Road<br>
+                <p>METROLUX PLAZA, Plot No. 401A/8 Kafure Road<br>
                 Lusaka, Zambia<br>
-                Phone: +260 96 123 4567<br>
+                Phone: +260 572 788 685<br>
                 Email: accounts@forusfl.co.zm</p>
             </div>
             <div class="invoice-meta">
@@ -255,7 +255,7 @@
 
         <div style="margin-top: 5rem; padding-top: 2rem; border-top: 1px solid #f8fafc; color: var(--text-gray); font-size: 0.75rem; line-height: 1.6;">
             <h4 style="color: var(--text-dark); margin-bottom: 0.5rem; font-weight: 800;">Payment Instructions</h4>
-            <p>Please use <strong>INV-{{ $invoice->invoice_number }}</strong> as your payment reference. For Bank Transfers, send proof of payment to accounts@forusfreight.co.zm. Payments should be made within 14 days of the invoice date.</p>
+            <p>Please use <strong>INV-{{ $invoice->invoice_number }}</strong> as your payment reference. For Bank Transfers, send proof of payment to accounts@forusfl.co.zm. Payments should be made within 14 days of the invoice date.</p>
         </div>
     </div>
 </div>

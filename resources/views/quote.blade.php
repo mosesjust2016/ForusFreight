@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
 @section('title', 'Request a Quote - Forus Freight')
+@section('meta_description', 'Request a free freight quote from Forus Freight for same-day delivery, cross-border shipping, warehousing, or bulk cargo transport across Zambia and the SADC region.')
 
 @section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'Get a Quote', 'url' => null]]])
 <!-- Hero Section -->
 <section style="position: relative; padding: 4rem 0; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%);">
     <div class="container" style="position: relative; z-index: 10;">
@@ -29,7 +31,7 @@
                         <i class="fas fa-bolt" style="color: white; font-size: 1.75rem;"></i>
                     </div>
                     <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 0.75rem;">Fast Response</h3>
-                    <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.6;">
+                    <p style="color: #ffffff; line-height: 1.6;">
                         Get a detailed quote within 2 hours. Our team is ready to assist you with competitive pricing.
                     </p>
                 </div>
@@ -40,7 +42,7 @@
                         <i class="fas fa-shield-alt" style="color: white; font-size: 1.75rem;"></i>
                     </div>
                     <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 0.75rem;">Secure & Insured</h3>
-                    <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.6;">
+                    <p style="color: #1e293b; line-height: 1.6;">
                         All shipments are fully insured. Your cargo's safety is our top priority.
                     </p>
                 </div>
@@ -61,15 +63,15 @@
                     <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Need Immediate Assistance?</h3>
                     <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
                         <i class="fas fa-phone" style="color: #059669;"></i>
-                        <span>+260 96 123 4567</span>
+                        <span>+260 572 788 685</span>
                     </div>
                     <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
                         <i class="fas fa-envelope" style="color: #059669;"></i>
-                        <span>quotes@forusfreight.co.zm</span>
+                        <span>info@forusfl.co.zm</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 1rem;">
                         <i class="fab fa-whatsapp" style="color: #059669;"></i>
-                        <span>WhatsApp: +260 96 123 4567</span>
+                        <span>WhatsApp: +260 572 788 685</span>
                     </div>
                 </div>
             </div>
@@ -79,8 +81,8 @@
                 <form id="quoteForm" action="{{ route('quote.submit') }}" method="POST">
                     @csrf
                     <div style="margin-bottom: 2rem;">
-                        <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Service Type *</label>
-                        <select name="service_type" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;">
+                        <label for="quote_service_type" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Service Type *</label>
+                        <select id="quote_service_type" name="service_type" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;">
                             <option value="">Select a service</option>
                             <option value="same-day">Same-Day Delivery</option>
                             <option value="cross-border">Cross-Border Shipping</option>
@@ -92,58 +94,59 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                         <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Full Name *</label>
-                            <input type="text" name="full_name" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="John Doe">
+                            <label for="quote_full_name" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Full Name *</label>
+                            <input id="quote_full_name" type="text" name="full_name" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="John Doe">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Company Name</label>
-                            <input type="text" name="company" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="Your Company">
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                        <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Email Address *</label>
-                            <input type="email" name="email" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="john@example.com">
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Phone Number *</label>
-                            <input type="tel" name="phone" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="+260 96 123 4567">
+                            <label for="quote_company" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Company Name</label>
+                            <input id="quote_company" type="text" name="company" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="Your Company">
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                         <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Pickup Location *</label>
-                            <input type="text" name="pickup" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="Lusaka">
+                            <label for="quote_email" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Email Address *</label>
+                            <input id="quote_email" type="email" name="email" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="john@example.com">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Delivery Location *</label>
-                            <input type="text" name="delivery" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="Ndola">
+                            <label for="quote_phone" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Phone Number *</label>
+                            <input id="quote_phone" type="tel" name="phone" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="+260 XX XXX XXXX">
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                         <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Weight (kg)</label>
-                            <input type="number" name="weight" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="50">
+                            <label for="quote_pickup" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Pickup Location *</label>
+                            <input id="quote_pickup" type="text" name="pickup" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="Lusaka">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Dimensions (LxWxH cm)</label>
-                            <input type="text" name="dimensions" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="100x50x50">
+                            <label for="quote_delivery" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Delivery Location *</label>
+                            <input id="quote_delivery" type="text" name="delivery" required style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="Ndola">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                        <div>
+                            <label for="quote_weight" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Weight (kg)</label>
+                            <input id="quote_weight" type="number" name="weight" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="50">
+                        </div>
+                        <div>
+                            <label for="quote_dimensions" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Dimensions (LxWxH cm)</label>
+                            <input id="quote_dimensions" type="text" name="dimensions" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s;" placeholder="100x50x50">
                         </div>
                     </div>
                     <div style="margin-bottom: 2rem;">
-                        <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Additional Details</label>
-                        <textarea name="details" rows="4" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; resize: vertical; transition: all 0.3s;" placeholder="Please provide any additional information about your shipment..."></textarea>
+                        <label for="quote_details" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Additional Details</label>
+                        <textarea id="quote_details" name="details" rows="4" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; resize: vertical; transition: all 0.3s;" placeholder="Please provide any additional information about your shipment..."></textarea>
+                    </div>
+                    <div style="margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                        <input type="checkbox" id="quote_consent" name="consent" required style="margin-top: 0.3rem; width: 18px; height: 18px; flex-shrink: 0;">
+                        <label for="quote_consent" style="font-size: 0.9rem; color: #475569; line-height: 1.5;">
+                            I agree to Forus Freight processing the information above to prepare and respond to this quote request, in accordance with the <a href="{{ route('privacy') }}" target="_blank" style="color: #047857; font-weight: 600;">Privacy Policy</a>. *
+                        </label>
                     </div>
                     <button type="submit" style="width: 100%; padding: 1.25rem; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; border-radius: 12px; font-size: 1.125rem; font-weight: 700; cursor: pointer; transition: all 0.3s;">
                         <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i> Submit Quote Request
                     </button>
                 </form>
                 <!-- Success Message -->
-                <div id="successMessage" style="display: none; margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; text-align: center; border: 2px solid #059669;">
-                    <i class="fas fa-check-circle" style="color: #059669; font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Quote Request Submitted!</h3>
-                    <p style="color: #64748b;">We'll get back to you within 2 hours with a detailed quote.</p>
-                </div>
             </div>
         </div>
     </div>
@@ -225,18 +228,8 @@
         })
         .then(data => {
             if (data.success) {
-                // Show success message
-                const successMessage = document.getElementById('successMessage');
-                successMessage.style.display = 'block';
                 this.reset();
-                
-                // Scroll to success message
-                successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
+                window.location.href = '{{ route('thank-you') }}?type=quote';
             } else {
                 throw new Error(data.message || 'Form submission failed');
             }

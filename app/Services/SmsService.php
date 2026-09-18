@@ -59,6 +59,7 @@ class SmsService
         try {
             $response = Http::withToken($token)
                 ->acceptJson()
+                ->timeout(12)->connectTimeout(6)
                 ->post("{$this->baseUrl}/api/sms/send", [
                     'destination' => $to,
                     'message'     => $message,

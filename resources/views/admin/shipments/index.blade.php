@@ -151,6 +151,10 @@
             <a href="{{ route('admin.shipments.create') }}" style="background: var(--primary-green); color: white; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-plus"></i> New Shipment
             </a>
+            <button type="button" id="bulk-delete-btn" onclick="submitBulkDelete()" disabled
+                style="background: #fef2f2; color: #dc2626; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; border: 1px solid #fecaca; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; opacity: 0.5;">
+                <i class="fas fa-trash-can"></i> Delete Selected (<span id="bulk-count">0</span>)
+            </button>
         </div>
     </div>
 
@@ -176,6 +180,9 @@
     <table class="shipment-table">
         <thead>
             <tr>
+                <th style="width: 35px;">
+                    <input type="checkbox" id="select-all-shipments" title="Select all on this page">
+                </th>
                 <th>Tracking ID</th>
                 <th>Client / Customer</th>
                 <th>Origin → Destination</th>
@@ -188,6 +195,9 @@
         <tbody>
             @forelse($shipments as $shipment)
                 <tr class="shipment-row">
+                    <td>
+                        <input type="checkbox" class="shipment-check" value="{{ $shipment->id }}" title="Select {{ $shipment->tracking_number ?: $shipment->serial_no }}">
+                    </td>
                     <td>
                         <span class="tracking-badge">{{ $shipment->tracking_number ?: $shipment->serial_no }}</span>
                         <div style="font-size: 0.65rem; color: var(--text-gray); margin-top: 0.4rem; font-weight: 700;">
@@ -222,31 +232,37 @@
                     </td>
                     <td>
                         @php
-                            $statusClass = match(strtolower($shipment->status)) {
-                                'pending' => 'status-pending',
-                                'delivered' => 'status-delivered',
+                            $canonical = \App\Models\Shipment::canonicalStatus($shipment->status);
+                            $statusClass = match($canonical) {
+                                'DELIVERED' => 'status-delivered',
+                                'EXCEPTION', 'ON_HOLD' => 'status-pending',
                                 default => 'status-transit'
                             };
-                            $icon = match(strtolower($shipment->status)) {
-                                'pending' => 'fa-clock',
-                                'delivered' => 'fa-check-double',
+                            $icon = match($canonical) {
+                                'DELIVERED' => 'fa-check-double',
+                                'EXCEPTION', 'ON_HOLD' => 'fa-triangle-exclamation',
                                 default => 'fa-truck-fast'
                             };
                         @endphp
                         <div class="status-pill {{ $statusClass }}">
-                            <i class="fas {{ $icon }}"></i> {{ $shipment->status }}
+                            <i class="fas {{ $icon }}"></i> {{ $shipment->status_label }}
                         </div>
                     </td>
                     <td>
                         <div style="display: flex; gap: 0.5rem; justify-content: center;">
                             <a href="{{ route('admin.shipments.edit', $shipment) }}" class="action-btn" title="Edit Shipment"><i class="fas fa-pen-to-square"></i></a>
                             <a href="{{ route('admin.shipments.edit', $shipment) }}#add-event" class="action-btn" title="Add Tracking Event"><i class="fas fa-location-dot"></i></a>
+                            <form method="POST" action="{{ route('admin.shipments.destroy', $shipment) }}" onsubmit="return confirm('Delete this shipment permanently? Tracking events will be removed too.')" style="margin: 0;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="action-btn" title="Delete Shipment" style="background:#fef2f2; color:#dc2626;"><i class="fas fa-trash-can"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 5rem 0; color: var(--text-gray);">
+                    <td colspan="8" style="text-align: center; padding: 5rem 0; color: var(--text-gray);">
                         <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.2;"></i>
                         <h3 style="font-weight: 800;">No Shipments Found</h3>
                         <p style="font-size: 0.9rem;">
@@ -269,4 +285,62 @@
     </div>
     @endif
 </div>
+
+<script>
+(function () {
+    var items = document.querySelectorAll('.shipment-check');
+    var allBox   = document.getElementById('select-all-shipments');
+    var bulkBtn  = document.getElementById('bulk-delete-btn');
+    var countEl  = document.getElementById('bulk-count');
+
+    function refresh() {
+        var checked = document.querySelectorAll('.shipment-check:checked').length;
+        countEl.textContent = checked;
+        bulkBtn.disabled = checked === 0;
+        bulkBtn.style.opacity = checked === 0 ? '0.5' : '1';
+        bulkBtn.style.cursor = checked === 0 ? 'not-allowed' : 'pointer';
+        if (allBox) {
+            allBox.checked = items.length > 0 && checked === items.length;
+        }
+    }
+
+    items.forEach(function (cb) { cb.addEventListener('change', refresh); });
+    if (allBox) {
+        allBox.addEventListener('change', function () {
+            items.forEach(function (cb) { cb.checked = allBox.checked; });
+            refresh();
+        });
+    }
+})();
+
+function submitBulkDelete() {
+    var ids = Array.prototype.map.call(
+        document.querySelectorAll('.shipment-check:checked'),
+        function (cb) { return cb.value; }
+    );
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' selected shipment(s) permanently? Tracking events will be removed too.')) return;
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route('admin.shipments.bulk-delete') }}';
+
+    var token = document.createElement('input');
+    token.type = 'hidden'; token.name = '_token'; token.value = '{{ csrf_token() }}';
+    form.appendChild(token);
+
+    var method = document.createElement('input');
+    method.type = 'hidden'; method.name = '_method'; method.value = 'DELETE';
+    form.appendChild(method);
+
+    ids.forEach(function (id) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'ids[]'; inp.value = id;
+        form.appendChild(inp);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
 @endsection

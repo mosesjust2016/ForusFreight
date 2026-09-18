@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CmsPage;
 use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
+use App\Services\SecureImageUploadService;
 
 class CmsAdminController extends Controller
 {
     private function checkAdmin()
     {
-        if (!Auth::check() || !Auth::user()->is_admin) {
+        if (!Auth::check() || !Auth::user()->isStaff()) {
             return redirect()->route('dashboard')->with('error', 'Access denied. Admin privileges required.');
         }
         return null;
@@ -93,7 +94,7 @@ class CmsAdminController extends Controller
     {
         if ($redirect = $this->checkAdmin()) return $redirect;
 
-        if (in_array($page->slug, ['home', 'about', 'services', 'contact', 'terms', 'footer'])) {
+        if (in_array($page->slug, ['home', 'about', 'services', 'contact', 'terms', 'footer', 'privacy', 'cookie-policy', 'refund-policy', 'faq'])) {
             return back()->with('error', 'Cannot delete core pages.');
         }
 
@@ -109,13 +110,18 @@ class CmsAdminController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-        $file = $validated['image'];
-        $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('public/cms', $filename);
+        try {
+            // Stores under a freshly randomised filename derived from the
+            // re-encoded image data — never from the client-supplied name
+            // or extension, which are untrusted input.
+            $path = SecureImageUploadService::store($validated['image'], 'cms');
+        } catch (\RuntimeException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
 
         return response()->json([
-            'url' => asset('storage/cms/' . $filename),
-            'filename' => $filename,
+            'url' => asset('storage/' . $path),
+            'filename' => basename($path),
         ]);
     }
 
@@ -144,7 +150,7 @@ class CmsAdminController extends Controller
             ],
             'about' => [
                 'title' => 'About Us',
-                'subtitle' => 'Your trusted logistics partner since 2015',
+                'subtitle' => 'Your trusted logistics partner',
                 'content' => 'Forus Freight was founded with a mission to simplify cross-border logistics between Zambia and South Africa.',
                 'mission' => 'To deliver reliable, efficient, and cost-effective logistics solutions.',
                 'vision' => 'To become the leading cross-border logistics provider in Southern Africa.',
@@ -169,8 +175,8 @@ class CmsAdminController extends Controller
             'contact' => [
                 'title' => 'Contact Us',
                 'subtitle' => 'We would love to hear from you',
-                'address' => '123 Main Street, Lusaka, Zambia',
-                'phone' => '+260 97 123 4567',
+                'address' => 'METROLUX PLAZA, Plot No. 401A/8 Kafure Road, Lusaka, Zambia',
+                'phone' => '+260 572 788 685',
                 'email' => 'info@forusfl.co.zm',
                 'hours' => 'Mon-Fri: 8:00 AM - 5:00 PM',
                 'map_embed' => '',
@@ -180,6 +186,25 @@ class CmsAdminController extends Controller
                 'title' => 'Terms of Service',
                 'subtitle' => 'Last updated: January 2025',
                 'content' => '<h2>1. Acceptance of Terms</h2><p>By accessing and using Forus Freight services, you agree to these terms.</p><h2>2. Services</h2><p>Forus Freight provides cross-border logistics and freight services.</p><h2>3. Liability</h2><p>We maintain full insurance coverage for all shipments.</p>',
+            ],
+            'privacy' => [
+                'title' => 'Privacy Policy',
+                'subtitle' => 'How Forus Freight Limited collects, uses, and protects your personal data.',
+                'content' => '',
+            ],
+            'cookie-policy' => [
+                'title' => 'Cookie Policy',
+                'subtitle' => "What cookies and similar technologies this website uses, and why.",
+                'content' => '',
+            ],
+            'refund-policy' => [
+                'title' => 'Refund Policy',
+                'subtitle' => 'Your rights to a refund, replacement, or re-performance of service.',
+                'content' => '',
+            ],
+            'faq' => [
+                'title' => 'Frequently Asked Questions',
+                'subtitle' => 'Answers to common questions about our services.',
             ],
             'footer' => [
                 'description' => 'Fast, reliable & affordable logistics solutions across Zambia and the SADC region.',
@@ -200,7 +225,7 @@ class CmsAdminController extends Controller
                     ['title' => 'Track Shipment', 'url' => '/tracking'],
                 ],
                 'contact_phones' => [
-                    ['number' => '+260 572 7886857', 'label' => ''],
+                    ['number' => '+260 572 788 685', 'label' => ''],
                     ['number' => '+260 766 193059', 'label' => ''],
                 ],
                 'contact_support_label' => '24/7 Support',

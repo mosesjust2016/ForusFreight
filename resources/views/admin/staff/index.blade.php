@@ -83,11 +83,6 @@
     </div>
 </div>
 
-@if(session('success'))
-<div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; padding:0.75rem 1.25rem; border-radius:10px; margin-bottom:1.5rem; font-size:0.88rem; font-weight:600;">
-    <i class="fas fa-check-circle"></i> {{ session('success') }}
-</div>
-@endif
 
 {{-- Role Legend --}}
 <div style="display:flex; gap:1rem; margin-bottom:2rem; flex-wrap:wrap;">
@@ -103,6 +98,54 @@
         </div>
     </div>
     @endforeach
+</div>
+
+@if(session('generated_password'))
+<div style="background:#fffbeb; border:1.5px solid #fde68a; border-radius:16px; padding:1.5rem; margin-bottom:2rem; display:flex; gap:1rem; align-items:flex-start;">
+    <i class="fas fa-key" style="color:#d97706; font-size:1.25rem; margin-top:0.15rem;"></i>
+    <div style="flex:1;">
+        <div style="font-weight:800; color:#92400e; font-size:0.9rem; margin-bottom:0.35rem;">Save this password now — it won't be shown again</div>
+        <p style="font-size:0.8rem; color:#78350f; margin-bottom:0.75rem;">Share it securely with {{ session('generated_password_email') }}. They should change it after their first login.</p>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+            <code id="generatedPassword" style="background:white; border:1.5px solid #fde68a; border-radius:8px; padding:0.5rem 1rem; font-size:0.9rem; font-weight:700; color:#1e293b; letter-spacing:0.02em;">{{ session('generated_password') }}</code>
+            <button type="button" class="btn-assign" style="background:#d97706;" onclick="navigator.clipboard.writeText(document.getElementById('generatedPassword').textContent); this.innerHTML='<i class=\'fas fa-check\'></i> Copied'">
+                <i class="fas fa-copy"></i> Copy
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+{{-- Create System User --}}
+<div class="section-label">Create System User</div>
+<div style="background:white; border-radius:16px; padding:1.5rem; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1.5px solid #f1f5f9; margin-bottom:0.75rem;">
+    <p style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;">Create a new internal account for an employee — this is separate from client (customer) accounts. Assign them a role below to control what they can do in the admin portal.</p>
+    <form method="POST" action="{{ route('admin.staff.store') }}" style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
+        @csrf
+        <div>
+            <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:0.35rem;">Full Name</label>
+            <input type="text" name="name" value="{{ old('name') }}" class="assign-select" style="min-width:200px;" placeholder="e.g. Grace Milumbe" required>
+            @error('name')<div style="color:#dc2626; font-size:0.72rem; margin-top:0.25rem;">{{ $message }}</div>@enderror
+        </div>
+        <div>
+            <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:0.35rem;">Work Email</label>
+            <input type="email" name="email" value="{{ old('email') }}" class="assign-select" style="min-width:220px;" placeholder="name@forusfl.co.zm" required>
+            @error('email')<div style="color:#dc2626; font-size:0.72rem; margin-top:0.25rem;">{{ $message }}</div>@enderror
+        </div>
+        <div>
+            <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:0.35rem;">Role</label>
+            <select name="role_id" class="assign-select" required>
+                <option value="">Select role...</option>
+                @foreach($roles as $role)
+                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ $role->display_name }}</option>
+                @endforeach
+            </select>
+            @error('role_id')<div style="color:#dc2626; font-size:0.72rem; margin-top:0.25rem;">{{ $message }}</div>@enderror
+        </div>
+        <button type="submit" class="btn-assign" style="padding:0.45rem 1.25rem;">
+            <i class="fas fa-user-plus"></i> Create User
+        </button>
+    </form>
 </div>
 
 {{-- Current Staff --}}
@@ -162,48 +205,4 @@
     <p>No staff users found.</p>
 </div>
 @endforelse
-
-{{-- Grant Portal Access to Existing User --}}
-<div class="section-label" style="margin-top:2rem;">Grant Portal Access to an Existing User</div>
-<div style="background:white; border-radius:16px; padding:1.5rem; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1.5px solid #f1f5f9;">
-    <p style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;">Select a customer account and assign a staff role to give them admin portal access.</p>
-    <form method="POST" action="#" id="grantForm" style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
-        @csrf
-        <div>
-            <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:0.35rem;">User</label>
-            <select name="grant_user_id" class="assign-select" style="min-width:220px;" required id="grantUserSelect">
-                <option value="">Select user...</option>
-                @foreach($allUsers as $u)
-                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:0.35rem;">Role</label>
-            <select name="grant_role_id" class="assign-select" required id="grantRoleSelect">
-                <option value="">Select role...</option>
-                @foreach($roles as $role)
-                <option value="{{ $role->id }}">{{ $role->display_name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <button type="submit" class="btn-assign" style="padding:0.45rem 1.25rem;">Grant Access</button>
-    </form>
-</div>
-
-<script>
-document.getElementById('grantForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const userId = document.getElementById('grantUserSelect').value;
-    const roleId = document.getElementById('grantRoleSelect').value;
-    if (!userId || !roleId) return;
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/admin/staff/' + userId + '/roles';
-    form.innerHTML = `@csrf<input type="hidden" name="role_id" value="${roleId}">`;
-    document.body.appendChild(form);
-    form.submit();
-});
-</script>
 @endsection

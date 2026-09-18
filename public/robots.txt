@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /client
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /verify-phone
+Disallow: /confirm-password
+Disallow: /api/
+
+Sitemap: https://forusfl.co.zm/sitemap.xml

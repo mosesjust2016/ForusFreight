@@ -5,8 +5,10 @@ $sections = $page?->sections ?? [];
 @extends('layouts.app')
 
 @section('title', ($page?->title ?? 'About Us') . ' - Forus Freight')
+@section('meta_description', 'Learn about Forus Freight Limited, a Zambian logistics provider offering road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.')
 
 @section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'About', 'url' => null]]])
     <!-- Hero Section -->
     <section class="about-hero">
         <div class="about-hero-bg"></div>
@@ -14,7 +16,7 @@ $sections = $page?->sections ?? [];
             <div style="max-width: 800px; margin: 0 auto; text-align: center;">
                 <h1 style="font-size: 3.5rem; font-weight: 800; color: white; margin-bottom: 1.5rem;">{{ $sections['title'] ?? 'Our Story' }}</h1>
                 <p style="font-size: 1.25rem; color: rgba(255,255,255,0.9);">
-                    {{ $sections['subtitle'] ?? 'Delivering excellence in logistics since 2010, connecting businesses across Zambia and the SADC region.' }}
+                    {{ $sections['subtitle'] ?? 'Delivering reliable logistics, connecting businesses across Zambia and the SADC region.' }}
                 </p>
             </div>
         </div>
@@ -26,30 +28,31 @@ $sections = $page?->sections ?? [];
             <div style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;">
                     <div>
-                        {!! $sections['content'] ?? '<h2 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1.5rem;">From Humble Beginnings</h2>
+                        {!! $sections['content'] ?? '<h2 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1.5rem;">Who We Are</h2>
                         <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1.125rem; line-height: 1.7;">
-                            Founded in 2010 with just two delivery vans, Forus Freight has grown into one of Zambia\'s leading logistics providers.
+                            Forus Freight Limited is a Zambian logistics provider offering road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.
                         </p>' !!}
-                        
+
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
                             <div style="text-align: center;">
-                                <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">14+</div>
-                                <div style="color: #64748b; font-weight: 500;">Years Experience</div>
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #007f7f;"><i class="fas fa-truck-fast" style="display:block; font-size:1.75rem; margin-bottom:.5rem;"></i>Road, Air &amp; Sea</div>
+                                <div style="color: #64748b; font-weight: 500;">Full-Service Freight</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">500+</div>
-                                <div style="color: #64748b; font-weight: 500;">Happy Clients</div>
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #007f7f;"><i class="fas fa-earth-africa" style="display:block; font-size:1.75rem; margin-bottom:.5rem;"></i>SADC Region</div>
+                                <div style="color: #64748b; font-weight: 500;">Cross-Border Coverage</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">150+</div>
-                                <div style="color: #64748b; font-weight: 500;">Fleet Vehicles</div>
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #007f7f;"><i class="fas fa-location-crosshairs" style="display:block; font-size:1.75rem; margin-bottom:.5rem;"></i>Real-Time</div>
+                                <div style="color: #64748b; font-weight: 500;">Shipment Tracking</div>
                             </div>
                         </div>
                     </div>
                     
                     <div>
-                        <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=800&q=80" 
-                             alt="Our Logistics Team" 
+                        <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=800&q=80"
+                             alt="Our Logistics Team"
+                             loading="lazy"
                              style="width: 100%; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
                     </div>
                 </div>

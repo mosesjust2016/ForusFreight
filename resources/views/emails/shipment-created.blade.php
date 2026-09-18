@@ -78,14 +78,14 @@
             </div>
 
             <div style="text-align: center;">
-                <a href="{{ $trackingUrl }}" class="button">Track Your Shipment</a>
+                <a href="{{ $trackingUrl }}" class="button" style="color: #ffffff;">Track Your Shipment</a>
             </div>
 
             <p>You'll receive updates at each stage. For real-time tracking, visit the link above or use your tracking number: <strong>{{ $trackingNumber }}</strong></p>
 
             <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
                 Need help? Contact our support team at <strong>+260572788685</strong> (WhatsApp)<br>
-                or visit <a href="https://forusfreight.com" style="color: rgb(0, 127, 127);">forusfreight.com</a>
+                or visit <a href="https://forusfl.co.zm" style="color: rgb(0, 127, 127);">forusfl.co.zm</a>
             </p>
         </div>
 

@@ -14,9 +14,9 @@ new #[Layout('layouts.guest')] class extends Component
             'email' => ['required', 'string', 'email'],
         ]);
 
-        // Check if user is admin
+        // Allow super-admins and any user with a staff role (admin_staff, sales, ...)
         $user = \App\Models\User::where('email', $this->email)->first();
-        if (!$user || !$user->is_admin) {
+        if (!$user || !$user->isStaff()) {
             $this->addError('email', 'Unauthorized access for this email.');
             return;
         }

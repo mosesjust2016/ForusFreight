@@ -16,11 +16,16 @@ class RedirectToDashboardIfAuthenticated
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            if (Auth::user()->is_admin) {
-                return redirect()->route('admin.dashboard');
-            }
-            return redirect()->route('dashboard');
+        // Admin and client are separate guards specifically so one browser
+        // can hold both sessions at once. Only bounce away from the login/
+        // register form once there's nothing left to log into — otherwise,
+        // someone already signed in as a client (or admin) would never be
+        // able to reach this form to add the other session.
+        $clientAuthed = Auth::guard('web')->check();
+        $adminAuthed = Auth::guard('admin')->check();
+
+        if ($clientAuthed && $adminAuthed) {
+            return redirect()->route('admin.dashboard');
         }
 
         return $next($request);

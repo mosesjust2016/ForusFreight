@@ -169,7 +169,7 @@
             @empty
             <tr>
                 <td colspan="6" style="text-align: center; padding: 5rem 0;">
-                    <img src="https://illustrations.popsy.co/emerald/clumsy-person-dropping-papers.svg" alt="No invoices" style="width: 200px; margin-bottom: 2rem; opacity: 0.5;">
+                    <i class="fas fa-file-invoice" style="font-size: 4rem; color: #cbd5e1; margin-bottom: 1.5rem; display: inline-block;" aria-hidden="true"></i>
                     <p style="color: #64748b; font-weight: 600;">No invoices found in your account.</p>
                 </td>
             </tr>

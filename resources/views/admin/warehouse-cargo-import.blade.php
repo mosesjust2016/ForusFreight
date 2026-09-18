@@ -42,7 +42,7 @@
         <i class="fas fa-cloud-upload-alt" style="color: var(--primary-green);"></i> Upload Warehouse Data
     </h2>
 
-    <form id="uploadForm" action="{{ route('admin.warehouse.cargo.import') }}" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" action="{{ route('admin.warehouse.cargo.import') }}" method="POST" enctype="multipart/form-data" data-loading-label="Uploading & importing…">
         @csrf
 
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
@@ -210,7 +210,7 @@
 
     uploadForm.addEventListener('submit', (e) => {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (uploadForm.dataset.loadingLabel || 'Importing...');
     });
 </script>
 @endsection

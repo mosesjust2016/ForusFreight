@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -24,19 +26,34 @@ class LoginForm extends Form
     /**
      * Attempt to authenticate the request's credentials.
      *
+     * Staff (super-admins and anyone holding a role like admin_staff or
+     * sales) and clients are the same `users` table, not a separate account
+     * system, but they're logged into different auth guards — 'admin' vs
+     * 'web' — so a browser can hold both sessions at once instead of one
+     * login overwriting the other. Since the correct guard is only known
+     * after the credentials resolve to a user, this checks the password
+     * manually rather than using Auth::attempt(), which only knows how to
+     * check a single, pre-chosen guard.
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        $user = User::where('email', $this->email)->first();
+
+        if (! $user || ! Hash::check($this->password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
             ]);
         }
+
+        $guard = $user->isStaff() ? 'admin' : 'web';
+        Auth::guard($guard)->login($user, $this->remember);
+        Auth::shouldUse($guard);
 
         RateLimiter::clear($this->throttleKey());
     }

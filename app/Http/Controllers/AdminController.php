@@ -6,21 +6,39 @@ use Illuminate\Http\Request;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\CommunicationLog;
+use App\Models\TrackingEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
+use App\Services\SecureImageUploadService;
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
         $user = Auth::user();
+        $canViewShipments = $user->is_admin || $user->hasPermission('admin.shipments.view');
 
-        $shipments = ($user->is_admin || $user->hasPermission('admin.shipments.view'))
-            ? Shipment::with('user')->latest()->get()
-            : collect();
+        $shipmentStats = ['total' => 0, 'inTransit' => 0, 'pending' => 0];
+        $shipments = collect();
+        $recentUpdates = collect();
 
-        return view('admin.dashboard', compact('shipments'));
+        if ($canViewShipments) {
+            // Stats need to reflect ALL shipments, not just the current page,
+            // so they're counted separately from the paginated registry list
+            // below (which previously loaded every shipment unpaginated —
+            // an ever-growing page as the shipment count grew).
+            $shipmentStats = [
+                'total'     => Shipment::count(),
+                'inTransit' => Shipment::whereIn('status', Shipment::statusesForCanonical(['DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM']))->count(),
+                'pending'   => Shipment::whereIn('status', Shipment::statusesForCanonical(['CREATED', 'AWAITING_RECEIPT', 'RECEIVED_CN']))->count(),
+            ];
+
+            $shipments = Shipment::with('user')->latest()->paginate(10);
+            $recentUpdates = Shipment::with('user')->latest()->take(5)->get();
+        }
+
+        return view('admin.dashboard', compact('shipments', 'shipmentStats', 'recentUpdates'));
     }
 
     public function shipments(Request $request)
@@ -39,7 +57,7 @@ class AdminController extends Controller
         }
 
         $stats = [
-            'active' => (clone $query)->where('status', 'In Transit')->count(),
+            'active' => (clone $query)->whereNotIn('status', Shipment::statusesForCanonical(['DELIVERED', 'EXCEPTION']))->count(),
             'total' => (clone $query)->count(),
         ];
 
@@ -50,13 +68,11 @@ class AdminController extends Controller
 
     public function createShipment()
     {
-        $clients  = User::where('is_admin', false)->get();
-        $statuses = [
-            'Order Placed', 'Pending', 'In Transit', 'At Border',
-            'Cleared', 'Out for Delivery', 'Delivered', 'Cancelled',
-        ];
+        $clients   = User::where('is_admin', false)->get();
+        $statuses  = \App\Models\Shipment::statusLabels();
+        $nextSerial = Shipment::nextSerialNumber();
 
-        return view('admin.shipments.create', compact('clients', 'statuses'));
+        return view('admin.shipments.create', compact('clients', 'statuses', 'nextSerial'));
     }
 
     /**
@@ -70,20 +86,36 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'user_id'            => 'required|exists:users,id',
+            'serial_no'          => 'nullable|string|max:255',
             'origin'             => 'required|string',
             'destination'        => 'required|string',
             'status'             => 'required|string',
             'estimated_delivery' => 'nullable|date',
+            'date_of_load'       => 'nullable|date',
             'cost'               => 'nullable|numeric',
             'weight'             => 'nullable|numeric',
+            'cbm_volume'         => 'nullable|numeric|min:0',
+            'gross_weight'       => 'nullable|numeric|min:0',
+            'no_of_parcels'      => 'nullable|integer|min:1',
             'dimensions'         => 'nullable|string',
             'description'        => 'nullable|string',
+            'reference'          => 'nullable|string|max:255',
+            'phone_number'       => 'nullable|string|max:60',
             'images'             => 'nullable|array',
             'images.*'           => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // Generate unique serial number
-        $serialNo = $this->generateSerialNo($validated['origin']);
+        // Serial is auto-generated in the form "ZMFFL-000001" (incremental)
+        // unless the admin supplies their own unique one.
+        $serialNo = $validated['serial_no'] ?? $this->generateSerialNo();
+
+        // Guarantee the serial has never been used before. Covers the small
+        // window between the form page loading its next value and this form
+        // being submitted (e.g. two admins creating shipments at the same
+        // time), where the value shown could already be taken.
+        while (Shipment::where('serial_no', $serialNo)->exists()) {
+            $serialNo = $this->generateSerialNo();
+        }
 
         $shipment = Shipment::create([
             'user_id'            => $validated['user_id'],
@@ -92,17 +124,30 @@ class AdminController extends Controller
             'destination'        => $validated['destination'],
             'status'             => $validated['status'],
             'estimated_delivery' => $validated['estimated_delivery'] ?? null,
+            'date_of_load'       => $validated['date_of_load'] ?? null,
             'cost'               => $validated['cost'] ?? 0,
             'weight'             => $validated['weight'] ?? null,
+            'cbm_volume'         => $validated['cbm_volume'] ?? null,
+            'gross_weight'       => $validated['gross_weight'] ?? null,
+            'no_of_parcels'      => $validated['no_of_parcels'] ?? null,
             'dimensions'         => $validated['dimensions'] ?? null,
             'description'        => $validated['description'] ?? null,
+            'reference'          => $validated['reference'] ?? null,
+            'phone_number'       => $validated['phone_number'] ?? null,
         ]);
         // Observer will automatically send email & create tracking event
 
         if ($request->hasFile('images')) {
             $paths = [];
             foreach ($request->file('images') as $file) {
-                $paths[] = $file->store("shipments/{$shipment->id}", 'public');
+                try {
+                    $paths[] = SecureImageUploadService::store($file, "shipments/{$shipment->id}");
+                } catch (\RuntimeException $e) {
+                    // The shipment itself is already created and valid — don't
+                    // lose it over a bad image file, just report it and move on.
+                    return redirect()->route('admin.shipments.edit', $shipment)
+                        ->with('error', 'Shipment created (Serial: ' . $shipment->serial_no . '), but one image was rejected: ' . $e->getMessage());
+                }
             }
             $shipment->update(['images' => $paths]);
         }
@@ -112,36 +157,60 @@ class AdminController extends Controller
     }
 
     /**
-     * Generate unique serial number
+     * Generate the next auto-increment serial number in the form
+     * "ZMFFL-000001". Left in the controller so storeShipment() can
+     * call it, while the actual sequence logic lives on the model.
      */
-    private function generateSerialNo(string $origin): string
+    private function generateSerialNo(): string
     {
-        $prefix = strtoupper(substr($origin, 0, 3));
-        $number = random_int(10000, 99999);
-
-        // Ensure uniqueness
-        while (Shipment::where('serial_no', "{$prefix}.{$number}")->exists()) {
-            $number = random_int(10000, 99999);
-        }
-
-        return "{$prefix}.{$number}";
+        return Shipment::nextSerialNumber();
     }
 
     public function editShipment(Shipment $shipment)
     {
         $clients = User::where('is_admin', false)->get();
-        $statuses = [
-            'Order Placed',
-            'Pending',
-            'In Transit',
-            'At Border',
-            'Cleared',
-            'Out for Delivery',
-            'Delivered',
-            'Cancelled',
-        ];
+        $statuses = \App\Models\Shipment::statusLabels();
 
         return view('admin.shipments.edit', compact('shipment', 'clients', 'statuses'));
+    }
+
+    /**
+     * Manually add a tracking event from the shipment edit page.
+     *
+     * This route previously pointed at editShipment() (a GET-only display
+     * method that ignores the request body), so "Add Event" silently
+     * re-rendered the edit page without creating anything.
+     */
+    public function storeTrackingEvent(Request $request, Shipment $shipment)
+    {
+        $validated = $request->validate([
+            'location'    => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'status'      => 'nullable|string',
+            'latitude'    => 'nullable|numeric|between:-90,90',
+            'longitude'   => 'nullable|numeric|between:-180,180',
+            'event_time'  => 'required|date',
+        ]);
+
+        TrackingEvent::create([
+            'shipment_id' => $shipment->id,
+            'location'    => $validated['location'],
+            'description' => $validated['description'],
+            'status'      => $validated['status'] ?: null,
+            'latitude'    => $validated['latitude'] ?? null,
+            'longitude'   => $validated['longitude'] ?? null,
+            'event_time'  => $validated['event_time'],
+        ]);
+
+        // Reuses the same status-change side effects (email/SMS notification)
+        // as updateShipment() below via ShipmentObserver::updated().
+        if (!empty($validated['status']) && $validated['status'] !== $shipment->status) {
+            $shipment->update(['status' => $validated['status']]);
+        }
+
+        return redirect()->route('admin.shipments.edit', $shipment)
+            ->withFragment('add-event')
+            ->with('success', 'Tracking event added successfully.');
     }
 
     /**
@@ -157,20 +226,37 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'status'             => 'required|string',
+            'user_id'            => 'required|exists:users,id',
+            'serial_no'          => 'nullable|string|max:255|unique:shipments,serial_no,' . $shipment->id,
             'origin'             => 'nullable|string',
             'destination'        => 'nullable|string',
             'current_border'     => 'nullable|string',
             'estimated_delivery' => 'nullable|date',
+            'date_of_load'       => 'nullable|date',
             'cost'               => 'nullable|numeric',
+            'cbm_volume'         => 'nullable|numeric|min:0',
+            'gross_weight'       => 'nullable|numeric|min:0',
+            'no_of_parcels'      => 'nullable|integer|min:1',
+            'reference'          => 'nullable|string|max:255',
+            'phone_number'       => 'nullable|string|max:60',
             'images'             => 'nullable|array',
             'images.*'           => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
+
+        // Blank serial in the edit form means "keep the current one".
+        if (empty($validated['serial_no'])) {
+            $validated['serial_no'] = $shipment->serial_no;
+        }
 
         $existing = $shipment->images ?? [];
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
-                $existing[] = $file->store("shipments/{$shipment->id}", 'public');
+                try {
+                    $existing[] = SecureImageUploadService::store($file, "shipments/{$shipment->id}");
+                } catch (\RuntimeException $e) {
+                    return back()->withErrors(['images' => $e->getMessage()])->withInput();
+                }
             }
         }
 
@@ -258,8 +344,8 @@ class AdminController extends Controller
     {
 
         $totalShipments = Shipment::count();
-        $activeShipments = Shipment::whereIn('status', ['In Transit', 'Out for Delivery'])->count();
-        $deliveredShipments = Shipment::where('status', 'Delivered')->count();
+        $activeShipments = Shipment::whereIn('status', Shipment::statusesForCanonical(['DEPARTED_CN', 'IN_TRANSIT', 'ARRIVED_ZM']))->count();
+        $deliveredShipments = Shipment::whereIn('status', Shipment::statusesForCanonical(['DELIVERED']))->count();
         $totalRevenue = Shipment::sum('cost');
         $totalClients = User::where('is_admin', false)->count();
 
@@ -291,5 +377,41 @@ class AdminController extends Controller
             'commStats',
             'recentLogs'
         ));
+    }
+
+    /**
+     * Delete a single shipment. Tracking events are removed with it so no
+     * orphaned rows are left behind.
+     */
+    public function deleteShipment(Shipment $shipment)
+    {
+        $label = $shipment->tracking_number ?: $shipment->serial_no;
+
+        $shipment->trackingEvents()->delete();
+        $shipment->delete();
+
+        return back()->with('success', "Shipment deleted successfully ({$label}).");
+    }
+
+    /**
+     * Bulk delete. Accepts an array of shipment IDs (from the checkbox
+     * selection on the shipment registry). Deletes them along with their
+     * tracking events in a single pass.
+     */
+    public function bulkDeleteShipments(Request $request)
+    {
+        $validated = $request->validate(['ids' => 'required|array', 'ids.*' => 'integer']);
+
+        $ids = array_filter($validated['ids']);
+
+        if (empty($ids)) {
+            return back()->with('error', 'No shipments selected.');
+        }
+
+        $count = Shipment::whereIn('id', $ids)->count();
+        TrackingEvent::whereIn('shipment_id', $ids)->delete();
+        Shipment::whereIn('id', $ids)->delete();
+
+        return back()->with('success', "{$count} shipment(s) deleted successfully.");
     }
 }

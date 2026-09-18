@@ -42,7 +42,27 @@ class ActivateAccount extends Component
 
     public function loadUser(): void
     {
+        $normalized = User::normalizePhone($this->phone);
+
         $this->user = User::where('phone', $this->phone)->first();
+
+        if (!$this->user && $normalized !== null) {
+            $this->user = User::whereNotNull('phone')->get()->first(
+                fn (User $user) => User::normalizePhone($user->phone) === $normalized
+            );
+        }
+
+        // Clients added by the ops team before they had an account have no
+        // email or phone on their user row — the number only lives on their
+        // shipments. Match by that, then pin the number onto the account so
+        // the OTP reaches them.
+        if (!$this->user) {
+            $this->user = User::findShipmentPlaceholder('', $this->phone);
+
+            if ($this->user && !$this->user->phone) {
+                $this->user->update(['phone' => trim($this->phone)]);
+            }
+        }
 
         if (!$this->user) {
             session()->flash('error', 'No account found with this phone number.');

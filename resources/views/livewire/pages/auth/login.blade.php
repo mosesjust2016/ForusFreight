@@ -35,7 +35,11 @@ new #[Layout('layouts.guest')] class extends Component
             return;
         }
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $default = $user->isStaff()
+            ? route('admin.dashboard', absolute: false)
+            : route('dashboard', absolute: false);
+
+        $this->redirectIntended(default: $default, navigate: true);
     }
 }; 
 ?>

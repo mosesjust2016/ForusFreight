@@ -5,8 +5,10 @@ $sections = $page?->sections ?? [];
 @extends('layouts.app')
 
 @section('title', ($page?->title ?? 'Contact Us') . ' - Forus Freight')
+@section('meta_description', 'Contact Forus Freight Limited in Lusaka, Zambia for freight quotes, shipment enquiries, and customer support.')
 
 @section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'Contact', 'url' => null]]])
 
 <!-- HERO -->
 <section style="padding: 5rem 0; background: linear-gradient(135deg, rgb(0,127,127), #004c4c);">
@@ -49,24 +51,39 @@ $sections = $page?->sections ?? [];
                     Our team responds within 24 hours.
                 </p>
 
-                <form method="POST" action="#">
+                <form id="contactForm" method="POST" action="{{ route('contact.submit') }}">
                     @csrf
 
                     <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem; margin-bottom:1.5rem;">
-                        <input type="text" placeholder="Full Name" required
-                               style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);">
-                        <input type="email" placeholder="Email Address" required
+                        <div>
+                            <label for="contact_full_name" style="display:block; font-weight:700; color:#1e293b; margin-bottom:.4rem;">Full Name</label>
+                            <input id="contact_full_name" type="text" name="full_name" placeholder="Full Name" required
+                                   style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);">
+                        </div>
+                        <div>
+                            <label for="contact_email" style="display:block; font-weight:700; color:#1e293b; margin-bottom:.4rem;">Email Address</label>
+                            <input id="contact_email" type="email" name="email" placeholder="Email Address" required
+                                   style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:1.5rem;">
+                        <label for="contact_phone" style="display:block; font-weight:700; color:#1e293b; margin-bottom:.4rem;">Phone Number</label>
+                        <input id="contact_phone" type="tel" name="phone" placeholder="Phone Number" required
                                style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);">
                     </div>
 
                     <div style="margin-bottom:1.5rem;">
-                        <input type="text" placeholder="Phone Number" required
-                               style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);">
+                        <label for="contact_message" style="display:block; font-weight:700; color:#1e293b; margin-bottom:.4rem;">Your Message</label>
+                        <textarea id="contact_message" name="message" rows="5" placeholder="Your Message" required
+                            style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);"></textarea>
                     </div>
 
-                    <div style="margin-bottom:2rem;">
-                        <textarea rows="5" placeholder="Your Message" required
-                            style="width:100%; padding:1rem; border-radius:12px; border:2px solid rgb(204,204,204);"></textarea>
+                    <div style="margin-bottom:2rem; display:flex; align-items:flex-start; gap:.75rem;">
+                        <input type="checkbox" id="contact_consent" name="consent" required style="margin-top:.3rem; width:18px; height:18px; flex-shrink:0;">
+                        <label for="contact_consent" style="font-size:.9rem; color:#444; line-height:1.5;">
+                            I agree to Forus Freight processing the information above to respond to my message, in accordance with the <a href="{{ route('privacy') }}" target="_blank" style="color:rgb(0,127,127); font-weight:700;">Privacy Policy</a>.
+                        </label>
                     </div>
 
                     <button type="submit" style="
@@ -82,6 +99,8 @@ $sections = $page?->sections ?? [];
                     " onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
                         Send Message
                     </button>
+
+                    <div id="contactFormMessage" style="display:none; margin-top:1.5rem; padding:1.25rem; border-radius:12px; text-align:center; font-weight:700;"></div>
 
                 </form>
             </div>
@@ -101,12 +120,12 @@ $sections = $page?->sections ?? [];
 
                 <div style="margin-bottom:2rem;">
                     <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Address</h4>
-                    <p style="opacity:.9">{{ $sections['address'] ?? 'Lusaka, Zambia' }}</p>
+                    <p style="opacity:.9">{{ $sections['address'] ?? 'METROLUX PLAZA, Plot No. 401A/8 Kafure Road, Lusaka, Zambia' }}</p>
                 </div>
 
                 <div style="margin-bottom:2rem;">
                     <h4 style="font-weight:800; margin-bottom:.3rem; color: rgb(255,98,0);">Phone</h4>
-                    <p style="opacity:.9">{{ $sections['phone'] ?? '+260 97 123 4567' }}</p>
+                    <p style="opacity:.9">{{ $sections['phone'] ?? '+260 572 788 685' }}</p>
                 </div>
 
                 <div style="margin-bottom:2rem;">
@@ -149,5 +168,47 @@ $sections = $page?->sections ?? [];
 
     </div>
 </section>
+
+<script>
+    document.getElementById('contactForm')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        const msgBox = document.getElementById('contactFormMessage');
+
+        submitBtn.innerHTML = 'Sending...';
+        submitBtn.disabled = true;
+        msgBox.style.display = 'none';
+
+        fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+        })
+        .then(async (response) => {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || 'Something went wrong.');
+            return data;
+        })
+        .then(() => {
+            this.reset();
+            window.location.href = '{{ route('thank-you') }}?type=contact';
+        })
+        .catch((error) => {
+            msgBox.style.background = '#fef2f2';
+            msgBox.style.color = '#991b1b';
+            msgBox.textContent = error.message || 'There was an error sending your message. Please try again or contact us directly.';
+            msgBox.style.display = 'block';
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+</script>
 
 @endsection

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', config('app.name', 'Forus Freight'))</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -88,6 +90,38 @@
             color: #007f7f;
             text-decoration: none;
         }
+
+        @keyframes flashSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .flash-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.1rem 1.25rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            animation: flashSlideIn 0.3s ease;
+        }
+        .flash-message > i:first-child { font-size: 1.15rem; margin-top: 0.1rem; }
+        .flash-message > span { flex: 1; }
+        .flash-dismiss {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+            font-size: 0.85rem;
+            padding: 0.15rem;
+            flex-shrink: 0;
+        }
+        .flash-dismiss:hover { opacity: 1; }
+        .flash-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+        .flash-error   { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+        .flash-info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
     </style>
     @yield('styles')
     @livewireStyles
@@ -111,6 +145,35 @@
     </header>
 
     <main class="main-content">
+        {{-- This layout previously had zero flash/validation feedback of its own,
+             so a redirect back with session('success')/('error') (e.g. from
+             ShipmentController::store()) had nowhere to render. --}}
+        <div id="globalFlashMessages">
+            @if(session('success'))
+                <div class="flash-message flash-success" role="status">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ session('success') }}</span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="flash-message flash-error" role="alert">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span>{{ session('error') }}</span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="flash-message flash-info" role="status">
+                    <i class="fas fa-circle-info"></i>
+                    <span>{{ session('info') }}</span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+        </div>
+
         @yield('content')
     </main>
 
@@ -122,6 +185,34 @@
     </footer>
 
     @yield('scripts')
+    <script>
+        // Same pattern as layouts/dashboard.blade.php: disable + spinner any
+        // plain form submit button so a slow request doesn't look like a dead
+        // click. Livewire forms manage their own wire:loading state.
+        document.addEventListener('submit', function (e) {
+            const form = e.target;
+            if (!(form instanceof HTMLFormElement)) return;
+            if (e.defaultPrevented) return;
+            if (form.hasAttribute('wire:submit') || form.hasAttribute('wire:submit.prevent')) return;
+            if (form.dataset.noLoader !== undefined) return;
+
+            const label = form.dataset.loadingLabel || 'Processing...';
+
+            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (btn) {
+                if (btn.disabled) return;
+                if (btn.tagName === 'BUTTON') {
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ' + label;
+                } else {
+                    btn.dataset.originalValue = btn.value;
+                    btn.value = label;
+                }
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'not-allowed';
+            });
+        });
+    </script>
     @livewireScripts
 </body>
 </html>

@@ -40,6 +40,17 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Separate guard for staff/admin sessions. Same 'users' table/provider
+        // as 'web' (admin vs client is just the is_admin flag on the same
+        // model) — but Laravel stores each guard's authenticated user under
+        // its own session key, so a browser can hold a 'web' (client) login
+        // and an 'admin' login at the same time instead of one overwriting
+        // the other.
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     /*

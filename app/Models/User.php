@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'is_admin',
         'is_temporary',
+        'must_change_password',
         'account_status',
         'phone_otp',
         'phone_otp_expires_at',
@@ -65,6 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone_otp_expires_at' => 'datetime',
         'email_otp_expires_at' => 'datetime',
         'password' => 'hashed',
+        'must_change_password' => 'boolean',
     ];
 
     public function shipments(): HasMany
@@ -173,6 +175,18 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
         return false;
+    }
+
+    /**
+     * Whether this account belongs on the 'admin' guard/portal rather than
+     * the client-facing 'web' side — true super-admins and anyone holding a
+     * staff role (admin_staff, sales, ...). Used everywhere a shared
+     * layout/redirect needs to pick between the admin and client sides of
+     * the app, since staff without the is_admin flag are not clients.
+     */
+    public function isStaff(): bool
+    {
+        return $this->is_admin || $this->roles()->exists();
     }
 
     /* ──────────────────────────────────────────────────────────
@@ -306,6 +320,70 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_temporary' => true,
             'account_status' => 'pending',
         ]);
+    }
+
+    /**
+     * Reduce a phone number to a comparable digit string. Local numbers
+     * written with a leading 0 (0977…) are promoted to the 260 country
+     * code so they line up with the +260… form used across the app.
+     */
+    public static function normalizePhone(?string $phone): ?string
+    {
+        if ($phone === null) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D/', '', $phone);
+
+        if ($digits === '') {
+            return null;
+        }
+
+        if (str_starts_with($digits, '0')) {
+            $digits = '260' . substr($digits, 1);
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Locate the placeholder account of a client whose shipments were added
+     * before they had an account — a row created by the bulk shipment import
+     * that still has no email or phone. Matching is done on the phone recorded
+     * against their shipments first (strongest signal), then on an exact,
+     * unambiguous full-name match. Returns null when nothing matches or the
+     * match is ambiguous, so we never guess.
+     */
+    public static function findShipmentPlaceholder(string $name, string $phone): ?self
+    {
+        $normalized = self::normalizePhone($phone);
+
+        if (trim($name) === '' && $normalized === null) {
+            return null;
+        }
+
+        $placeholders = self::query()
+            ->whereNull('email')
+            ->whereNull('phone')
+            ->with('shipments')
+            ->get();
+
+        if ($normalized !== null) {
+            $byPhone = $placeholders->filter(fn (self $user) => $user->shipments->contains(
+                fn (Shipment $shipment) => self::normalizePhone($shipment->phone_number) === $normalized
+                    || self::normalizePhone($shipment->client_phone) === $normalized
+            ));
+
+            if ($byPhone->count() === 1) {
+                return $byPhone->first();
+            }
+        }
+
+        $byName = $placeholders->filter(
+            fn (self $user) => mb_strtolower(trim((string) $user->name)) === mb_strtolower(trim($name))
+        );
+
+        return $byName->count() === 1 ? $byName->first() : null;
     }
 
     /**

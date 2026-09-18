@@ -143,7 +143,15 @@
     <div class="profile-card">
         <div class="avatar-wrapper">
             <i class="fas fa-user"></i>
-            <div class="badge-client">{{ Auth::user()->is_admin ? 'ADMIN' : 'CLIENT' }}</div>
+            <div class="badge-client">
+                @if(Auth::user()->is_admin)
+                    SUPER ADMIN
+                @elseif(Auth::user()->isStaff())
+                    {{ strtoupper(Auth::user()->roles->first()->display_name ?? 'STAFF') }}
+                @else
+                    CLIENT
+                @endif
+            </div>
         </div>
         <h2 style="font-size: 1.25rem; font-weight: 900; color: #1e293b; margin-bottom: 0.25rem;">{{ Auth::user()->name }}</h2>
         <p style="font-size: 0.8rem; color: #94a3b8; font-weight: 600;">Since {{ Auth::user()->created_at->format('M Y') }}</p>
@@ -155,7 +163,15 @@
             </div>
             <div class="info-item">
                 <label>Account Type</label>
-                <p>Standard Client Account</p>
+                <p>
+                    @if(Auth::user()->is_admin)
+                        Super Administrator
+                    @elseif(Auth::user()->isStaff())
+                        {{ Auth::user()->roles->first()->display_name ?? 'System User' }} (System Access)
+                    @else
+                        Standard Client Account
+                    @endif
+                </p>
             </div>
             <div class="info-item">
                 <label>Status</label>
@@ -167,11 +183,6 @@
     <div class="settings-card">
         <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 2rem; color: #1e293b;">Edit Information</h3>
         
-        @if(session('success'))
-            <div style="background: #f0fdf4; color: #15803d; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-weight: 700; font-size: 0.9rem; border: 1px solid #bbf7d0;">
-                <i class="fas fa-check-circle"></i> {{ session('success') }}
-            </div>
-        @endif
 
         <form action="{{ route('client.profile.update') }}" method="POST">
             @csrf

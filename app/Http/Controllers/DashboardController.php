@@ -19,7 +19,7 @@ class DashboardController extends Controller
         // Stats
         $stats = [
             'active_shipments' => Shipment::where('user_id', $userId)
-                ->whereNotIn('status', ['Delivered', 'Cancelled'])
+                ->whereNotIn('status', Shipment::statusesForCanonical(['DELIVERED', 'EXCEPTION']))
                 ->count(),
             'total_spent' => Invoice::where('user_id', $userId)
                 ->where('status', 'Paid')
@@ -46,9 +46,10 @@ class DashboardController extends Controller
         // Real-time tracking lookup
         $trackedShipment = null;
         $trackingError = null;
-        if ($request->has('serial_no')) {
-            $serialNo = $request->query('serial_no');
+        if ($request->has('serial_no') && trim((string) $request->query('serial_no')) !== '') {
+            $serialNo = trim((string) $request->query('serial_no'));
             $trackedShipment = Shipment::where('serial_no', $serialNo)
+                ->orWhere('tracking_number', $serialNo)
                 ->with('trackingEvents')
                 ->first();
             if (!$trackedShipment) {

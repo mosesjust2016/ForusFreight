@@ -38,9 +38,15 @@ Route::post('/quote/submit', [QuoteController::class, 'submit'])->name('quote.su
 
 // Contact route
 Route::get('/contact', fn() => view('contact'))->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'submit'])->middleware('throttle:10,1')->name('contact.submit');
 
 // Legal
 Route::get('/terms', fn() => view('terms'))->name('terms');
+Route::get('/privacy', fn() => view('privacy'))->name('privacy');
+Route::get('/cookie-policy', fn() => view('cookie-policy'))->name('cookie-policy');
+Route::get('/refund-policy', fn() => view('refund-policy'))->name('refund-policy');
+Route::get('/faq', fn() => view('faq'))->name('faq');
+Route::get('/thank-you', fn() => view('thank-you'))->name('thank-you');
 
 // Tracking routes
 Route::get('/track', [TrackingController::class, 'show'])->name('track');
@@ -83,12 +89,24 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::get('/client/security', [ProfileController::class, 'security'])->name('client.security');
     Route::put('/client/security/password', [ProfileController::class, 'updatePassword'])->name('client.password.update');
     Route::get('/client/help', [ProfileController::class, 'help'])->name('client.help');
+    Route::get('/client/getting-started', [ProfileController::class, 'gettingStarted'])->name('client.getting-started');
     Route::get('/client/profile', [ProfileController::class, 'index'])->name('client.profile');
     Route::put('/client/profile', [ProfileController::class, 'update'])->name('client.profile.update');
 });
 
+// Forced password change — outside the main admin group (and its
+// 'password.change_required' gate) so a staff member with a temporary,
+// system-generated password can actually reach this page instead of being
+// redirected back to it in a loop.
+Route::middleware(['auth:admin', 'fully_verified'])->prefix('admin')->group(function () {
+    Route::get('/force-password-change', [ProfileController::class, 'forcePasswordChange'])->name('admin.force-password-change');
+    Route::put('/force-password-change', [ProfileController::class, 'updateForcedPassword'])->name('admin.force-password-change.update');
+});
+
 // Admin routes (require authentication, full verification, and at least a staff role)
-Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix('admin')->group(function () {
+// Uses the 'admin' guard (see config/auth.php) so an admin session can coexist
+// in the same browser with a separate client ('web' guard) session.
+Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', 'role:admin_staff,sales'])->prefix('admin')->group(function () {
     // Dashboard — accessible to all staff roles
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -96,13 +114,20 @@ Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix(
     Route::middleware('permission:admin.shipments.manage')->group(function () {
         Route::get('/shipments/create', [AdminController::class, 'createShipment'])->name('admin.shipments.create');
         Route::post('/shipments', [AdminController::class, 'storeShipment'])->name('admin.shipments.store');
+        Route::delete('/shipments/bulk-delete', [AdminController::class, 'bulkDeleteShipments'])->name('admin.shipments.bulk-delete');
+        Route::delete('/shipments/{shipment}', [AdminController::class, 'deleteShipment'])->name('admin.shipments.destroy');
     });
     Route::middleware('permission:admin.shipments.view')->group(function () {
         Route::get('/shipments', [AdminController::class, 'shipments'])->name('admin.shipments');
         Route::get('/shipments/{shipment}/edit', [AdminController::class, 'editShipment'])->name('admin.shipments.edit');
         Route::put('/shipments/{shipment}', [AdminController::class, 'updateShipment'])->name('admin.shipments.update');
         Route::post('/shipments/{shipment}/images/remove', [AdminController::class, 'removeShipmentImage'])->name('admin.shipments.images.remove');
-        Route::post('/shipments/{shipment}/events', [AdminController::class, 'editShipment'])->name('admin.shipments.events.store');
+        Route::post('/shipments/{shipment}/events', [AdminController::class, 'storeTrackingEvent'])->name('admin.shipments.events.store');
+        // A stray GET here (browser back/refresh after the POST redirect) previously
+        // 405'd instead of just taking the admin back to the form.
+        Route::get('/shipments/{shipment}/events', function (\App\Models\Shipment $shipment) {
+            return redirect()->route('admin.shipments.edit', $shipment)->withFragment('add-event');
+        });
         Route::delete('/shipments/{shipment}/events/{event}', fn() => back())->name('admin.shipments.events.destroy');
     });
 
@@ -156,6 +181,7 @@ Route::middleware(['auth', 'fully_verified', 'role:admin_staff,sales'])->prefix(
     // User & Role Management — super-admin only
     Route::middleware('permission:admin.users.manage')->group(function () {
         Route::get('/staff', [\App\Http\Controllers\UserManagementController::class, 'index'])->name('admin.staff.index');
+        Route::post('/staff', [\App\Http\Controllers\UserManagementController::class, 'store'])->name('admin.staff.store');
         Route::post('/staff/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'assignRole'])->name('admin.staff.roles.assign');
         Route::delete('/staff/{user}/roles/{role}', [\App\Http\Controllers\UserManagementController::class, 'removeRole'])->name('admin.staff.roles.remove');
 

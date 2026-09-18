@@ -220,7 +220,7 @@
         </div>
         <div class="detail-item">
             <div class="detail-label">Active Shipments</div>
-            <div class="detail-value">{{ $shipments->whereIn('status', ['In Transit', 'Out for Delivery'])->count() }} In Motion</div>
+            <div class="detail-value">{{ $shipments->whereIn('status', \App\Models\Shipment::statusesForCanonical(['IN_TRANSIT', 'OUT_FOR_DELIVERY']))->count() }} In Motion</div>
         </div>
         <div class="detail-item">
             <div class="detail-label">Completion Rate</div>

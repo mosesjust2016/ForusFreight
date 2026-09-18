@@ -98,20 +98,26 @@
                 @csrf
                 <h3>Get Your Free Quote</h3>
                 <div class="lp-form-group">
-                    <label>Full Name *</label>
-                    <input type="text" name="name" required placeholder="John Banda">
+                    <label for="lp_name">Full Name *</label>
+                    <input id="lp_name" type="text" name="name" required placeholder="John Banda">
                 </div>
                 <div class="lp-form-group">
-                    <label>Email Address *</label>
-                    <input type="email" name="email" required placeholder="john@company.com">
+                    <label for="lp_email">Email Address *</label>
+                    <input id="lp_email" type="email" name="email" required placeholder="john@company.com">
                 </div>
                 <div class="lp-form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" name="phone" placeholder="+260 97 123 4567">
+                    <label for="lp_phone">Phone Number</label>
+                    <input id="lp_phone" type="tel" name="phone" placeholder="+260 XX XXX XXXX">
                 </div>
                 <div class="lp-form-group">
-                    <label>What are you shipping?</label>
-                    <textarea name="message" placeholder="Tell us about your cargo, route, and timeline..."></textarea>
+                    <label for="lp_message">What are you shipping?</label>
+                    <textarea id="lp_message" name="message" placeholder="Tell us about your cargo, route, and timeline..."></textarea>
+                </div>
+                <div class="lp-form-group" style="display:flex; align-items:flex-start; gap:.6rem;">
+                    <input type="checkbox" id="lp_consent" name="consent" required style="margin-top:.3rem; width:18px; height:18px; flex-shrink:0;">
+                    <label for="lp_consent" style="font-weight:400; font-size:.85rem;">
+                        I agree to Forus Freight processing this information to contact me about my request, per the <a href="{{ route('privacy') }}" target="_blank">Privacy Policy</a>. *
+                    </label>
                 </div>
                 <button type="submit" class="lp-btn" style="width: 100%;"><i class="fas fa-paper-plane"></i> Submit Request</button>
             </form>

@@ -95,6 +95,7 @@ class PublicContentController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:50',
             'message' => 'nullable|string',
+            'consent' => 'required|accepted',
         ]);
 
         $page->increment('submissions');
@@ -111,6 +112,6 @@ class PublicContentController extends Controller
             ]
         );
 
-        return back()->with('success', 'Thank you! We will contact you shortly.');
+        return redirect()->route('thank-you');
     }
 }

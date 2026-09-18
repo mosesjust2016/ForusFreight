@@ -32,6 +32,11 @@ class CheckPermission
             }
         }
 
-        return redirect()->route('dashboard')->with('error', 'Access denied. You do not have the required permission.');
+        // A denied staff member belongs back on their own admin dashboard,
+        // not the client-facing one — route('dashboard') sits behind the
+        // 'web' guard, which a staff-only account was never logged into.
+        $redirectRoute = $user->isStaff() ? 'admin.dashboard' : 'dashboard';
+
+        return redirect()->route($redirectRoute)->with('error', 'Access denied. You do not have the required permission.');
     }
 }

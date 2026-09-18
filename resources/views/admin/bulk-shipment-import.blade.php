@@ -45,7 +45,7 @@
         <i class="fas fa-cloud-upload-alt" style="color: var(--primary-green);"></i> Upload File
     </h2>
 
-    <form id="uploadForm" action="{{ route('admin.shipments.bulk.import') }}" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" action="{{ route('admin.shipments.bulk.import') }}" method="POST" enctype="multipart/form-data" data-loading-label="Uploading & importing…">
         @csrf
 
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
@@ -84,7 +84,6 @@
         <div>
             <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.5rem;">Required Columns</h4>
             <ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #475569; line-height: 1.8;">
-                <li>✓ Tracking Number</li>
                 <li>✓ Client Name</li>
                 <li>✓ Origin</li>
                 <li>✓ Destination</li>
@@ -93,22 +92,27 @@
         <div>
             <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.5rem;">Optional Columns</h4>
             <ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #475569; line-height: 1.8; columns: 2;">
-                <li>○ Cargo Code</li>
+                <li>○ Tracking Number (<strong>auto-generated</strong> if blank)</li>
                 <li>○ Serial Number</li>
+                <li>○ Reference</li>
+                <li>○ Phone Number</li>
+                <li>○ Cargo / Service Type</li>
+                <li>○ Status</li>
+                <li>○ ETA</li>
+                <li>○ Date Loaded</li>
+                <li>○ CBM (m³)</li>
+                <li>○ Weight (KG)</li>
+                <li>○ Parcel Quantity</li>
+                <li>○ Cost (ZMW)</li>
+                <li>○ Cargo Code</li>
                 <li>○ Origin Port</li>
                 <li>○ Current Location</li>
                 <li>○ Shipping Method</li>
-                <li>○ Status</li>
-                <li>○ Date Loaded</li>
-                <li>○ ETA</li>
                 <li>○ Driver</li>
                 <li>○ Vehicle Registration</li>
                 <li>○ Delivery Date</li>
                 <li>○ Proof of Delivery</li>
                 <li>○ Cargo Description</li>
-                <li>○ Parcel Quantity</li>
-                <li>○ Weight (KG)</li>
-                <li>○ Cost (ZMW)</li>
             </ul>
         </div>
     </div>
@@ -124,7 +128,7 @@
         shipment by its <strong>Tracking Number</strong>.
     </p>
 
-    <form id="eventsUploadForm" action="{{ route('admin.shipments.bulk.import-events') }}" method="POST" enctype="multipart/form-data">
+    <form id="eventsUploadForm" action="{{ route('admin.shipments.bulk.import-events') }}" method="POST" enctype="multipart/form-data" data-loading-label="Uploading events…">
         @csrf
         <div class="upload-area" id="eventsUploadArea" onclick="document.getElementById('eventsFileInput').click()">
             <i class="fas fa-file-csv" style="font-size: 2.5rem; color: var(--primary-green); margin-bottom: 0.5rem;"></i>
@@ -198,6 +202,16 @@
             <i class="fas fa-times-circle"></i>
             <span>{{ $results['failed'] }} Failed</span>
         </div>
+        @if(!empty($results['notifications']))
+        <div class="stat-badge" style="background: #ecfdf5; color: #059669;">
+            <i class="fas fa-bell"></i>
+            <span>{{ $results['notifications']['sent'] ?? 0 }} Notified</span>
+        </div>
+        <div class="stat-badge" style="background: #fffbeb; color: #d97706;">
+            <i class="fas fa-envelope"></i>
+            <span>{{ $results['notifications']['failed'] ?? 0 }} Fail</span>
+        </div>
+        @endif
     </div>
 
     @if(count($results['shipments']) > 0)
@@ -211,6 +225,23 @@
                 <div style="font-weight: 700; color: var(--text-dark);">{{ $shipment['tracking_number'] }}</div>
                 <div style="font-size: 0.85rem; color: var(--text-gray);">{{ $shipment['client'] }}</div>
                 <div style="font-size: 0.8rem; color: #94a3b8;">{{ $shipment['origin'] }} → {{ $shipment['destination'] }}</div>
+                @if(!empty($shipment['notify']))
+                    @php $n = $shipment['notify']; @endphp
+                    @if($n['status'] === 'sent')
+                        <div style="font-size: 0.78rem; color: #059669; margin-top: 0.15rem;">
+                            <i class="fas {{ $n['channel'] === 'whatsapp' ? 'fa-brands fa-whatsapp' : 'fa-comment-dots' }}"></i>
+                            Notified via {{ ucfirst($n['channel']) }} ({{ $n['phone'] }})
+                        </div>
+                    @elseif($n['status'] === 'skipped')
+                        <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.15rem;">
+                            <i class="fas fa-user-slash"></i> Not notified — {{ $n['reason'] ?? 'no phone on file' }}
+                        </div>
+                    @else
+                        <div style="font-size: 0.78rem; color: #dc2626; margin-top: 0.15rem;">
+                            <i class="fas fa-times"></i> Notification failed — {{ $n['reason'] ?? '' }}
+                        </div>
+                    @endif
+                @endif
             </div>
             <i class="fas fa-check" style="color: #16a34a; font-size: 1.25rem;"></i>
         </div>
@@ -281,7 +312,7 @@
 
     uploadForm.addEventListener('submit', (e) => {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (uploadForm.dataset.loadingLabel || 'Importing...');
     });
 
     const eventsUploadArea = document.getElementById('eventsUploadArea');
@@ -321,7 +352,7 @@
 
     eventsUploadForm.addEventListener('submit', (e) => {
         eventsSubmitBtn.disabled = true;
-        eventsSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+        eventsSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (eventsUploadForm.dataset.loadingLabel || 'Importing...');
     });
 </script>
 @endsection

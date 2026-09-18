@@ -14,12 +14,16 @@ class TrackingController extends Controller
      */
     public function show(Request $request)
     {
-        // Check if tracking_number is in query string
-        $trackingNumber = $request->query('tracking_number') ?? session('tracking_attempt');
+        // Check query string for either tracking_number or serial_no
+        $trackingNumber = $request->query('tracking_number')
+            ?? $request->query('serial_no')
+            ?? session('tracking_attempt');
 
         // If user is authenticated and has a tracking attempt, show their shipment
         if (Auth::check() && $trackingNumber) {
+            $trackingNumber = trim($trackingNumber);
             $shipment = Shipment::where('tracking_number', $trackingNumber)
+                ->orWhere('serial_no', $trackingNumber)
                 ->with('trackingEvents')
                 ->first();
 
@@ -40,9 +44,10 @@ class TrackingController extends Controller
             'tracking_number' => 'required|string|min:3'
         ]);
 
-        $trackingNumber = $request->tracking_number;
+        $trackingNumber = trim($request->tracking_number);
 
         $shipment = Shipment::where('tracking_number', $trackingNumber)
+            ->orWhere('serial_no', $trackingNumber)
             ->with('trackingEvents')
             ->first();
 
@@ -64,7 +69,12 @@ class TrackingController extends Controller
         }
 
         $user = Auth::user();
+        // The client shipments/invoices lists link here using the shipment's
+        // serial_no (the identifier shown to clients there) — nearly half of
+        // all shipments have no tracking_number at all, so this must match
+        // either field or those links 404 into "not found" for those clients.
         $shipment = Shipment::where('tracking_number', $tracking_number)
+            ->orWhere('serial_no', $tracking_number)
             ->with('trackingEvents')
             ->first();
 

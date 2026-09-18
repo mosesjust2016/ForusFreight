@@ -50,7 +50,7 @@
     </div>
 </div>
 
-<form action="{{ route('admin.cms.pages.update', $page) }}" method="POST" id="cmsForm">
+<form action="{{ route('admin.cms.pages.update', $page) }}" method="POST" id="cmsForm" data-loading-label="Saving page…">
     @csrf
     @method('PUT')
 
@@ -119,8 +119,10 @@
     </div>
 </form>
 
-<!-- TinyMCE CDN -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Self-hosted TinyMCE (GPL community build) — the tiny.cloud "no-api-key"
+     CDN build shows an upsell notification that can navigate the whole tab
+     away to tiny.cloud's site instead of just displaying a banner. -->
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
     function switchTab(id) {
@@ -130,6 +132,14 @@
         document.getElementById('tab-' + id).classList.add('active');
     }
 
+    /* Client-side only — a fast, friendly first check so people don't wait
+       for a round-trip to find out a file is the wrong type or too big.
+       This is NOT the real security boundary: the server always re-checks
+       and re-encodes every image regardless of what the browser reports
+       here, since a script can trivially send whatever it wants. */
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
     function handleImageUpload(input, previewId, hiddenId) {
         const file = input.files[0];
         if (!file) return;
@@ -137,6 +147,21 @@
         const preview = document.getElementById(previewId);
         const hidden = document.getElementById(hiddenId);
         const progress = input.parentElement.querySelector('.upload-progress');
+
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            progress.classList.add('active');
+            progress.textContent = 'Unsupported file type (use JPG, PNG, GIF, or WebP)';
+            input.value = '';
+            setTimeout(() => { progress.classList.remove('active'); }, 3000);
+            return;
+        }
+        if (file.size > MAX_IMAGE_BYTES) {
+            progress.classList.add('active');
+            progress.textContent = `File is ${(file.size / (1024 * 1024)).toFixed(1)} MB — the limit is 5 MB`;
+            input.value = '';
+            setTimeout(() => { progress.classList.remove('active'); }, 3000);
+            return;
+        }
 
         const formData = new FormData();
         formData.append('image', file);
@@ -179,6 +204,16 @@
         images_upload_url: '{{ route('admin.cms.upload') }}',
         images_upload_handler: function (blobInfo) {
             return new Promise(function (resolve, reject) {
+                const blob = blobInfo.blob();
+                if (!ALLOWED_IMAGE_TYPES.includes(blob.type)) {
+                    reject('Unsupported file type (use JPG, PNG, GIF, or WebP)');
+                    return;
+                }
+                if (blob.size > MAX_IMAGE_BYTES) {
+                    reject(`File is ${(blob.size / (1024 * 1024)).toFixed(1)} MB — the limit is 5 MB`);
+                    return;
+                }
+
                 var xhr = new XMLHttpRequest();
                 xhr.withCredentials = false;
                 xhr.open('POST', '{{ route('admin.cms.upload') }}');

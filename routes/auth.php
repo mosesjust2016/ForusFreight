@@ -25,13 +25,36 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/');
-})->middleware('auth')->name('logout');
+    // The dashboard layout's logout form says which guard's session its
+    // Logout link belongs to (admin vs client), since a browser can hold
+    // both at once and logging out of one shouldn't end the other. Fall
+    // back to logging out of both only if that hint is ever missing.
+    $guard = $request->input('guard');
 
-Route::middleware('auth')->group(function () {
+    if ($guard === 'admin' || $guard === 'web') {
+        Auth::guard($guard)->logout();
+
+        // session()->invalidate() clears the ENTIRE session store, not just
+        // this guard's key within it — calling it unconditionally would wipe
+        // out the other guard's still-active login too. Only do the full
+        // invalidate once nothing is left logged in; otherwise just rotate
+        // the CSRF token.
+        $otherGuard = $guard === 'admin' ? 'web' : 'admin';
+        if (! Auth::guard($otherGuard)->check()) {
+            $request->session()->invalidate();
+        }
+        $request->session()->regenerateToken();
+    } else {
+        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    }
+
+    return redirect('/');
+})->middleware('auth:web,admin')->name('logout');
+
+Route::middleware('auth:web,admin')->group(function () {
     Volt::route('verify-email', 'pages.auth.verify-email')
         ->name('verification.notice');
 

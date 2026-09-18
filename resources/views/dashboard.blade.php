@@ -333,6 +333,22 @@
         <p style="color: #64748b; font-weight: 500; margin-top: 0.5rem;">Here's what's happening with your shipments today.</p>
     </div>
 
+    <!-- Getting Started Walkthrough Banner -->
+    <div style="margin-bottom: 2rem; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; color: white;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <div style="width: 56px; height: 56px; border-radius: 16px; background: rgba(255,98,0,0.15); color: #ffd166; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h3 style="font-weight: 800; font-size: 1.05rem; margin-bottom: 0.4rem;">New to the portal? Take the 5-minute walkthrough</h3>
+                <p style="margin: 0; font-size: 0.85rem; opacity: 0.85;">Learn how to track, create shipments, use the forwarding address, and name your parcel <strong style="color: #ffd166;">ZMFFL</strong> so it arrives in Zambia — not Ghana.</p>
+            </div>
+        </div>
+        <a href="{{ route('client.getting-started') }}" style="text-decoration: none; background: #ff6200; color: white; padding: 0.8rem 1.5rem; border-radius: 14px; font-weight: 800; font-size: 0.9rem; transition: all 0.3s;">
+            Start Walkthrough <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+        </a>
+    </div>
+
     <!-- Real-time Tracking Panel -->
     <div class="tracking-panel">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
@@ -358,7 +374,7 @@
                         <h3 style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $trackedShipment->serial_no }}</h3>
                     </div>
                     <span style="padding: 0.5rem 1.25rem; background: #007f7f; color: white; border-radius: 9999px; font-size: 0.875rem; font-weight: 700;">
-                        {{ strtoupper($trackedShipment->status) }}
+                        {{ $trackedShipment->status_label }}
                     </span>
                 </div>
 
@@ -466,8 +482,8 @@
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <span class="status-badge {{ strtolower(str_replace(' ', '-', $shipment->status)) == 'delivered' ? 'status-delivered' : (in_array($shipment->status, ['Order Placed', 'Pending']) ? 'status-pending' : 'status-transit') }}">
-                                {{ $shipment->status }}
+                            <span class="status-badge {{ in_array(\App\Models\Shipment::canonicalStatus($shipment->status), ['EXCEPTION', 'ON_HOLD']) ? 'status-delivered' : (in_array(\App\Models\Shipment::canonicalStatus($shipment->status), ['CREATED', 'AWAITING_RECEIPT', 'RECEIVED_CN']) ? 'status-pending' : 'status-transit') }}">
+                                {{ $shipment->status_label }}
                             </span>
                             <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
                                 {{ $shipment->updated_at->diffForHumans() }}
@@ -476,7 +492,7 @@
                     </div>
                 @empty
                     <div style="text-align: center; padding: 3rem 0;">
-                        <img src="https://illustrations.popsy.co/emerald/delivery-truck.svg" alt="No shipments" style="width: 200px; margin-bottom: 1.5rem; opacity: 0.5;">
+                        <i class="fas fa-truck" style="font-size: 3.5rem; color: #cbd5e1; opacity: 0.6; margin-bottom: 1.5rem; display: inline-block;" aria-hidden="true"></i>
                         <p style="color: #64748b; font-weight: 600;">No shipments found yet.</p>
                         <a href="{{ route('client.shipments.create') }}" style="color: #007f7f; font-size: 0.9rem; font-weight: 700; text-decoration: none; display: block; margin-top: 1rem;">Start your first shipment →</a>
                     </div>

@@ -54,8 +54,29 @@ new #[Layout('layouts.guest')] class extends Component
         // Note: Password is NOT hashed here — the 'hashed' cast on the User model
         // handles hashing automatically when the attribute is set.
 
+        // Clients whose shipments were added before they had an account exist
+        // as placeholder users with no email/phone. If one matches this sign-up
+        // (by the phone stored on their shipments, or by an exact name), claim
+        // it in place instead of creating a duplicate — so the account comes
+        // connected to their existing shipments.
+        $placeholder = User::findShipmentPlaceholder($validated['name'], $validated['phone']);
+        $linkedExistingShipments = false;
+
         try {
-            $user = User::create(Arr::except($validated, ['agree_terms']));
+            if ($placeholder) {
+                $placeholder->update([
+                    'name'         => $validated['name'],
+                    'email'        => $validated['email'],
+                    'phone'        => $validated['phone'],
+                    'password'     => $validated['password'],
+                    'is_temporary' => false,
+                ]);
+
+                $user = $placeholder->refresh();
+                $linkedExistingShipments = true;
+            } else {
+                $user = User::create(Arr::except($validated, ['agree_terms']));
+            }
         } catch (\Throwable $e) {
             Log::error('Registration failed: could not create user', [
                 'email' => $validated['email'] ?? null,
@@ -95,14 +116,18 @@ new #[Layout('layouts.guest')] class extends Component
         Auth::login($user);
 
         // Warn the user if OTPs could not be delivered
+        $linkedNote = $linkedExistingShipments
+            ? 'We found your existing shipment(s) and connected them to this account. '
+            : '';
+
         if (!$emailOtpSent && !$phoneOtpSent) {
-            session()->flash('warning', 'Account created, but we could not send verification codes to your email or phone. Please contact support.');
+            session()->flash('warning', $linkedNote . 'Account created, but we could not send verification codes to your email or phone. Please contact support.');
         } elseif (!$emailOtpSent) {
-            session()->flash('warning', 'Account created, but we could not send the email verification code. Please check your phone for the SMS code, or contact support.');
+            session()->flash('warning', $linkedNote . 'Account created, but we could not send the email verification code. Please check your phone for the SMS code, or contact support.');
         } elseif (!$phoneOtpSent) {
-            session()->flash('warning', 'Account created, but we could not send the SMS verification code. Please check your email for the verification code, or contact support.');
+            session()->flash('warning', $linkedNote . 'Account created, but we could not send the SMS verification code. Please check your email for the verification code, or contact support.');
         } else {
-            session()->flash('success', 'Account created! Please verify your email and phone number.');
+            session()->flash('success', $linkedNote . 'Account created! Please verify your email and phone number.');
         }
 
         $this->redirect(route('verification.notice'), navigate: true);
@@ -226,6 +251,10 @@ new #[Layout('layouts.guest')] class extends Component
                         I have read and agree to the
                         <a href="{{ route('terms') }}" target="_blank" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors underline underline-offset-2">
                             Terms &amp; Conditions
+                        </a>
+                        and
+                        <a href="{{ route('privacy') }}" target="_blank" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors underline underline-offset-2">
+                            Privacy Policy
                         </a>
                         of Forus Freight Limited.
                     </label>

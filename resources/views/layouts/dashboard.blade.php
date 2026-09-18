@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', config('app.name', 'Forus Freight'))</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <meta name="robots" content="noindex, nofollow">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +20,7 @@
             --sidebar-width: 260px;
             --bg-body: #f4f7f6;
             --bg-sidebar: #ffffff;
+            --primary: #007f7f;
             --primary-green: #4caf50;
             --primary-green-light: #e8f5e9;
             --text-dark: #2d3436;
@@ -241,6 +244,10 @@
             box-shadow: var(--shadow);
         }
 
+        .search-box input:focus {
+            box-shadow: var(--shadow), 0 0 0 3px rgba(76, 175, 80, 0.35);
+        }
+
         .search-box i {
             position: absolute;
             left: 1.25rem;
@@ -256,24 +263,24 @@
         }
 
         .btn-create {
-            background: var(--primary-green);
-            color: white;
+            background: #ff6200;
+            color: #ffffff;
             padding: 0.75rem 1.5rem;
             border-radius: 50px;
             border: none;
-            font-weight: 600;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 98, 0, 0.3);
             transition: all 0.3s ease;
             text-decoration: none;
         }
 
         .btn-create:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 98, 0, 0.4);
         }
 
         .user-profile {
@@ -313,6 +320,39 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        @keyframes flashSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flash-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.1rem 1.25rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            animation: flashSlideIn 0.3s ease;
+        }
+        .flash-message > i:first-child { font-size: 1.15rem; margin-top: 0.1rem; }
+        .flash-message > span { flex: 1; }
+        .flash-dismiss {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+            font-size: 0.85rem;
+            padding: 0.15rem;
+            flex-shrink: 0;
+        }
+        .flash-dismiss:hover { opacity: 1; }
+        .flash-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+        .flash-error   { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+        .flash-info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
 
         .dropdown-item {
             display: flex;
@@ -370,7 +410,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <a href="{{ Auth::user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="sidebar-logo" style="margin-bottom: 0;">
+            <a href="{{ Auth::user()->isStaff() ? route('admin.dashboard') : route('dashboard') }}" class="sidebar-logo" style="margin-bottom: 0;">
                 <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight">
             </a>
             <button id="closeSidebar" style="display: none; background: none; border: none; font-size: 1.25rem; color: var(--text-gray); cursor: pointer;">
@@ -410,21 +450,18 @@
                     Admin Home
                 </a>
                 @if($canShipments)
-                <div class="nav-item-collapsible {{ request()->routeIs('admin.shipments') || request()->routeIs('admin.shipments.bulk*') || request()->routeIs('admin.warehouse.cargo*') ? 'expanded' : '' }}">
-                    <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.shipments') || request()->routeIs('admin.shipments.bulk*') || request()->routeIs('admin.warehouse.cargo*') ? 'active' : '' }}">
+                <div class="nav-item-collapsible {{ request()->routeIs('admin.shipments') || request()->routeIs('admin.shipments.bulk*') ? 'expanded' : '' }}">
+                    <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.shipments') || request()->routeIs('admin.shipments.bulk*') ? 'active' : '' }}">
                         <i class="fas fa-location-crosshairs"></i>
                         <span>Shipments</span>
                         <i class="fas fa-chevron-down chevron"></i>
                     </a>
                     <div class="nav-sub-group">
-                        <a href="{{ route('admin.shipments') }}" class="sub-nav-item {{ request()->routeIs('admin.shipments') && !request()->routeIs('admin.shipments.bulk*') && !request()->routeIs('admin.warehouse.cargo*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.shipments') }}" class="sub-nav-item {{ request()->routeIs('admin.shipments') && !request()->routeIs('admin.shipments.bulk*') ? 'active' : '' }}">
                             <i class="fas fa-circle"></i> All Shipments
                         </a>
                         <a href="{{ route('admin.shipments.bulk.index') }}" class="sub-nav-item {{ request()->routeIs('admin.shipments.bulk*') ? 'active' : '' }}">
                             <i class="fas fa-circle"></i> Bulk Shipment Import
-                        </a>
-                        <a href="{{ route('admin.warehouse.cargo.index') }}" class="sub-nav-item {{ request()->routeIs('admin.warehouse.cargo*') ? 'active' : '' }}">
-                            <i class="fas fa-circle"></i> Warehouse Cargo Import
                         </a>
                     </div>
                 </div>
@@ -460,7 +497,13 @@
                         <i class="fas fa-circle"></i> Companies
                     </a>
                     @endif
-                    @if($canContacts)
+                    {{-- Was gated on crm.contacts.view but pointed at
+                         admin.clients (shipment customers), which needs the
+                         separate admin.clients.view permission — a dead end
+                         for Sales, which has the former but not the latter.
+                         Gate on the permission the destination actually
+                         requires instead. --}}
+                    @if(Auth::user()->hasPermission('admin.clients.view'))
                     <a href="{{ route('admin.clients') }}" class="sub-nav-item {{ request()->routeIs('admin.clients*') || request()->has('status') ? 'active' : '' }}">
                         <i class="fas fa-circle"></i> Contacts
                     </a>
@@ -616,6 +659,10 @@
                     <i class="fas fa-location-crosshairs"></i>
                     Real-time Tracking
                 </a>
+                <a href="{{ route('client.getting-started') }}" class="nav-item {{ request()->routeIs('client.getting-started') ? 'active' : '' }}">
+                    <i class="fas fa-graduation-cap"></i>
+                    Getting Started
+                </a>
 
                 <!-- Cargo Operations -->
                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 1.5rem 0 0.5rem 1.25rem; letter-spacing: 0.05em;">Shipments</div>
@@ -682,6 +729,12 @@
             </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
+                {{-- This layout is shared by admin and client pages, and each
+                     logs in on a separate guard so both sessions can be held
+                     in the same browser at once. Tell the logout route which
+                     one *this* page's Logout link belongs to, so it doesn't
+                     also end the other, still-active session. --}}
+                <input type="hidden" name="guard" value="{{ Auth::user()->isStaff() ? 'admin' : 'web' }}">
             </form>
         </div>
     </aside>
@@ -694,18 +747,9 @@
                 <button id="mobileToggle" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dark);">
                     <i class="fas fa-bars"></i>
                 </button>
-                <form action="{{ route('dashboard') }}" method="GET" class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="serial_no" placeholder="Enter serial number..." required>
-                </form>
             </div>
 
             <div class="top-actions">
-                <a href="{{ Auth::user()->is_admin ? route('admin.shipments') : route('client.shipments.create') }}" class="btn-create">
-                    <i class="fas fa-plus"></i>
-                    Create Shipment
-                </a>
-                
                 <div style="display: flex; gap: 1rem; color: var(--text-gray); font-size: 1.2rem;">
                     <i class="far fa-bell" style="cursor: pointer;"></i>
                 </div>
@@ -722,7 +766,7 @@
                             <p style="font-size: 0.7rem; color: var(--text-gray); font-weight: 600;">{{ Auth::user()->email }}</p>
                         </div>
                         <div class="dropdown-divider"></div>
-                        @if(Auth::user()->is_admin)
+                        @if(Auth::user()->isStaff())
                             <a href="{{ route('admin.profile') }}" class="dropdown-item">
                                 <i class="fas fa-user-circle"></i>
                                 My Profile
@@ -750,6 +794,55 @@
                 </div>
             </div>
         </header>
+
+        {{-- Centralised so every admin/client page gets this automatically —
+             most pages here never rendered session('success')/('error') or
+             validation errors at all, so a failed action could silently
+             produce no feedback whatsoever. --}}
+        <div id="globalFlashMessages" style="padding: 0 2.5rem;">
+            @if(session('success'))
+                <div class="flash-message flash-success" role="status">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ session('success') }}</span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="flash-message flash-error" role="alert">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span>{{ session('error') }}</span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="flash-message flash-info" role="status">
+                    <i class="fas fa-circle-info"></i>
+                    <span>{{ session('info') }}</span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="flash-message flash-error" role="alert">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span>
+                        @if($errors->count() === 1)
+                            {{ $errors->first() }}
+                        @else
+                            <strong>Please fix the following:</strong>
+                            <ul style="margin:0.35rem 0 0 1.1rem; padding:0;">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </span>
+                    <button type="button" class="flash-dismiss" onclick="this.closest('.flash-message').remove()" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+        </div>
 
         @yield('content')
     </main>
@@ -789,6 +882,38 @@
             if (window.innerWidth <= 1024 && sidebar && toggle && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
                 sidebar.classList.remove('active');
             }
+        });
+
+        // Applies to every plain form on every admin/client page automatically
+        // (almost none of them showed any feedback while a submit was in
+        // flight, so a slow request looked identical to a dead click and
+        // invited double-submits). Livewire forms already have their own
+        // wire:loading handling and are skipped here so the two don't fight.
+        document.addEventListener('submit', function (e) {
+            const form = e.target;
+            if (!(form instanceof HTMLFormElement)) return;
+            if (e.defaultPrevented) return; // an inline onsubmit (e.g. a declined confirm()) already cancelled this
+            if (form.hasAttribute('wire:submit') || form.hasAttribute('wire:submit.prevent')) return;
+            if (form.dataset.noLoader !== undefined) return; // explicit opt-out escape hatch
+
+            // Per-form copy via data-loading-label (e.g. "Uploading & importing…"),
+            // so the spinner answers "what is happening" instead of a generic
+            // "Processing..." everywhere. Falls back to the default.
+            const label = form.dataset.loadingLabel || 'Processing...';
+
+            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (btn) {
+                if (btn.disabled) return;
+                if (btn.tagName === 'BUTTON') {
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ' + label;
+                } else {
+                    btn.dataset.originalValue = btn.value;
+                    btn.value = label;
+                }
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'not-allowed';
+            });
         });
     </script>
     @livewireScripts

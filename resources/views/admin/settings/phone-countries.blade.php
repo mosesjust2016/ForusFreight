@@ -84,11 +84,6 @@
     </div>
 </div>
 
-@if(session('success'))
-<div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; padding:0.75rem 1.25rem; border-radius:10px; margin-bottom:1.5rem; font-size:0.88rem; font-weight:600;">
-    <i class="fas fa-check-circle"></i> {{ session('success') }}
-</div>
-@endif
 
 @if($errors->any())
 <div style="background:#fef2f2; border:1px solid #fecaca; color:#dc2626; padding:0.75rem 1.25rem; border-radius:10px; margin-bottom:1.5rem; font-size:0.88rem; font-weight:600;">
