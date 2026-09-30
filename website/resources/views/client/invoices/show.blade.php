@@ -203,6 +203,7 @@
             </div>
         </div>
 
+        <div style="overflow-x: auto;">
         <table class="line-items">
             <thead>
                 <tr>
@@ -233,6 +234,7 @@
                 @endif
             </tbody>
         </table>
+        </div>
 
         <div class="totals-area">
             <div class="totals-box">

@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .import-card { background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+    .import-card { background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem; overflow-x: auto; }
     .upload-area { border: 2px dashed #e2e8f0; border-radius: 16px; padding: 3rem; text-align: center; cursor: pointer; transition: all 0.2s; background: #f8fafc; }
     .upload-area:hover { border-color: var(--primary-green); background: #f0fdf4; }
     .upload-area.dragover { border-color: var(--primary-green); background: #f0fdf4; }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CmsPage;
 use Illuminate\Support\Str;
+use Mews\Purifier\Facades\Purifier;
 
 class CmsAdminController extends Controller
 {
@@ -72,9 +73,12 @@ class CmsAdminController extends Controller
         $sections = [];
         if ($request->has('sections')) {
             foreach ($request->input('sections', []) as $key => $section) {
-                if (is_array($section)) {
-                    $sections[$key] = array_filter($section, fn($v) => !is_null($v));
-                }
+                $sections[$key] = is_array($section)
+                    ? array_filter($section, fn($v) => !is_null($v))
+                    : $section;
+            }
+            if (isset($sections['content']) && is_string($sections['content'])) {
+                $sections['content'] = Purifier::clean($sections['content']);
             }
         }
 

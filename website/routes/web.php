@@ -45,7 +45,7 @@ Route::get('/terms', fn() => view('terms'))->name('terms');
 // Tracking routes
 Route::get('/track', [TrackingController::class, 'show'])->name('track');
 Route::get('/tracking', [TrackingController::class, 'show'])->name('tracking');
-Route::post('/track/check', [TrackingController::class, 'check'])->name('track.check');
+Route::post('/track/check', [TrackingController::class, 'check'])->middleware('throttle:10,1')->name('track.check');
 
 // Public Knowledge Base
 Route::get('/kb', [PublicContentController::class, 'knowledgeBaseHome'])->name('public.kb.index');

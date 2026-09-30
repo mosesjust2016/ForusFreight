@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .info-card { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); }
+    .info-card { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); overflow-x: auto; }
     .section-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
     .filter-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
     .filter-bar a { padding: 0.6rem 1rem; border-radius: 10px; background: #f1f5f9; color: #475569; font-weight: 800; text-decoration: none; font-size: 0.9rem; }
@@ -16,6 +16,10 @@
     .agent-row td { padding: 1rem; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
     .progress-bar { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--primary-green); border-radius: 10px; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
 </style>
 @endsection
 

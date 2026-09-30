@@ -43,7 +43,7 @@ class AdminController extends Controller
             'total' => (clone $query)->count(),
         ];
 
-        $shipments = $query->paginate(20)->withQueryString();
+        $shipments = $query->paginate(10)->withQueryString();
 
         return view('admin.shipments.index', compact('shipments', 'search', 'stats'));
     }
@@ -117,11 +117,11 @@ class AdminController extends Controller
     private function generateSerialNo(string $origin): string
     {
         $prefix = strtoupper(substr($origin, 0, 3));
-        $number = rand(10000, 99999);
+        $number = random_int(10000, 99999);
 
         // Ensure uniqueness
         while (Shipment::where('serial_no', "{$prefix}.{$number}")->exists()) {
-            $number = rand(10000, 99999);
+            $number = random_int(10000, 99999);
         }
 
         return "{$prefix}.{$number}";

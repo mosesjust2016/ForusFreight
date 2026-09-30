@@ -392,7 +392,7 @@ class BulkShipmentImportController extends Controller
 
         return User::create([
             'name' => $clientName,
-            'email' => strtolower(str_replace(' ', '.', $clientName)) . '@client.local',
+            'email' => null,
             'password' => 'temp' . uniqid(),
             'is_admin' => false,
         ]);

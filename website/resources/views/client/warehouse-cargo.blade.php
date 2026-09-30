@@ -4,12 +4,12 @@
 
 @section('styles')
 <style>
-    .cargo-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); margin-bottom: 2rem; }
+    .cargo-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); margin-bottom: 2rem; overflow-x: auto; }
     .cargo-row { transition: all 0.2s; border-bottom: 1px solid #f1f5f9; padding: 1.5rem 0; }
     .cargo-row:last-child { border-bottom: none; }
     .cargo-row:hover { background: #f8fafc; padding-left: 1rem; padding-right: 1rem; border-radius: 8px; }
-    .cargo-header { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1.5rem 0; font-weight: 800; color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; }
-    .cargo-item { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1fr; gap: 1rem; align-items: center; padding: 1.5rem 0; }
+    .cargo-header { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1.5rem 0; font-weight: 800; color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; min-width: 700px; }
+    .cargo-item { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1fr; gap: 1rem; align-items: center; padding: 1.5rem 0; min-width: 700px; }
     .cargo-name { display: flex; flex-direction: column; }
     .cargo-name-en { font-weight: 800; color: var(--text-dark); font-size: 0.95rem; }
     .cargo-name-cn { font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; }
@@ -22,6 +22,13 @@
     .stat-card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); text-align: center; }
     .stat-value { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
     .stat-label { font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-top: 0.5rem; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
 </style>
 @endsection
 

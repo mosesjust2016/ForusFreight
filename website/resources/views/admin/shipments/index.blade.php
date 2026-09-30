@@ -12,15 +12,21 @@
         border: 1px solid #f1f5f9;
     }
 
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .shipment-table {
         width: 100%;
+        min-width: 900px;
         border-collapse: separate;
         border-spacing: 0 1rem;
     }
 
     .shipment-table th {
         text-align: left;
-        padding: 1rem;
+        padding: 1rem 0.5rem;
         font-size: 0.75rem;
         font-weight: 800;
         color: var(--text-gray);
@@ -40,7 +46,7 @@
     }
 
     .shipment-row td {
-        padding: 1.5rem 1rem;
+        padding: 1.5rem 0.5rem;
         border-top: 1px solid #f8fafc;
         border-bottom: 1px solid #f8fafc;
         vertical-align: middle;
@@ -77,6 +83,7 @@
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
+        white-space: nowrap;
     }
 
     .status-pending { background: #fffbeb; color: #b45309; }
@@ -165,6 +172,7 @@
 </div>
 
 <div class="admin-shipment-grid">
+    <div class="table-scroll">
     <table class="shipment-table">
         <thead>
             <tr>
@@ -189,9 +197,9 @@
                     <td>
                         <div class="user-info">
                             <div class="user-avatar">{{ substr($shipment->user ? $shipment->user->name : 'G', 0, 1) }}</div>
-                            <div>
-                                <div style="font-weight: 800; color: var(--text-dark); font-size: 0.9rem;">{{ $shipment->user ? $shipment->user->name : 'Guest Client' }}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-gray); font-weight: 600;">{{ $shipment->user ? $shipment->user->email : 'N/A' }}</div>
+                            <div style="max-width: 170px; overflow: hidden;">
+                                <div title="{{ $shipment->user ? $shipment->user->name : 'Guest Client' }}" style="font-weight: 800; color: var(--text-dark); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $shipment->user ? $shipment->user->name : 'Guest Client' }}</div>
+                                <div title="{{ $shipment->user ? ($shipment->user->email ?: 'No email on file') : 'N/A' }}" style="font-size: 0.75rem; color: var(--text-gray); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $shipment->user ? ($shipment->user->email ?: 'No email on file') : 'N/A' }}</div>
                             </div>
                         </div>
                     </td>
@@ -206,7 +214,7 @@
                     </td>
                     <td>
                         <div style="font-size: 1rem; font-weight: 900; color: var(--text-dark);">
-                            {{ number_format($shipment->cost ?? 0, 2) }} ZMW
+                            {{ usd($shipment->cost ?? 0) }}
                         </div>
                         <div style="font-size: 0.7rem; color: var(--text-gray); font-weight: 800; text-transform: uppercase;">
                             ETA: {{ $shipment->estimated_delivery ? $shipment->estimated_delivery->format('M d') : 'TBD' }}
@@ -253,6 +261,7 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 
     @if($shipments->count() > 0)
     <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid #f1f5f9; text-align: center;">

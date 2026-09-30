@@ -17,6 +17,14 @@
     .timeline-desc { font-size: 0.85rem; color: #475569; font-weight: 600; }
     .action-btn { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: none; background: #f8fafc; color: #64748b; cursor: pointer; transition: all 0.2s; text-decoration: none; }
     .action-btn:hover { background: #1e293b; color: white; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+        div[style*="grid-template-columns: 2fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
 </style>
 @endsection
 
@@ -33,7 +41,7 @@
         <div>
             <h1 style="font-size: 1.75rem; font-weight: 900; color: var(--text-dark); margin-bottom: 0.25rem;">{{ $user->name }}</h1>
             <div style="display: flex; gap: 1.5rem; color: var(--text-gray); font-size: 0.9rem; align-items: center;">
-                <span><i class="fas fa-envelope"></i> {{ $user->email }}</span>
+                <span><i class="fas fa-envelope"></i> {{ $user->email ?: 'No email on file' }}</span>
                 <span><i class="fas fa-phone"></i> {{ $user->phone ?? 'No phone' }}</span>
                 <span><i class="fas fa-building"></i> {{ $user->company?->name ?? 'No company' }}</span>
             </div>
@@ -47,7 +55,7 @@
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
     <div class="info-card" style="text-align: center;">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Lifetime Value</div>
-        <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-dark);">{{ number_format($lifetimeValue, 2) }} ZMW</div>
+        <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-dark);">{{ usd($lifetimeValue) }}</div>
     </div>
     <div class="info-card" style="text-align: center;">
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Shipments</div>
@@ -120,7 +128,7 @@
             <h2 class="section-title"><i class="fas fa-address-card" style="color: #3b82f6;"></i> Contact Details</h2>
             <div class="detail-item">
                 <div class="detail-label">Email</div>
-                <div class="detail-value">{{ $user->email }}</div>
+                <div class="detail-value">{{ $user->email ?: 'No email on file' }}</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Phone</div>
