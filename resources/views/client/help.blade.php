@@ -116,7 +116,7 @@
         <h3>Live Support</h3>
         <p>Chat with our dedicated dispatch team for real-time updates and urgent inquiries.</p>
     </a>
-    <a href="mailto:info@forusfl.co.zm" class="help-card">
+    <a href="mailto:info@forusfreight.com" class="help-card">
         <div class="help-icon" style="background: #fff7ed; color: #ea580c;"><i class="fas fa-envelope-open-text"></i></div>
         <h3>Email Ticket</h3>
         <p>Open a support ticket via email and our regional managers will respond within 2 hours.</p>

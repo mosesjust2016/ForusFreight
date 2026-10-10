@@ -12,4 +12,4 @@ Disallow: /verify-phone
 Disallow: /confirm-password
 Disallow: /api/
 
-Sitemap: https://forusfl.co.zm/sitemap.xml
+Sitemap: https://forusfreight.com/sitemap.xml

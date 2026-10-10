@@ -58,7 +58,7 @@ $sections = $page?->sections ?? [];
 
                 <div style="background:#f0fafa; border-radius:16px; padding:2rem; border:1px solid #b2d8d8;">
                     <h2 style="font-size:1.3rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem;">Request a Refund</h2>
-                    <p>Contact us at <strong>info@forusfl.co.zm</strong> or <strong>+260 572 788 685</strong> with your booking or waybill reference, and a description of the issue.</p>
+                    <p>Contact us at <strong>info@forusfreight.com</strong> or <strong>+260 572 788 685</strong> with your booking or waybill reference, and a description of the issue.</p>
                 </div>
 
             </article>

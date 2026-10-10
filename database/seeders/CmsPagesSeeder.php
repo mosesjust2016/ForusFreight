@@ -86,7 +86,7 @@ class CmsPagesSeeder extends Seeder
                     'subtitle' => 'We would love to hear from you',
                     'address' => '123 Main Street, Lusaka, Zambia',
                     'phone' => '+260 97 123 4567',
-                    'email' => 'info@forusfl.co.zm',
+                    'email' => 'info@forusfreight.com',
                     'hours' => 'Mon-Fri: 8:00 AM - 5:00 PM',
                     'map_embed' => '',
                     'form_title' => 'Send us a Message',

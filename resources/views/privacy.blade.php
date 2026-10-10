@@ -131,7 +131,7 @@ $sections = $page?->sections ?? [];
                         <li>Object to or request restriction of certain processing; and</li>
                         <li>Withdraw consent at any time, without affecting processing carried out before withdrawal.</li>
                     </ul>
-                    <p style="margin-top:.8rem;">To exercise any of these rights, email <strong>info@forusfl.co.zm</strong>. We will respond within a reasonable time.</p>
+                    <p style="margin-top:.8rem;">To exercise any of these rights, email <strong>info@forusfreight.com</strong>. We will respond within a reasonable time.</p>
                 </div>
 
                 <div id="cookies" style="margin-bottom:3rem;">
@@ -174,7 +174,7 @@ $sections = $page?->sections ?? [];
                             </div>
                             <div>
                                 <p style="font-size:.75rem; color:#475569; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Email</p>
-                                <p style="font-weight:700; color:#1e293b;">info@forusfl.co.zm</p>
+                                <p style="font-weight:700; color:#1e293b;">info@forusfreight.com</p>
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:.75rem;">

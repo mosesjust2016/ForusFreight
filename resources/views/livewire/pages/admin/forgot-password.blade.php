@@ -59,7 +59,7 @@ new #[Layout('layouts.guest')] class extends Component
                     <span class="input-icon"><i class="fas fa-envelope-open-text"></i></span>
                     <input wire:model="email" id="email"
                         class="form-control has-icon"
-                        type="email" name="email" required autofocus placeholder="admin@forusfl.co.zm" />
+                        type="email" name="email" required autofocus placeholder="admin@forusfreight.com" />
                 </div>
                 <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>

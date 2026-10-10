@@ -66,7 +66,7 @@ new #[Layout('layouts.guest')] class extends Component
                     <span class="input-icon"><i class="fas fa-user-shield"></i></span>
                     <input wire:model="form.email" id="email"
                         class="form-control has-icon"
-                        type="email" name="email" required autofocus autocomplete="username" placeholder="admin@forusfl.co.zm" />
+                        type="email" name="email" required autofocus autocomplete="username" placeholder="admin@forusfreight.com" />
                 </div>
                 <x-input-error :messages="$errors->get('form.email')" class="mt-2 text-red-500 text-xs font-medium" />
             </div>

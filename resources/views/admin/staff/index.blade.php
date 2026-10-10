@@ -129,7 +129,7 @@
         </div>
         <div>
             <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:0.35rem;">Work Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" class="assign-select" style="min-width:220px;" placeholder="name@forusfl.co.zm" required>
+            <input type="email" name="email" value="{{ old('email') }}" class="assign-select" style="min-width:220px;" placeholder="name@forusfreight.com" required>
             @error('email')<div style="color:#dc2626; font-size:0.72rem; margin-top:0.25rem;">{{ $message }}</div>@enderror
         </div>
         <div>

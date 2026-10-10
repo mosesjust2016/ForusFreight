@@ -26,7 +26,7 @@ return [
         'country'    => 'China',
         'address_cn' => '佛山市南海区里水镇大步沿江路3号力进物流园B18仓',
         'phone'      => '+86 18922752986',
-        'email'      => 'china@forusfl.co.zm',
+        'email'      => 'china@forusfreight.com',
     ],
 
     /*

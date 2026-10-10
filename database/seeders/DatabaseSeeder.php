@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Admin User',
-            'email' => 'admin@forusfl.co.zm',
+            'email' => 'admin@forusfreight.com',
             'password' => \Illuminate\Support\Facades\Hash::make('Forus@2026!'),
             'email_verified_at' => now(),
             'phone_verified_at' => now(),

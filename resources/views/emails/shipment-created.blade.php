@@ -85,7 +85,7 @@
 
             <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
                 Need help? Contact our support team at <strong>+260572788685</strong> (WhatsApp)<br>
-                or visit <a href="https://forusfl.co.zm" style="color: rgb(0, 127, 127);">forusfl.co.zm</a>
+                or visit <a href="https://forusfreight.com" style="color: rgb(0, 127, 127);">forusfreight.com</a>
             </p>
         </div>
 

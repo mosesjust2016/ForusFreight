@@ -129,7 +129,7 @@ $sections = $page?->sections ?? [];
                     <ul style="margin-left:1.25rem; display:flex; flex-direction:column; gap:.6rem;">
                         <li>To register a personal account or book a shipment as an individual, you must be at least 18 years old. Businesses may register through an authorised representative.</li>
                         <li>You agree to provide accurate, current, and complete information when creating an account, and to keep it up to date.</li>
-                        <li>You are responsible for maintaining the confidentiality of your account login details and for all activity under your account. Notify us immediately at <strong>info@forusfl.co.zm</strong> if you suspect unauthorised access.</li>
+                        <li>You are responsible for maintaining the confidentiality of your account login details and for all activity under your account. Notify us immediately at <strong>info@forusfreight.com</strong> if you suspect unauthorised access.</li>
                         <li>Forus Freight may decline to open, or may suspend, an account where information provided is inaccurate, incomplete, or where we reasonably suspect misuse — see also <a href="#termination">Termination</a>.</li>
                     </ul>
                 </div>
@@ -269,7 +269,7 @@ $sections = $page?->sections ?? [];
                         <li>Data will not be sold to third parties. It may be shared with sub-contractors, customs authorities, and regulatory bodies as required.</li>
                         <li>We only collect the personal data reasonably necessary to book, process, and deliver your shipment, or to respond to your enquiry — we do not request or store information beyond that purpose.</li>
                         <li>By using our services, you consent to the collection, processing, and storage of your data in accordance with the <strong>Data Protection Act No. 3 of 2021</strong> of Zambia.</li>
-                        <li>You have the right to be informed, to access, correct, or request deletion of your personal data, to withdraw consent at any time, and to object to or restrict certain processing, by contacting us at <strong>info@forusfl.co.zm</strong>.</li>
+                        <li>You have the right to be informed, to access, correct, or request deletion of your personal data, to withdraw consent at any time, and to object to or restrict certain processing, by contacting us at <strong>info@forusfreight.com</strong>.</li>
                         <li>Full detail on what we collect, why, how long we retain it, and how cookies are used on this website is set out in our <a href="{{ route('privacy') }}" style="color:rgb(0,127,127); font-weight:700;">Privacy Policy</a> and <a href="{{ route('cookie-policy') }}" style="color:rgb(0,127,127); font-weight:700;">Cookie Policy</a>, which form part of these Terms.</li>
                     </ul>
                 </div>
@@ -317,7 +317,7 @@ $sections = $page?->sections ?? [];
                     <h2 style="font-size:1.4rem; font-weight:800; color:rgb(0,127,127); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e2e8f0;">
                         <span aria-hidden="true" style="color:#64748b; font-weight:900; margin-right:.5rem;">12e</span> Copyright Complaints
                     </h2>
-                    <p>If you believe material on our website infringes your copyright under Zambian law, please send a written notice to <strong>info@forusfl.co.zm</strong> including: (i) identification of the copyrighted work you claim has been infringed; (ii) identification and location of the material you believe is infringing; (iii) your contact details; and (iv) a statement that you have a good-faith belief the use is not authorised and that the information provided is accurate. We will review and respond to valid notices within a reasonable time and may remove or restrict access to the material in question pending resolution.</p>
+                    <p>If you believe material on our website infringes your copyright under Zambian law, please send a written notice to <strong>info@forusfreight.com</strong> including: (i) identification of the copyrighted work you claim has been infringed; (ii) identification and location of the material you believe is infringing; (iii) your contact details; and (iv) a statement that you have a good-faith belief the use is not authorised and that the information provided is accurate. We will review and respond to valid notices within a reasonable time and may remove or restrict access to the material in question pending resolution.</p>
                 </div>
 
                 {{-- 12f. Indemnification --}}
@@ -380,7 +380,7 @@ $sections = $page?->sections ?? [];
                             </div>
                             <div>
                                 <p style="font-size:.75rem; color:#475569; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Email</p>
-                                <p style="font-weight:700; color:#1e293b;">info@forusfl.co.zm</p>
+                                <p style="font-weight:700; color:#1e293b;">info@forusfreight.com</p>
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:.75rem;">

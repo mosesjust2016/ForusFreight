@@ -12,7 +12,7 @@ class InvoiceSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::where('email', 'client@forusfl.co.zm')->first();
+        $user = User::where('email', 'client@forusfreight.com')->first();
         if (!$user) return;
 
         $shipments = Shipment::where('user_id', $user->id)->get();

@@ -57,7 +57,7 @@ class ShipmentObserver
             // still gets an email, just not an SMS.
             if (Shipment::canonicalStatus($newStatus) === 'DELIVERED' && $shipment->user && $shipment->user->phone) {
                 try {
-                    $message = "Your Forus Freight shipment {$shipment->serial_no} has been delivered. Track: https://forusfl.co.zm/tracking";
+                    $message = "Your Forus Freight shipment {$shipment->serial_no} has been delivered. Track: https://forusfreight.com/tracking";
                     app(SmsService::class)->sendShipmentUpdate($shipment->user->phone, $message);
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error('Failed to send shipment status SMS', [
