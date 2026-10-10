@@ -108,6 +108,22 @@ jobs:
           cd ..
 
       # ── Upload website folder via FTP ─────────
+      # TEMPORARY: show where this FTP account actually lands, so the
+      # remote-path can be corrected (files uploaded fine but the site
+      # didn't change — the FTP home is not the web root).
+      - name: 🔍 Inspect FTP home (temporary)
+        run: |
+          sudo apt-get install -y lftp >/dev/null 2>&1
+          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" "${{ secrets.FTP_SERVER }}" -e "
+            pwd;
+            echo '--- top level ---';
+            ls -a;
+            echo '--- public_html? ---';
+            ls -a public_html 2>&1 | head -20;
+            echo '--- markers in home ---';
+            ls -a .deploy-revision website 2>&1 | head -5;
+            quit"
+
       # Only the website/ folder contents go to /public_html.
       # Note: milanmk/actions-file-deployer changed its input interface —
       # remote-url/local-dir/args are no longer accepted (they were being
