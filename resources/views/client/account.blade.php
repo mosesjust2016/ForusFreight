@@ -16,8 +16,6 @@
         --line-strong: rgba(13, 27, 32, 0.22);
         --display: 'Archivo', 'Inter', sans-serif;
         --mono: 'IBM Plex Mono', ui-monospace, monospace;
-
-        max-width: 860px;
     }
 
     .ac h1 {
