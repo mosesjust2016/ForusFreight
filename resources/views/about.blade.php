@@ -1,252 +1,489 @@
 @php
 $page = \App\Models\CmsPage::where('slug', 'about')->first();
 $sections = $page?->sections ?? [];
+$footerSections = \App\Models\CmsPage::where('slug', 'footer')->where('status', 'published')->first()?->sections ?? [];
+$whatsappLink = 'https://wa.me/' . ($footerSections['whatsapp_number'] ?? '260572788685') . '?text=' . urlencode('Hi Forus Freight, I would like to know more about your services');
+
+$zambiaCities = [
+    ['name' => 'Lusaka', 'note' => 'Head office & Makeni warehouse'],
+    ['name' => 'Ndola & Kitwe', 'note' => 'Copperbelt'],
+    ['name' => 'Livingstone', 'note' => 'Southern Province'],
+    ['name' => 'Chipata', 'note' => 'Eastern Province'],
+    ['name' => 'Solwezi', 'note' => 'North-Western Province'],
+];
+
+$international = [
+    ['code' => 'DUR', 'name' => 'South Africa', 'note' => 'Road freight via Durban'],
+    ['code' => 'FUO', 'name' => 'China', 'note' => 'Foshan warehouse & consolidation'],
+    ['code' => 'DXB', 'name' => 'UAE', 'note' => 'Air & sea freight from Dubai'],
+];
 @endphp
 @extends('layouts.app')
 
 @section('title', ($page?->title ?? 'About Us') . ' - Forus Freight')
-@section('meta_description', 'Learn about Forus Freight Limited, a Zambian logistics provider offering road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.')
+@section('meta_description', 'Forus Freight Limited is a Lusaka-based freight forwarder trusted by hundreds of businesses — road, air and sea freight, customs clearance and warehousing between Zambia, South Africa, China and the UAE.')
 
-@section('content')
-@include('partials.breadcrumbs', ['crumbs' => [['label' => 'About', 'url' => null]]])
-    <!-- Hero Section -->
-    <section class="about-hero">
-        <div class="about-hero-bg"></div>
-        <div class="container" style="position: relative; z-index: 10; padding: 6rem 1rem;">
-            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-                <h1 style="font-size: 3.5rem; font-weight: 800; color: white; margin-bottom: 1.5rem;">{{ $sections['title'] ?? 'Our Story' }}</h1>
-                <p style="font-size: 1.25rem; color: rgba(255,255,255,0.9);">
-                    {{ $sections['subtitle'] ?? 'Delivering reliable logistics, connecting businesses across Zambia and the SADC region.' }}
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Company Story -->
-    <section style="padding: 5rem 0; background: white;">
-        <div class="container">
-            <div style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;">
-                    <div>
-                        {!! $sections['content'] ?? '<h2 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1.5rem;">Who We Are</h2>
-                        <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1.125rem; line-height: 1.7;">
-                            Forus Freight Limited is a Zambian logistics provider offering road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.
-                        </p>' !!}
-
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.15rem; font-weight: 800; color: #007f7f;"><i class="fas fa-truck-fast" style="display:block; font-size:1.75rem; margin-bottom:.5rem;"></i>Road, Air &amp; Sea</div>
-                                <div style="color: #64748b; font-weight: 500;">Full-Service Freight</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.15rem; font-weight: 800; color: #007f7f;"><i class="fas fa-earth-africa" style="display:block; font-size:1.75rem; margin-bottom:.5rem;"></i>SADC Region</div>
-                                <div style="color: #64748b; font-weight: 500;">Cross-Border Coverage</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.15rem; font-weight: 800; color: #007f7f;"><i class="fas fa-location-crosshairs" style="display:block; font-size:1.75rem; margin-bottom:.5rem;"></i>Real-Time</div>
-                                <div style="color: #64748b; font-weight: 500;">Shipment Tracking</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=800&q=80"
-                             alt="Our Logistics Team"
-                             loading="lazy"
-                             style="width: 100%; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Mission & Vision -->
-    <section style="padding: 5rem 0; background: linear-gradient(180deg, #f0f9f9 0%, #e0f2f2 100%);">
-        <div class="container">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
-                <!-- Mission -->
-                <div style="background: white; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #007f7f;">
-                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; border: 2px solid #007f7f;">
-                        <i class="fas fa-bullseye" style="color: #ff6200; font-size: 1.75rem;"></i>
-                    </div>
-                    <h3 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem;">Our Mission</h3>
-                    <p style="color: #64748b; margin-bottom: 1.5rem; line-height: 1.7;">
-                        {{ $sections['mission'] ?? 'To provide fast, reliable, and affordable logistics solutions that empower businesses to grow and thrive.' }}
-                    </p>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-check-circle" style="color: #059669; margin-right: 0.75rem;"></i> 
-                            Deliver excellence in every shipment
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-check-circle" style="color: #059669; margin-right: 0.75rem;"></i> 
-                            Innovate for better efficiency
-                        </li>
-                        <li style="display: flex; align-items: center; color: #1e293b;">
-                            <i class="fas fa-check-circle" style="color: #059669; margin-right: 0.75rem;"></i> 
-                            Build lasting partnerships
-                        </li>
-                    </ul>
-                </div>
-                
-                <!-- Vision -->
-                <div style="background: white; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #007f7f;">
-                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; border: 2px solid #007f7f;">
-                        <i class="fas fa-eye" style="color: #ff6200; font-size: 1.75rem;"></i>
-                    </div>
-                    <h3 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem;">Our Vision</h3>
-                    <p style="color: #64748b; margin-bottom: 1.5rem; line-height: 1.7;">
-                        To become the leading logistics provider in Southern Africa, known for reliability, innovation, 
-                        and exceptional customer service. We envision a connected region where businesses can operate seamlessly.
-                    </p>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-star" style="color: #ff6200; margin-right: 0.75rem;"></i> 
-                            Regional logistics leader by 2026
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-star" style="color: #ff6200; margin-right: 0.75rem;"></i> 
-                            Digital-first logistics solutions
-                        </li>
-                        <li style="display: flex; align-items: center; color: #1e293b;">
-                            <i class="fas fa-star" style="color: #ff6200; margin-right: 0.75rem;"></i> 
-                            Sustainable operations
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Operating Regions -->
-    <section style="padding: 5rem 0; background: white;">
-        <div class="container">
-            <div style="text-align: center; margin-bottom: 4rem;">
-                <h2 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem;">Where We Operate</h2>
-                <p style="color: #64748b; font-size: 1.125rem;">Extensive coverage across Zambia and the SADC region</p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
-                <div style="background: linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius: 24px; padding: 2.5rem; border: 2px solid #007f7f;">
-                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">Major Zambian Cities</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-map-marker-alt" style="color: #007f7f; margin-right: 0.75rem;"></i> Lusaka (HQ)
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-map-marker-alt" style="color: #007f7f; margin-right: 0.75rem;"></i> Ndola & Kitwe
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-map-marker-alt" style="color: #007f7f; margin-right: 0.75rem;"></i> Livingstone
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-map-marker-alt" style="color: #007f7f; margin-right: 0.75rem;"></i> Chipata
-                        </li>
-                        <li style="display: flex; align-items: center; color: #1e293b;">
-                            <i class="fas fa-map-marker-alt" style="color: #007f7f; margin-right: 0.75rem;"></i> Solwezi
-                        </li>
-                    </ul>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius: 24px; padding: 2.5rem; border: 2px solid #059669;">
-                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">SADC Countries</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-flag" style="color: #059669; margin-right: 0.75rem;"></i> South Africa
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-flag" style="color: #059669; margin-right: 0.75rem;"></i> Botswana
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-flag" style="color: #059669; margin-right: 0.75rem;"></i> Namibia
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-flag" style="color: #059669; margin-right: 0.75rem;"></i> Tanzania
-                        </li>
-                        <li style="display: flex; align-items: center; color: #1e293b;">
-                            <i class="fas fa-flag" style="color: #059669; margin-right: 0.75rem;"></i> Zimbabwe
-                        </li>
-                    </ul>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%); border-radius: 24px; padding: 2.5rem; border: 2px solid #ff6200;">
-                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">Expanding Soon</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-rocket" style="color: #ff6200; margin-right: 0.75rem;"></i> Mozambique
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-rocket" style="color: #ff6200; margin-right: 0.75rem;"></i> Malawi
-                        </li>
-                        <li style="display: flex; align-items: center; margin-bottom: 0.75rem; color: #1e293b;">
-                            <i class="fas fa-rocket" style="color: #ff6200; margin-right: 0.75rem;"></i> DRC
-                        </li>
-                        <li style="display: flex; align-items: center; color: #1e293b;">
-                            <i class="fas fa-rocket" style="color: #ff6200; margin-right: 0.75rem;"></i> Angola
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Safety & Reliability -->
-    <section style="padding: 5rem 0; background: linear-gradient(135deg, #007f7f 0%, #005f5f 50%, #059669 100%); color: white;">
-        <div class="container">
-            <div style="text-align: center; margin-bottom: 3rem;">
-                <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem;">Our Safety & Reliability Promise</h2>
-                <p style="font-size: 1.25rem; color: rgba(255,255,255,0.9); max-width: 800px; margin: 0 auto;">
-                    We prioritize the safety of your goods and guarantee reliable delivery
-                </p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
-                <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 2.5rem; text-align: center; border: 2px solid rgba(255,255,255,0.2);">
-                    <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 2px solid #007f7f;">
-                        <i class="fas fa-shield-alt" style="color: #007f7f; font-size: 2rem;"></i>
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">Secure Handling</h3>
-                    <p style="color: rgba(255,255,255,0.9);">All shipments are insured and handled with care by trained professionals</p>
-                </div>
-                
-                <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 2.5rem; text-align: center; border: 2px solid rgba(255,255,255,0.2);">
-                    <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 2px solid #007f7f;">
-                        <i class="fas fa-clock" style="color: #007f7f; font-size: 2rem;"></i>
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">On-Time Delivery</h3>
-                    <p style="color: rgba(255,255,255,0.9);">98% on-time delivery rate with real-time tracking updates</p>
-                </div>
-                
-                <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 2.5rem; text-align: center; border: 2px solid rgba(255,255,255,0.2);">
-                    <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 2px solid #007f7f;">
-                        <i class="fas fa-headset" style="color: #007f7f; font-size: 2rem;"></i>
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">24/7 Support</h3>
-                    <p style="color: rgba(255,255,255,0.9);">Round-the-clock customer support for any queries or concerns</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
+@section('styles')
+    @include('partials.ui-base-styles')
     <style>
-        .about-hero {
-            position: relative;
-            min-height: 400px;
-            display: flex;
+        /* ---------- Hero ---------- */
+        .a-hero {
+            padding: 4rem 0 4.5rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .a-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+            gap: 4rem;
             align-items: center;
-            justify-content: center;
         }
 
-        .about-hero-bg {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, #007f7f 0%, #005f5f 50%, #059669 100%);
+        .a-hero h1 {
+            font-size: clamp(2.3rem, 4.4vw, 3.6rem);
+            margin: 1.1rem 0 1.25rem;
         }
 
-        @media (max-width: 768px) {
-            section > .container > div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
+        .a-hero .h-lead {
+            max-width: 34rem;
+        }
+
+        /* Company file: the key facts, set like a shipping document */
+        .a-file {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            box-shadow: 0 24px 50px rgba(13, 27, 32, 0.08);
+        }
+
+        .a-file-head {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.25rem 1rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 2px solid var(--ink);
+        }
+
+        .a-file-head strong {
+            font-family: var(--display);
+            font-stretch: 112%;
+            font-weight: 800;
+            font-size: 1.05rem;
+        }
+
+        .a-file-head span {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .a-file dl div {
+            display: grid;
+            grid-template-columns: 8.5rem 1fr;
+            gap: 1rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed var(--line-strong);
+        }
+
+        .a-file dl div:last-child {
+            border-bottom: none;
+        }
+
+        .a-file dt {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-top: 0.15rem;
+        }
+
+        .a-file dd {
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        /* ---------- Story ---------- */
+        .a-section {
+            padding: 6rem 0;
+        }
+
+        .a-two {
+            display: grid;
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+            gap: 2rem 4rem;
+            align-items: start;
+        }
+
+        .a-two .h-eyebrow {
+            margin-bottom: 1rem;
+        }
+
+        .a-prose {
+            font-size: 1.12rem;
+            color: var(--ink-2);
+            line-height: 1.7;
+        }
+
+        .a-prose p + p {
+            margin-top: 1.1rem;
+        }
+
+        .a-prose p:first-child {
+            font-size: 1.3rem;
+            line-height: 1.55;
+            color: var(--ink);
+        }
+
+        .a-prose h2,
+        .a-prose h3 {
+            font-family: var(--display);
+            font-weight: 800;
+            color: var(--ink);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        /* ---------- Mission & vision ---------- */
+        .a-mv {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 28px;
+            overflow: hidden;
+        }
+
+        .a-mv-item {
+            background: var(--ink);
+            color: #fff;
+            padding: 3rem;
+        }
+
+        .a-mv-item .h-eyebrow {
+            color: #5eead4;
+            margin-bottom: 1.25rem;
+        }
+
+        .a-mv-item blockquote {
+            font-family: var(--display);
+            font-stretch: 104%;
+            font-weight: 700;
+            font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+        }
+
+        /* ---------- How we work ---------- */
+        .a-principles {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            border-top: 2px solid var(--ink);
+        }
+
+        .a-principles li {
+            padding: 2rem 2rem 0 0;
+        }
+
+        .a-principles li + li {
+            padding-left: 2rem;
+            border-left: 1px solid var(--line);
+        }
+
+        .a-principle-num {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--orange);
+        }
+
+        .a-principles h3 {
+            font-family: var(--display);
+            font-stretch: 105%;
+            font-weight: 700;
+            font-size: 1.35rem;
+            margin: 0.5rem 0 0.6rem;
+        }
+
+        .a-principles p {
+            color: var(--ink-2);
+        }
+
+        /* ---------- Where we operate ---------- */
+        .a-reach {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+
+        .a-reach-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+        }
+
+        .a-reach-card h3 {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-bottom: 0.85rem;
+            border-bottom: 2px solid var(--ink);
+        }
+
+        .a-reach-card ul {
+            list-style: none;
+        }
+
+        .a-reach-card li {
+            display: grid;
+            grid-template-columns: 3.25rem 1fr;
+            gap: 0.75rem;
+            align-items: baseline;
+            padding: 0.9rem 0;
+            border-bottom: 1px dashed var(--line-strong);
+        }
+
+        .a-reach-card li:last-child {
+            border-bottom: none;
+        }
+
+        .a-reach-code {
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            color: var(--teal-deep);
+        }
+
+        .a-reach-card strong {
+            display: block;
+            font-weight: 700;
+        }
+
+        .a-reach-card small {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .a-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 1.5rem;
+            align-items: center;
+            margin-top: 2.5rem;
+        }
+
+        .h-textlink {
+            color: var(--teal-deep);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px;
+        }
+
+        .h-textlink:hover {
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .a-hero-grid,
+            .a-two {
+                grid-template-columns: 1fr;
+            }
+
+            .a-hero-grid {
+                gap: 2.5rem;
+            }
+
+            .a-principles {
+                grid-template-columns: 1fr;
+                border-top: none;
+            }
+
+            .a-principles li,
+            .a-principles li + li {
+                padding: 1.5rem 0;
+                border-left: none;
+                border-top: 2px solid var(--ink);
+            }
+        }
+
+        @media (max-width: 720px) {
+            .a-hero {
+                padding: 2.5rem 0 3rem;
+            }
+
+            .a-section {
+                padding: 4rem 0;
+            }
+
+            .a-file {
+                padding: 1.25rem;
+            }
+
+            .a-file dl div {
+                grid-template-columns: 1fr;
+                gap: 0.15rem;
+            }
+
+            .a-mv,
+            .a-reach {
+                grid-template-columns: 1fr;
+            }
+
+            .a-mv {
+                border-radius: 20px;
+            }
+
+            .a-mv-item {
+                padding: 2rem 1.5rem;
+            }
+
+            .a-actions .h-btn {
+                width: 100%;
             }
         }
     </style>
+@endsection
+
+@section('content')
+@include('partials.breadcrumbs', ['crumbs' => [['label' => 'About', 'url' => null]]])
+<div class="ui-page">
+
+    {{-- ============ HERO ============ --}}
+    <section class="a-hero">
+        <div class="h-wrap a-hero-grid">
+            <div>
+                <span class="h-eyebrow">{{ $sections['title'] ?? 'About us' }}</span>
+                <h1 class="h-display">A Lusaka team that makes importing simple</h1>
+                <p class="h-lead">Forus Freight Limited is a freight forwarder trusted by hundreds of businesses — and a growing number of online shoppers — to move goods into Zambia from South Africa, China and the UAE.</p>
+            </div>
+
+            <aside class="a-file" aria-labelledby="fileTitle">
+                <div class="a-file-head">
+                    <strong id="fileTitle">FORUS FREIGHT LTD</strong>
+                    <span>Company file</span>
+                </div>
+                <dl>
+                    <div><dt>Head office</dt><dd>{{ $footerSections['contact_city'] ?? 'Lusaka, Zambia' }}</dd></div>
+                    <div><dt>Warehouses</dt><dd>Makeni, Lusaka &middot; Foshan, China</dd></div>
+                    <div><dt>Routes</dt><dd>South Africa, China &amp; UAE &rarr; Zambia</dd></div>
+                    <div><dt>Services</dt><dd>Road, air &amp; sea freight, customs, warehousing</dd></div>
+                    <div><dt>Customers</dt><dd>Hundreds of businesses &amp; online shoppers</dd></div>
+                    <div><dt>Open</dt><dd>Mon–Fri, 08:00–17:00</dd></div>
+                </dl>
+            </aside>
+        </div>
+    </section>
+
+    {{-- ============ STORY ============ --}}
+    <section class="a-section" aria-labelledby="storyTitle">
+        <div class="h-wrap a-two">
+            <div>
+                <span class="h-eyebrow">Our story</span>
+                <h2 class="h-h2" id="storyTitle">Built to take the hassle out of cross-border freight</h2>
+            </div>
+            <div class="a-prose">
+                {!! $sections['content'] ?? '<p>Forus Freight was founded to simplify cross-border logistics between Zambia and South Africa. Since then, we have grown into a trusted partner for hundreds of businesses.</p><p>Our team handles everything from documentation to delivery, so your cargo reaches its destination safely — and you always know where it is.</p>' !!}
+            </div>
+        </div>
+    </section>
+
+    {{-- ============ MISSION & VISION ============ --}}
+    <section class="a-section" style="padding-top: 0;" aria-label="Mission and vision">
+        <div class="h-wrap">
+            <div class="a-mv">
+                <div class="a-mv-item">
+                    <span class="h-eyebrow">Our mission</span>
+                    <blockquote>{{ $sections['mission'] ?? 'To deliver reliable, efficient and cost-effective logistics that help businesses grow across borders.' }}</blockquote>
+                </div>
+                <div class="a-mv-item">
+                    <span class="h-eyebrow">Our vision</span>
+                    <blockquote>{{ $sections['vision'] ?? 'To become the leading cross-border logistics provider in Southern Africa, recognised for excellence and innovation.' }}</blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============ HOW WE WORK ============ --}}
+    <section class="a-section" style="padding-top: 0;" aria-labelledby="workTitle">
+        <div class="h-wrap">
+            <div class="a-two" style="margin-bottom: 3rem;">
+                <div>
+                    <span class="h-eyebrow">How we work</span>
+                    <h2 class="h-h2" id="workTitle">What you can expect from us</h2>
+                </div>
+                <p class="h-lead" style="align-self: end;">Moving freight across borders involves a lot of moving parts. Our job is to make it feel simple on your side.</p>
+            </div>
+            <ol class="a-principles">
+                <li>
+                    <span class="a-principle-num">01</span>
+                    <h3>One team, start to finish</h3>
+                    <p>Pickup, paperwork, customs and delivery are handled by the same team — you don't have to coordinate anyone.</p>
+                </li>
+                <li>
+                    <span class="a-principle-num">02</span>
+                    <h3>A clear price up front</h3>
+                    <p>Every shipment starts with a free quote, so you know the cost and the expected transit time before anything moves.</p>
+                </li>
+                <li>
+                    <span class="a-principle-num">03</span>
+                    <h3>You always know where it is</h3>
+                    <p>Track any shipment online, get an email at every status change, and reach a real person on WhatsApp.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    {{-- ============ WHERE WE OPERATE ============ --}}
+    <section class="a-section" style="padding-top: 0;" aria-labelledby="reachTitle">
+        <div class="h-wrap">
+            <div class="a-two" style="margin-bottom: 3rem;">
+                <div>
+                    <span class="h-eyebrow">Where we operate</span>
+                    <h2 class="h-h2" id="reachTitle">Across Zambia, and the routes that feed it</h2>
+                </div>
+                <p class="h-lead" style="align-self: end;">We deliver across Zambia's major cities and move freight in from our key international routes.</p>
+            </div>
+            <div class="a-reach">
+                <div class="a-reach-card">
+                    <h3>Within Zambia</h3>
+                    <ul>
+                        @foreach ($zambiaCities as $i => $city)
+                            <li>
+                                <span class="a-reach-code">{{ sprintf('%02d', $i + 1) }}</span>
+                                <span><strong>{{ $city['name'] }}</strong><small>{{ $city['note'] }}</small></span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="a-reach-card">
+                    <h3>International routes</h3>
+                    <ul>
+                        @foreach ($international as $route)
+                            <li>
+                                <span class="a-reach-code">{{ $route['code'] }}</span>
+                                <span><strong>{{ $route['name'] }}</strong><small>{{ $route['note'] }}</small></span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="a-actions">
+                <a href="{{ route('services') }}" class="h-btn h-btn--dark">Explore our services <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                <a href="{{ $whatsappLink }}" target="_blank" rel="noopener" class="h-textlink"><i class="fab fa-whatsapp" aria-hidden="true"></i> Talk to our team</a>
+            </div>
+        </div>
+    </section>
+
+</div>
 @endsection

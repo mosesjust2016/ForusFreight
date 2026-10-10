@@ -46,9 +46,9 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <div class="text-center mb-10">
-        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Sign in</h2>
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Welcome back</h2>
         <p class="mt-3 text-sm text-slate-500">
-            Securely manage your global shipments
+            Sign in to track your shipments, see your China address and manage invoices.
         </p>
     </div>
 
@@ -71,14 +71,7 @@ new #[Layout('layouts.guest')] class extends Component
 
             <!-- Password -->
             <div>
-                <div class="flex items-center justify-between mb-2">
-                    <label for="password" class="block text-sm font-bold text-slate-700">Password</label>
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors duration-200" wire:navigate>
-                            Forgot?
-                        </a>
-                    @endif
-                </div>
+                <label for="password" class="block text-sm font-bold text-slate-700 mb-2">Password</label>
                 <div class="input-wrapper">
                     <span class="input-icon"><i class="fas fa-lock"></i></span>
                     <input wire:model="form.password" id="password"
@@ -94,17 +87,22 @@ new #[Layout('layouts.guest')] class extends Component
                     <input wire:model="form.remember" id="remember" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-[rgb(0,127,127)] focus:ring-[rgb(0,127,127)] transition duration-150 ease-in-out cursor-pointer" name="remember">
                     <span class="ml-2 text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Remember me</span>
                 </label>
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="text-sm font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors duration-200" wire:navigate>
+                        Forgot password?
+                    </a>
+                @endif
             </div>
 
             <!-- Actions -->
             <div class="pt-2">
                 <button type="submit" class="btn-auth flex items-center justify-center gap-2">
-                    <span wire:loading.remove wire:target="login">Sign In</span>
+                    <span wire:loading.remove wire:target="login">Sign in</span>
                     <span wire:loading wire:target="login" class="flex items-center gap-2">
                         <i class="fas fa-circle-notch animate-spin"></i>
-                        Authenticating...
+                        Signing in…
                     </span>
-                    <i wire:loading.remove wire:target="login" class="fas fa-arrow-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    <i wire:loading.remove wire:target="login" class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
                 </button>
             </div>
         </form>
@@ -113,9 +111,10 @@ new #[Layout('layouts.guest')] class extends Component
             <p class="text-sm text-slate-500">
                 New to Forus Freight?
                 <a href="{{ route('register') }}" class="font-bold text-[rgb(0,127,127)] hover:text-[rgb(255,98,0)] transition-colors" wire:navigate>
-                    Create an account
+                    Create a free account
                 </a>
             </p>
+            <p class="mt-2 text-xs text-slate-500">Includes your personal China warehouse address.</p>
         </div>
     </div>
 </div>

@@ -40,9 +40,16 @@ class TrackingController extends Controller
      */
     public function check(Request $request)
     {
-        $request->validate([
+        // Failures always land on the tracking page, never back(): the search
+        // box also lives on the homepage (which can't show the error) and on
+        // the results page, whose URL only accepts POST (back() would 405).
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'tracking_number' => 'required|string|min:3'
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('tracking')->withErrors($validator)->withInput();
+        }
 
         $trackingNumber = trim($request->tracking_number);
 
@@ -52,7 +59,8 @@ class TrackingController extends Controller
             ->first();
 
         if (!$shipment) {
-            return back()->with('error', 'Tracking number not found. Please check and try again.')
+            return redirect()->route('tracking')
+                ->with('error', 'We couldn’t find a shipment with that number. Please check it and try again, or contact us on WhatsApp.')
                 ->withInput();
         }
 
@@ -91,7 +99,8 @@ class TrackingController extends Controller
         // Clear the tracking attempt from session
         session()->forget('tracking_attempt');
 
-        return view('tracking', compact('shipment'));
+        // Shown inside the client portal (the public /tracking page stays for guests)
+        return view('client.shipment', compact('shipment'));
     }
 
     /**

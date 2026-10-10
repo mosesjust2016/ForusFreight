@@ -44,7 +44,7 @@
         "logo": "{{ asset('images/logo-transparent.png') }}",
         "image": "{{ asset('images/logo-transparent.png') }}",
         "telephone": "+260572788685",
-        "email": "info@forusfl.co.zm",
+        "email": "info@forusfreight.com",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "METROLUX PLAZA, Plot No. 401A/8 Kafure Road",
@@ -79,7 +79,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Archivo:wdth,wght@100..125,500..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -141,9 +141,47 @@
             text-decoration: none;
         }
 
+        /* Skip link + keyboard focus */
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: -100px;
+            z-index: 3000;
+            background: var(--dark);
+            color: #fff;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0 0 12px 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        main:focus {
+            outline: none;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        [tabindex]:focus-visible {
+            outline: 3px solid var(--secondary);
+            outline-offset: 3px;
+        }
+
+        .logo-img {
+            height: 88px;
+            width: auto;
+            display: block;
+        }
+
         .logo-icon {
-            width: 0x;
-            height: 0px;
+            width: 0;
+            height: 0;
             background: var(--primary);
             border-radius: 12px;
             display: flex;
@@ -338,7 +376,9 @@
         .mobile-menu {
             display: none;
             position: absolute;
-            top: 80px;
+            top: 100%;
+            max-height: calc(100vh - 100%);
+            overflow-y: auto;
             left: 0;
             right: 0;
             background: white;
@@ -508,7 +548,7 @@
         .section-subtitle {
             text-align: center;
             font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.92);
             max-width: 600px;
             margin: 0 auto 3rem;
         }
@@ -544,101 +584,321 @@
         }
 
         /* Footer */
-        .footer {
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 5rem 0 2rem;
+        .site-footer {
+            --f-ink: #0d1b20;
+            --f-text: #c4d1d5;
+            --f-muted: #8fa6ad;
+            --f-line: rgba(255, 255, 255, 0.12);
+            background: var(--f-ink);
+            color: var(--f-text);
+            font-size: 0.95rem;
         }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            margin-bottom: 3rem;
+        .site-footer a {
+            color: inherit;
+            text-decoration: none;
         }
 
-        .footer-title {
-            font-size: 1.25rem;
+        .f-wrap {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .f-cta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem 2rem;
+            padding: 3.5rem 0;
+            border-bottom: 1px solid var(--f-line);
+        }
+
+        .f-cta h2 {
+            font-family: 'Archivo', 'Inter', sans-serif;
+            font-stretch: 110%;
+            font-weight: 800;
+            font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            color: #fff;
+        }
+
+        .f-cta p {
+            margin-top: 0.5rem;
+            color: var(--f-text);
+        }
+
+        .f-cta-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .f-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            min-height: 50px;
+            padding: 0 1.4rem;
+            border-radius: 12px;
             font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: white;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
 
-        .footer-links {
+        .f-btn--primary {
+            background: var(--secondary);
+            color: #0d1b20 !important;
+        }
+
+        .f-btn--primary:hover {
+            background: #ff7a26;
+        }
+
+        .f-btn--ghost {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff !important;
+        }
+
+        .f-btn--ghost:hover {
+            border-color: #fff;
+        }
+
+        .f-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(0, 0.8fr)) minmax(0, 1.25fr);
+            gap: 3rem;
+            padding: 4rem 0 3.5rem;
+        }
+
+        .f-logo {
+            display: inline-flex;
+            background: #fff;
+            border-radius: 16px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .f-logo img {
+            height: 92px;
+            width: auto;
+            display: block;
+        }
+
+        .f-about {
+            max-width: 22rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .f-quick {
+            display: grid;
+            gap: 0.35rem;
             list-style: none;
         }
 
-        .footer-links li {
-            margin-bottom: 0.75rem;
-        }
-
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: flex;
+        .f-quick a {
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.7rem;
+            min-height: 36px;
+            color: #fff;
+            font-weight: 600;
         }
 
-        .footer-links a:hover {
-            color: white;
-            transform: translateX(5px);
+        .f-quick a:hover {
+            color: #5eead4;
         }
 
-        .footer-contact {
+        .f-quick i {
+            width: 1.1rem;
+            text-align: center;
+            color: #5eead4;
+        }
+
+        .f-quick small {
+            display: block;
+            margin-left: 1.8rem;
+            color: var(--f-muted);
+            font-size: 0.82rem;
+        }
+
+        .f-heading {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--f-muted);
+            margin-bottom: 1.1rem;
+        }
+
+        .f-links {
+            list-style: none;
+            display: grid;
+            gap: 0.15rem;
+        }
+
+        .f-links a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            color: var(--f-text);
+            transition: color 0.2s ease;
+        }
+
+        .f-links a:hover {
+            color: #fff;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .f-place + .f-place {
+            margin-top: 1.4rem;
+            padding-top: 1.4rem;
+            border-top: 1px solid var(--f-line);
+        }
+
+        .f-place-code {
+            display: block;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            color: #5eead4;
+            margin-bottom: 0.3rem;
+        }
+
+        .f-place address {
+            font-style: normal;
+            line-height: 1.55;
+        }
+
+        .f-hours {
+            margin-top: 1.4rem;
+            font-size: 0.88rem;
+            color: var(--f-muted);
+        }
+
+        .f-bottom {
             display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            color: #94a3b8;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem 2rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--f-line);
+            font-size: 0.85rem;
+            color: var(--f-muted);
         }
 
-        .footer-contact i {
-            color: var(--primary);
-            font-size: 1.25rem;
-            margin-top: 0.25rem;
+        .f-legal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem 1.25rem;
+            list-style: none;
+        }
+
+        .f-legal a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+        }
+
+        .f-legal a:hover {
+            color: #fff;
         }
 
         .social-links {
             display: flex;
-            gap: 1rem;
+            gap: 0.6rem;
             margin-top: 1.5rem;
         }
 
         .social-links a {
             width: 44px;
             height: 44px;
-            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--f-line);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            color: #fff;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
 
         .social-links a:hover {
             background: var(--primary);
-            transform: translateY(-3px);
+            border-color: var(--primary);
         }
 
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 2rem;
-            text-align: center;
-            color: #94a3b8;
+        @media (max-width: 1024px) {
+            .f-main {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 2.5rem;
+            }
+
+            .f-brand {
+                grid-column: 1 / -1;
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr);
+                gap: 0 2rem;
+                align-items: start;
+            }
+
+            .f-logo {
+                grid-row: span 2;
+            }
+
+            .f-quick {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0 1.5rem;
+            }
         }
 
-        .footer-bottom a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
+        @media (max-width: 600px) {
+            .f-wrap {
+                padding: 0 1.1rem;
+            }
 
-        .footer-bottom a:hover {
-            color: white;
+            .f-cta {
+                padding: 2.5rem 0;
+            }
+
+            .f-cta-actions,
+            .f-cta-actions .f-btn {
+                width: 100%;
+            }
+
+            .f-main {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 2.25rem 1.5rem;
+                padding: 3rem 0 2.5rem;
+            }
+
+            .f-brand,
+            .f-visit {
+                grid-column: 1 / -1;
+            }
+
+            .f-brand {
+                display: block;
+            }
+
+            .f-quick {
+                display: grid;
+            }
+
+            .f-logo img {
+                height: 76px;
+            }
+
+            .f-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
         /* WhatsApp Float Button */
@@ -718,12 +978,15 @@
 
             body.has-sticky-cta { padding-bottom: 72px; }
 
+            /* The sticky bar already offers WhatsApp on phones, so the
+               floating button would only cover page content. */
             body.has-sticky-cta .whatsapp-float {
-                bottom: calc(72px + 1rem);
-                right: 1rem;
-                width: 52px;
-                height: 52px;
-                font-size: 1.6rem;
+                display: none;
+            }
+
+            .sticky-mobile-cta .cta-whatsapp {
+                background: #e7f8ee;
+                color: #0b6b3a;
             }
 
             #cookieNotice {
@@ -764,7 +1027,9 @@
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
+        /* 8 nav items + 88px logo overflow below ~1100px, so collapse to the
+           hamburger menu there rather than at the phone breakpoint. */
+        @media (max-width: 1100px) {
             .nav-menu {
                 display: none;
             }
@@ -774,6 +1039,20 @@
                 align-items: center;
                 justify-content: center;
             }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-container {
+                height: 72px;
+            }
+
+            .logo-img {
+                height: 60px;
+            }
+
+            .hero {
+                padding: 4rem 0;
+            }
 
             .hero-title {
                 font-size: 2.5rem;
@@ -782,10 +1061,6 @@
             .grid-cols-2,
             .grid-cols-3,
             .grid-cols-4 {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -834,26 +1109,42 @@
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 
     @yield('styles')
 </head>
 <body class="{{ request()->routeIs('quote') ? '' : 'has-sticky-cta' }}">
 
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Main">
         <div class="container navbar-container">
-            <a href="{{ route('home') }}" class="logo">
-                <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" style="height: 88px; width: auto; display: block;">
+            <a href="{{ route('home') }}" class="logo" aria-label="Forus Freight home">
+                <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" class="logo-img">
             </a>
 
             <ul class="nav-menu">
-                <li><a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
-                <li><a href="{{ route('services') }}" class="nav-link {{ request()->routeIs('services') ? 'active' : '' }}">Services</a></li>
-                <li><a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
-                <li><a href="{{ route('tracking') }}" class="nav-link {{ request()->routeIs('tracking') ? 'active' : '' }}">Track</a></li>
-                <li><a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">FAQ</a></li>
-                <li><a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a></li>
+                <li><a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" @if(request()->routeIs('home')) aria-current="page" @endif>Home</a></li>
+                <li><a href="{{ route('services') }}" class="nav-link {{ request()->routeIs('services') ? 'active' : '' }}" @if(request()->routeIs('services')) aria-current="page" @endif>Services</a></li>
+                <li><a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" @if(request()->routeIs('about')) aria-current="page" @endif>About</a></li>
+                <li><a href="{{ route('tracking') }}" class="nav-link {{ request()->routeIs('tracking') ? 'active' : '' }}" @if(request()->routeIs('tracking')) aria-current="page" @endif>Track</a></li>
+                <li><a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}" @if(request()->routeIs('faq')) aria-current="page" @endif>FAQ</a></li>
+                <li><a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" @if(request()->routeIs('contact')) aria-current="page" @endif>Contact</a></li>
                 <li><a href="{{ route('quote') }}" class="nav-btn-outline">Get Quote</a></li>
                 @auth
                     <li><a href="{{ route('dashboard') }}" class="nav-btn">Dashboard</a></li>
@@ -870,24 +1161,24 @@
         <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobileMenu">
             <ul>
-                <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
-                <li><a href="{{ route('services') }}" class="{{ request()->routeIs('services') ? 'active' : '' }}">Services</a></li>
-                <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
-                <li><a href="{{ route('tracking') }}" class="{{ request()->routeIs('tracking') ? 'active' : '' }}">Track</a></li>
-                <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">FAQ</a></li>
-                <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a></li>
-                <li><a href="{{ route('quote') }}" class="nav-btn-outline" style="justify-content: center;">Get Quote</a></li>
+                <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" @if(request()->routeIs('home')) aria-current="page" @endif>Home</a></li>
+                <li><a href="{{ route('services') }}" class="{{ request()->routeIs('services') ? 'active' : '' }}" @if(request()->routeIs('services')) aria-current="page" @endif>Services</a></li>
+                <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}" @if(request()->routeIs('about')) aria-current="page" @endif>About</a></li>
+                <li><a href="{{ route('tracking') }}" class="{{ request()->routeIs('tracking') ? 'active' : '' }}" @if(request()->routeIs('tracking')) aria-current="page" @endif>Track</a></li>
+                <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}" @if(request()->routeIs('faq')) aria-current="page" @endif>FAQ</a></li>
+                <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}" @if(request()->routeIs('contact')) aria-current="page" @endif>Contact</a></li>
+                <li><a href="{{ route('quote') }}" class="nav-btn-outline" style="justify-content: center; width: 100%; padding: 0.875rem 1.25rem;">Get Quote</a></li>
                 @auth
-                    <li><a href="{{ route('dashboard') }}" class="nav-btn" style="justify-content: center;">Dashboard</a></li>
+                    <li><a href="{{ route('dashboard') }}" class="nav-btn" style="justify-content: center; width: 100%; padding: 0.875rem 1.25rem;">Dashboard</a></li>
                 @else
-                    <li><a href="{{ route('login') }}" class="nav-btn" style="justify-content: center;">Login</a></li>
+                    <li><a href="{{ route('login') }}" class="nav-btn" style="justify-content: center; width: 100%; padding: 0.875rem 1.25rem;">Login</a></li>
                 @endauth
             </ul>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main>
+    <main id="main-content" tabindex="-1">
         @yield('content')
     </main>
 
@@ -895,110 +1186,122 @@
     @php
     $footerPage = \App\Models\CmsPage::where('slug', 'footer')->where('status', 'published')->first();
     $footer = $footerPage?->sections ?? [];
+    $footerWhatsapp = 'https://wa.me/' . ($footer['whatsapp_number'] ?? '260572788685') . '?text=' . urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services');
+    $footerPhones = !empty($footer['contact_phones']) ? $footer['contact_phones'] : [['number' => '+260 572 788 685'], ['number' => '+260 766 193059']];
+    $footerEmail = $footer['contact_email'] ?? 'info@forusfreight.com';
+    // Only real profile URLs get an icon; the CMS defaults are "#" placeholders
+    $footerSocials = collect([
+        'facebook' => ['fab fa-facebook-f', 'Facebook'],
+        'twitter' => ['fab fa-twitter', 'X (Twitter)'],
+        'linkedin' => ['fab fa-linkedin-in', 'LinkedIn'],
+        'instagram' => ['fab fa-instagram', 'Instagram'],
+    ])->filter(fn ($v, $k) => !empty($footer['social_' . $k]) && $footer['social_' . $k] !== '#');
     @endphp
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <!-- Company Info -->
+    <footer class="site-footer">
+        <div class="f-wrap">
+            @unless(request()->routeIs('home', 'quote'))
+            <div class="f-cta">
                 <div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" style="height: 56px; width: auto; display: block;">
-                    </div>
-                    <p style="color: #94a3b8; margin-bottom: 1.5rem;">{{ $footer['description'] ?? 'Fast, reliable & affordable logistics solutions across Zambia and the SADC region.' }}</p>
+                    <h2>Got cargo to move?</h2>
+                    <p>Get a clear price and transit time — free, with no obligation.</p>
+                </div>
+                <div class="f-cta-actions">
+                    <a href="{{ route('quote') }}" class="f-btn f-btn--primary">Get a free quote <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <a href="{{ $footerWhatsapp }}" target="_blank" rel="noopener" class="f-btn f-btn--ghost"><i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp us</a>
+                </div>
+            </div>
+            @endunless
+
+            <div class="f-main">
+                <div class="f-brand">
+                    <a href="{{ route('home') }}" class="f-logo" aria-label="Forus Freight home">
+                        <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight" loading="lazy">
+                    </a>
+                    <p class="f-about">{{ $footer['description'] ?? 'Freight forwarding between Zambia, South Africa, China and the UAE — with customs clearance handled and a free China address for online shoppers.' }}</p>
+                    <ul class="f-quick">
+                        @foreach($footerPhones as $phone)
+                            @if(!empty($phone['number']))
+                            <li><a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone['number']) }}"><i class="fas fa-phone" aria-hidden="true"></i>{{ $phone['number'] }}</a></li>
+                            @endif
+                        @endforeach
+                        <li><a href="mailto:{{ $footerEmail }}"><i class="fas fa-envelope" aria-hidden="true"></i>{{ $footerEmail }}</a></li>
+                        <li><a href="{{ $footerWhatsapp }}" target="_blank" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i>Chat on WhatsApp</a></li>
+                    </ul>
+                    @if($footerSocials->isNotEmpty())
                     <div class="social-links">
-                        @if(!empty($footer['social_facebook']))<a href="{{ $footer['social_facebook'] }}" aria-label="Forus Freight on Facebook"><i class="fab fa-facebook-f"></i></a>@endif
-                        @if(!empty($footer['social_twitter']))<a href="{{ $footer['social_twitter'] }}" aria-label="Forus Freight on Twitter"><i class="fab fa-twitter"></i></a>@endif
-                        @if(!empty($footer['social_linkedin']))<a href="{{ $footer['social_linkedin'] }}" aria-label="Forus Freight on LinkedIn"><i class="fab fa-linkedin-in"></i></a>@endif
-                        @if(!empty($footer['social_instagram']))<a href="{{ $footer['social_instagram'] }}" aria-label="Forus Freight on Instagram"><i class="fab fa-instagram"></i></a>@endif
+                        @foreach($footerSocials as $key => [$icon, $label])
+                            <a href="{{ $footer['social_' . $key] }}" target="_blank" rel="noopener" aria-label="Forus Freight on {{ $label }}"><i class="{{ $icon }}" aria-hidden="true"></i></a>
+                        @endforeach
                     </div>
+                    @endif
                 </div>
 
-                <!-- Services -->
-                <div>
-                    <h3 class="footer-title">Our Services</h3>
-                    <ul class="footer-links">
+                <nav aria-labelledby="footerServices">
+                    <h2 class="f-heading" id="footerServices">Services</h2>
+                    <ul class="f-links">
                         @if(!empty($footer['services_links']))
                             @foreach($footer['services_links'] as $link)
-                            <li><a href="{{ $link['url'] ?? '#' }}"><i class="fas fa-arrow-right"></i> {{ $link['title'] ?? '' }}</a></li>
+                            <li><a href="{{ $link['url'] ?? '#' }}">{{ $link['title'] ?? '' }}</a></li>
                             @endforeach
                         @else
-                            <li><a href="{{ route('services') }}#same-day"><i class="fas fa-arrow-right"></i> Same-Day Delivery</a></li>
-                            <li><a href="{{ route('services') }}#cross-border"><i class="fas fa-arrow-right"></i> Cross-Border Shipping</a></li>
-                            <li><a href="{{ route('services') }}#warehousing"><i class="fas fa-arrow-right"></i> Warehousing</a></li>
-                            <li><a href="{{ route('services') }}#bulk-cargo"><i class="fas fa-arrow-right"></i> Bulk Cargo</a></li>
+                            <li><a href="{{ route('services') }}#cross-border">Cross-border freight</a></li>
+                            <li><a href="{{ route('services') }}#same-day">Same-day delivery</a></li>
+                            <li><a href="{{ route('services') }}#warehousing">Warehousing</a></li>
+                            <li><a href="{{ route('services') }}#bulk-cargo">Bulk cargo</a></li>
+                            <li><a href="{{ route('home') }}#shop-from-china">Shop from China</a></li>
                         @endif
                     </ul>
-                </div>
+                </nav>
 
-                <!-- Company -->
-                <div>
-                    <h3 class="footer-title">Company</h3>
-                    <ul class="footer-links">
+                <nav aria-labelledby="footerCompany">
+                    <h2 class="f-heading" id="footerCompany">Company</h2>
+                    <ul class="f-links">
                         @if(!empty($footer['company_links']))
                             @foreach($footer['company_links'] as $link)
-                            <li><a href="{{ $link['url'] ?? '#' }}"><i class="fas fa-arrow-right"></i> {{ $link['title'] ?? '' }}</a></li>
+                            <li><a href="{{ $link['url'] ?? '#' }}">{{ $link['title'] ?? '' }}</a></li>
                             @endforeach
                         @else
-                            <li><a href="{{ route('about') }}"><i class="fas fa-arrow-right"></i> About Us</a></li>
-                            <li><a href="{{ route('services') }}"><i class="fas fa-arrow-right"></i> Services</a></li>
-                            <li><a href="{{ route('quote') }}"><i class="fas fa-arrow-right"></i> Get Quote</a></li>
-                            <li><a href="{{ route('tracking') }}"><i class="fas fa-arrow-right"></i> Track Shipment</a></li>
+                            <li><a href="{{ route('about') }}">About us</a></li>
+                            <li><a href="{{ route('quote') }}">Get a quote</a></li>
+                            <li><a href="{{ route('tracking') }}">Track a shipment</a></li>
+                            <li><a href="{{ route('faq') }}">FAQ</a></li>
+                            <li><a href="{{ route('contact') }}">Contact</a></li>
                         @endif
+                        @guest
+                            <li><a href="{{ route('login') }}">Customer login</a></li>
+                        @endguest
                     </ul>
-                </div>
+                </nav>
 
-                <!-- Contact -->
-                <div>
-                    <h3 class="footer-title">Get in Touch</h3>
-                    <div class="footer-contact">
-                        <i class="fas fa-phone"></i>
-                        <div>
-                            @if(!empty($footer['contact_phones']))
-                                @foreach($footer['contact_phones'] as $phone)
-                                <span style="display: block; font-weight: 600;">{{ $phone['number'] ?? '' }}</span>
-                                @endforeach
-                            @else
-                                <span style="display: block; font-weight: 600;">+260 572 788 685</span>
-                                <span style="display: block; font-weight: 600;">+260 766 193059</span>
-                            @endif
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_support_label'] ?? '24/7 Support' }}</span>
-                        </div>
+                <div class="f-visit">
+                    <h2 class="f-heading">Visit us</h2>
+                    <div class="f-place">
+                        <span class="f-place-code">LUSAKA &middot; OFFICE</span>
+                        <address>{{ $footer['contact_address'] ?? 'Metrolux Plaza, Plot No. 401A/8 Kafue Road' }}<br>{{ $footer['contact_city'] ?? 'Lusaka, Zambia' }}</address>
                     </div>
-                    <div class="footer-contact">
-                        <i class="fas fa-envelope"></i>
-                        <div>
-                            <span style="display: block; font-weight: 600;">{{ $footer['contact_email'] ?? 'info@forusfl.co.zm' }}</span>
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_email_label'] ?? 'Email Us' }}</span>
-                        </div>
+                    <div class="f-place">
+                        <span class="f-place-code">LUSAKA &middot; WAREHOUSE</span>
+                        <address>{{ $footer['contact_warehouse_address'] ?? 'Plot No. F/26/397a, Robert ‘B’ Warehouse ‘A’, Off Kafue Road, Makeni' }}<br>{{ $footer['contact_warehouse_city'] ?? 'Lusaka, Zambia' }}</address>
                     </div>
-                    <div class="footer-contact">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <span style="display: block; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1;">Office Address</span>
-                            <span style="display: block; font-weight: 600;">{{ $footer['contact_address'] ?? 'Forus Freight Ltd METROLUX PLAZA Plot No. 401A/8 Kafure Road' }}</span>
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_city'] ?? 'Lusaka, Zambia' }}</span>
-                        </div>
-                    </div>
-                    <div class="footer-contact">
-                        <i class="fas fa-warehouse"></i>
-                        <div>
-                            <span style="display: block; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1;">Warehouse Address</span>
-                            <span style="display: block; font-weight: 600;">{{ $footer['contact_warehouse_address'] ?? 'Plot No. F/26/397a, ROBERT \'B\' Warehouse \'A\' Off Kafue Road, Makeni Area' }}</span>
-                            <span style="font-size: 0.875rem; color: #cbd5e1;">{{ $footer['contact_warehouse_city'] ?? 'Lusaka, Zambia' }}</span>
-                        </div>
-                    </div>
+                    <p class="f-hours"><i class="far fa-clock" aria-hidden="true"></i> Mon–Fri, 08:00–17:00</p>
                 </div>
             </div>
 
-            <div class="footer-bottom">
-                <p>@php echo str_replace('{year}', date('Y'), $footer['copyright_text'] ?? '© {year} Forus Freight. All rights reserved.'); @endphp | <a href="{{ route('privacy') }}">Privacy Policy</a> | <a href="{{ route('cookie-policy') }}">Cookie Policy</a> | <a href="{{ route('refund-policy') }}">Refund Policy</a> | <a href="{{ route('terms') }}">Terms of Service</a></p>
+            <div class="f-bottom">
+                <p>{!! str_replace('{year}', date('Y'), $footer['copyright_text'] ?? '&copy; {year} Forus Freight Limited. All rights reserved.') !!}</p>
+                <ul class="f-legal" aria-label="Legal">
+                    <li><a href="{{ route('privacy') }}">Privacy</a></li>
+                    <li><a href="{{ route('cookie-policy') }}">Cookies</a></li>
+                    <li><a href="{{ route('refund-policy') }}">Refunds</a></li>
+                    <li><a href="{{ route('terms') }}">Terms</a></li>
+                </ul>
             </div>
         </div>
     </footer>
 
     <div role="region" aria-label="Quick contact actions">
         <!-- WhatsApp Float Button -->
-        <a href="https://wa.me/{{ $footer['whatsapp_number'] ?? '260572788685' }}?text={{ urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services') }}" target="_blank" class="whatsapp-float" aria-label="Chat with Forus Freight on WhatsApp">
+        <a href="https://wa.me/{{ $footer['whatsapp_number'] ?? '260572788685' }}?text={{ urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services') }}" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat with Forus Freight on WhatsApp">
             <i class="fab fa-whatsapp" aria-hidden="true"></i>
         </a>
 
@@ -1008,8 +1311,8 @@
             <a href="{{ route('quote') }}" class="cta-primary">
                 <i class="fas fa-paper-plane" aria-hidden="true"></i> Get a Quote
             </a>
-            <a href="tel:{{ $footer['whatsapp_number'] ?? '260572788685' }}" class="cta-secondary" aria-label="Call Forus Freight">
-                <i class="fas fa-phone" aria-hidden="true"></i> Call Us
+            <a href="https://wa.me/{{ $footer['whatsapp_number'] ?? '260572788685' }}?text={{ urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services') }}" target="_blank" rel="noopener" class="cta-whatsapp">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp
             </a>
         </div>
         @endunless
@@ -1023,187 +1326,558 @@
             for details.
         </p>
         <div style="display:flex; justify-content:flex-end; gap:.75rem;">
-            <button type="button" id="cookieNoticeAccept" style="background:rgb(0,127,127); color:#fff; border:none; border-radius:10px; padding:.6rem 1.25rem; font-weight:700; cursor:pointer;">Got it</button>
+            <button type="button" id="cookieNoticeAccept" style="background:rgb(0,127,127); color:#fff; border:none; border-radius:10px; padding:.75rem 1.5rem; min-height:44px; font-weight:700; cursor:pointer;">Got it</button>
         </div>
     </div>
 
-    <!-- Welcome / Sign-up Popup (guests only) -->
-    @guest
+    <!-- Welcome / Sign-up Popup (guests only; never on pages where the visitor is already taking action) -->
+    @if(auth()->guest() && ! request()->routeIs('quote', 'contact', 'track', 'track.check', 'tracking', 'tracking.*', 'register', 'login', 'password.*'))
     <style>
         #welcomeModal.wm-overlay {
-            position: fixed; inset: 0; z-index: 2000;
-            background: rgba(15, 23, 42, 0.55);
-            backdrop-filter: blur(3px);
-            display: flex; align-items: center; justify-content: center;
-            padding: 1rem; animation: wmFade 0.35s ease;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: rgba(7, 20, 24, 0.62);
+            backdrop-filter: blur(6px);
+            animation: wmFade 0.3s ease;
         }
+
         #welcomeModal.wm-overlay[hidden] { display: none; }
+
         @keyframes wmFade { from { opacity: 0; } to { opacity: 1; } }
+
+        @keyframes wmRise {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to { opacity: 1; transform: none; }
+        }
+
         .wm-modal {
-            background: #fff; color: #1e293b; border-radius: 24px;
-            max-width: 560px; width: 100%; max-height: 92vh; overflow: auto;
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
-            animation: wmPop 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            width: 100%;
+            max-width: 920px;
+            max-height: calc(100vh - 2.5rem);
+            display: grid;
+            grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+            border-radius: 26px;
+            overflow: hidden;
+            background: #0d1b20;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            animation: wmRise 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #fff;
+            text-align: left;
         }
-        @keyframes wmPop {
-            from { transform: translateY(26px) scale(0.96); opacity: 0; }
-            to { transform: none; opacity: 1; }
-        }
+
         .wm-close {
-            position: absolute; top: 0.9rem; right: 0.9rem; z-index: 5;
-            width: 34px; height: 34px; border: none; border-radius: 50%;
-            background: #f1f5f9; color: #475569; font-size: 1rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 5;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(13, 27, 32, 0.08);
+            color: #0d1b20;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
         }
-        .wm-close:hover { background: #e2e8f0; }
-        .wm-head { display: flex; align-items: center; gap: 0.8rem; padding: 1.4rem 1.6rem 0; }
-        .wm-head img { height: 46px; width: auto; }
-        .wm-head .wm-brand { font-weight: 800; font-size: 1rem; color: #1e293b; }
-        .wm-badge {
-            display: inline-block; margin-top: 0.3rem;
-            background: linear-gradient(135deg, #ff6200, #ff9a4d);
-            color: #fff; font-size: 0.68rem; font-weight: 800;
-            padding: 0.3rem 0.7rem; border-radius: 999px;
+
+        .wm-close:hover { background: rgba(13, 27, 32, 0.16); }
+
+        /* ---- Left: pitch, steps, CTA ---- */
+        .wm-copy {
+            padding: 2.5rem 2.25rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
-        .wm-tutorial { margin: 1.2rem 1.6rem 0; }
-        .wm-track { position: relative; min-height: 300px; }
-        .wm-slide {
-            position: absolute; inset: 0; display: flex; gap: 1rem; align-items: flex-start;
-            opacity: 0; transform: translateX(24px); pointer-events: none;
-            transition: opacity 0.45s ease, transform 0.45s ease;
+
+        .wm-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 0.74rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #5eead4;
         }
-        .wm-slide.active { opacity: 1; transform: none; pointer-events: auto; }
-        .wm-slide--shot { flex-direction: column; align-items: stretch; gap: 0.75rem; }
-        .wm-slide--shot .wm-head-row { display: flex; align-items: flex-start; gap: 0.8rem; }
-        .wm-shot {
-            display: block; width: 100%; border-radius: 14px;
-            border: 1px solid #e2e8f0; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
-            max-height: 190px; object-fit: cover; object-position: center top;
-            background: #f8fafc; cursor: zoom-in;
+
+        .wm-eyebrow::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6200;
         }
-        .wm-ico {
-            width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.15rem; color: #fff;
+
+        .wm-title {
+            font-family: 'Archivo', 'Inter', sans-serif;
+            font-stretch: 110%;
+            font-weight: 800;
+            font-size: 2.15rem;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            margin: 0.9rem 0 0.85rem;
+            color: #fff;
         }
-        .wm-ico.i1 { background: #007f7f; }
-        .wm-ico.i2 { background: #ff6200; }
-        .wm-ico.i3 { background: #0f172a; }
-        .wm-slide h4 { margin: 0 0 0.35rem; font-size: 0.98rem; font-weight: 800; color: #1e293b; }
-        .wm-slide p { margin: 0; font-size: 0.84rem; color: #64748b; line-height: 1.55; }
-        .wm-addr {
-            margin-top: 0.6rem; background: #f8fafc; border: 1px dashed #cbd5e1;
-            border-radius: 10px; padding: 0.55rem 0.7rem; font-size: 0.76rem;
-            color: #475569; font-family: ui-monospace, monospace; line-height: 1.5;
+
+        .wm-title em {
+            font-style: normal;
+            color: #ff8a3d;
         }
-        .wm-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; }
-        .wm-dots { display: flex; gap: 0.4rem; }
-        .wm-dot { width: 8px; height: 8px; border-radius: 999px; border: none; background: #dbe0e8; cursor: pointer; padding: 0; transition: all 0.3s; }
-        .wm-dot.active { width: 24px; background: #ff6200; }
-        .wm-arrow {
-            width: 30px; height: 30px; border-radius: 50%; border: 1px solid #e2e8f0;
-            background: #fff; color: #007f7f; cursor: pointer; padding: 0; font-size: 0.7rem;
+
+        .wm-lead {
+            color: #c4d1d5;
+            font-size: 0.98rem;
+            line-height: 1.55;
+            margin: 0 0 1.5rem;
         }
-        .wm-arrow:hover { background: #007f7f; color: #fff; }
-        .wm-progress { height: 4px; background: #f1f5f9; border-radius: 4px; margin: 0.9rem 1.6rem 0; overflow: hidden; }
-        .wm-progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #007f7f, #ff6200); }
+
+        .wm-steps {
+            list-style: none;
+            margin: 0 0 1.75rem;
+            padding: 0;
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .wm-step {
+            position: relative;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 2.25rem 1fr;
+            gap: 0.25rem 0.75rem;
+            align-items: start;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: #c4d1d5;
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+            overflow: hidden;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .wm-step:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .wm-step[aria-selected="true"] {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(94, 234, 212, 0.45);
+            color: #fff;
+        }
+
+        .wm-step-num {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 0.8rem;
+            color: #ff8a3d;
+            padding-top: 0.1rem;
+        }
+
+        .wm-step-title {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: inherit;
+        }
+
+        .wm-step-desc {
+            grid-column: 2;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            color: #9fb3b9;
+            display: none;
+        }
+
+        .wm-step[aria-selected="true"] .wm-step-desc {
+            display: block;
+        }
+
+        .wm-step-bar {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 2px;
+            width: 0;
+            background: linear-gradient(90deg, #2dd4bf, #ff6200);
+        }
+
         .wm-cta {
-            background: #f8fafc; border-top: 1px solid #eef2f7;
-            border-radius: 0 0 24px 24px; padding: 1.2rem 1.6rem 1.4rem; margin-top: 1.2rem; text-align: center;
+            margin-top: auto;
         }
-        .wm-cta p { margin: 0 0 0.9rem; font-size: 0.85rem; color: #475569; line-height: 1.5; }
-        .wm-cta p strong { color: #ff6200; }
-        .wm-btns { display: flex; gap: 0.8rem; }
-        .wm-btn-ca {
-            flex: 1.4; background: #007f7f; color: #fff; border: none; border-radius: 14px;
-            padding: 0.9rem 1rem; font-weight: 800; font-size: 0.92rem; cursor: pointer;
-            text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
-            gap: 0.5rem; box-shadow: 0 6px 18px rgba(0, 127, 127, 0.3); transition: all 0.25s;
+
+        .wm-btn-main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            width: 100%;
+            min-height: 54px;
+            padding: 0 1.25rem;
+            border-radius: 14px;
+            background: #ff6200;
+            color: #0d1b20 !important;
+            font-weight: 800;
+            font-size: 1.02rem;
+            text-decoration: none;
+            box-shadow: 0 12px 30px rgba(255, 98, 0, 0.35);
+            transition: background-color 0.2s ease, transform 0.2s ease;
         }
-        .wm-btn-ca:hover { background: #006666; transform: translateY(-2px); }
-        .wm-btn-lo {
-            flex: 1; background: #fff; border: 2px solid #007f7f; color: #007f7f;
-            border-radius: 14px; padding: 0.85rem 1rem; font-weight: 800; font-size: 0.92rem;
-            cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
-            justify-content: center; gap: 0.5rem; transition: all 0.25s;
+
+        .wm-btn-main:hover {
+            background: #ff7a26;
+            transform: translateY(-1px);
         }
-        .wm-btn-lo:hover { background: #007f7f; color: #fff; }
-        .wm-skip { display: block; margin: 1rem auto 0; background: none; border: none; color: #94a3b8; font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
-        @media (max-width: 480px) {
-            .wm-modal { max-width: 100%; }
-            .wm-head { padding: 1.1rem 1.2rem 0; }
-            .wm-tutorial { margin: 1rem 1.2rem 0; }
-            .wm-track { min-height: 250px; }
-            .wm-slide { flex-direction: column; gap: 0.6rem; }
-            .wm-slide--shot { flex-direction: column; }
-            .wm-shot { max-height: 140px; }
-            .wm-btns { flex-direction: column; }
+
+        .wm-btn-main .fa-arrow-right { transition: transform 0.2s ease; }
+        .wm-btn-main:hover .fa-arrow-right { transform: translateX(3px); }
+
+        .wm-cta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: 0.85rem;
+            font-size: 0.85rem;
+        }
+
+        .wm-login {
+            color: #5eead4 !important;
+            font-weight: 600;
+            text-decoration: none;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .wm-login:hover { text-decoration: underline; }
+
+        .wm-skip {
+            background: none;
+            border: none;
+            color: #8fa6ad;
+            font: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            min-height: 36px;
+            padding: 0;
+        }
+
+        .wm-skip:hover { color: #fff; }
+
+        .wm-fine {
+            margin-top: 0.6rem;
+            font-size: 0.78rem;
+            color: #8fa6ad;
+        }
+
+        .wm-fine i { color: #5eead4; margin-right: 0.3rem; }
+
+        /* ---- Right: real screenshots ---- */
+        .wm-stage {
+            position: relative;
+            background:
+                radial-gradient(circle at 80% 15%, rgba(45, 212, 191, 0.18), transparent 50%),
+                #f5f4ef;
+            min-height: 520px;
+            overflow: hidden;
+        }
+
+        .wm-shot {
+            position: absolute;
+            inset: 4.5rem 2rem 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(14px) scale(0.98);
+            transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.4s;
+            pointer-events: none;
+        }
+
+        .wm-shot.is-active {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            transition-delay: 0s;
+        }
+
+        .wm-device {
+            position: relative;
+            width: 100%;
+        }
+
+        .wm-frame {
+            position: relative;
+            width: 100%;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 30px 60px rgba(13, 27, 32, 0.22), 0 0 0 1px rgba(13, 27, 32, 0.06);
+            overflow: hidden;
+        }
+
+        .wm-frame-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 0.8rem;
+            background: #eef0ee;
+            border-bottom: 1px solid rgba(13, 27, 32, 0.06);
+        }
+
+        .wm-frame-bar span {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #d3d8d6;
+        }
+
+        .wm-frame-bar b {
+            margin-left: 0.6rem;
+            flex: 1;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 0.68rem;
+            font-weight: 400;
+            color: #56666c;
+            background: #fff;
+            border-radius: 6px;
+            padding: 0.2rem 0.6rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .wm-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 360px;
+            object-fit: cover;
+            object-position: top;
+        }
+
+        /* Hide the personal address lines: they unlock after sign-up */
+        .wm-lock {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 50%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 1.1rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.55) 30%);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .wm-lock span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0d1b20;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+        }
+
+        .wm-lock i { color: #ff8a3d; }
+
+        .wm-chip {
+            position: absolute;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #fff;
+            color: #0d1b20;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 0.55rem 0.85rem;
+            border-radius: 12px;
+            box-shadow: 0 14px 30px rgba(13, 27, 32, 0.18);
+            white-space: nowrap;
+        }
+
+        .wm-chip i {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            background: #e6f6f4;
+            color: #007f7f;
+        }
+
+        .wm-chip--tl { top: -16px; left: -14px; }
+        .wm-chip--br { bottom: -16px; right: -14px; }
+
+        @media (max-width: 760px) {
+            #welcomeModal.wm-overlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .wm-modal {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                max-height: 94vh;
+                border-radius: 22px 22px 0 0;
+                animation-name: wmSheet;
+            }
+
+            @keyframes wmSheet {
+                from { transform: translateY(40px); opacity: 0; }
+                to { transform: none; opacity: 1; }
+            }
+
+            .wm-stage {
+                order: -1;
+                min-height: 0;
+                height: 205px;
+            }
+
+            .wm-shot {
+                inset: 3.25rem 1.25rem 0.75rem;
+                align-items: flex-start;
+            }
+
+            .wm-frame img {
+                max-height: 135px;
+            }
+
+            .wm-chip {
+                display: none;
+            }
+
+            .wm-copy {
+                padding: 1.4rem 1.25rem 1.25rem;
+            }
+
+            .wm-title {
+                font-size: 1.6rem;
+                margin: 0.6rem 0 0.5rem;
+            }
+
+            .wm-lead {
+                font-size: 0.92rem;
+                margin-bottom: 1rem;
+            }
+
+            .wm-steps {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.4rem;
+                margin-bottom: 1.1rem;
+            }
+
+            .wm-step {
+                grid-template-columns: 1fr;
+                padding: 0.6rem 0.55rem;
+                gap: 0.1rem;
+            }
+
+            .wm-step-title {
+                font-size: 0.78rem;
+                line-height: 1.25;
+            }
+
+            .wm-step-desc,
+            .wm-step[aria-selected="true"] .wm-step-desc {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .wm-shot { transition: none; }
         }
     </style>
+
     <div id="welcomeModal" class="wm-overlay" hidden>
-        <div class="wm-modal" role="dialog" aria-modal="true" aria-labelledby="wmTitle">
-            <button type="button" class="wm-close" id="wmClose" aria-label="Close"><i class="fas fa-times"></i></button>
-            <div class="wm-head">
-                <img src="{{ asset('images/logo-transparent.png') }}" alt="Forus Freight">
-                <div>
-                    <div class="wm-brand" id="wmTitle">Welcome to Forus Freight</div>
-                    <span class="wm-badge">Get your FREE China warehouse address</span>
+        <div class="wm-modal" role="dialog" aria-modal="true" aria-labelledby="wmTitle" aria-describedby="wmLead">
+            <button type="button" class="wm-close" id="wmClose" aria-label="Close"><i class="fas fa-times" aria-hidden="true"></i></button>
+
+            <div class="wm-copy">
+                <span class="wm-eyebrow">Free for online shoppers</span>
+                <h2 class="wm-title" id="wmTitle">Your own address in China. <em>Free.</em></h2>
+                <p class="wm-lead" id="wmLead">Shop on Alibaba, Amazon, Shein, Temu and more. We receive your parcels, combine them and ship them to Lusaka.</p>
+
+                <div class="wm-steps" role="tablist" aria-label="How it works">
+                    <button type="button" class="wm-step" role="tab" id="wmTab0" aria-controls="wmShot0" aria-selected="true">
+                        <span class="wm-step-num">01</span>
+                        <span class="wm-step-title">Create your free account</span>
+                        <span class="wm-step-desc">About two minutes. Verify your email and phone.</span>
+                        <span class="wm-step-bar" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="wm-step" role="tab" id="wmTab1" aria-controls="wmShot1" aria-selected="false" tabindex="-1">
+                        <span class="wm-step-num">02</span>
+                        <span class="wm-step-title">Get your China address</span>
+                        <span class="wm-step-desc">Use it as the delivery address when you check out.</span>
+                        <span class="wm-step-bar" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="wm-step" role="tab" id="wmTab2" aria-controls="wmShot2" aria-selected="false" tabindex="-1">
+                        <span class="wm-step-num">03</span>
+                        <span class="wm-step-title">Track it to Lusaka</span>
+                        <span class="wm-step-desc">Follow every stage online, with email updates.</span>
+                        <span class="wm-step-bar" aria-hidden="true"></span>
+                    </button>
+                </div>
+
+                <div class="wm-cta">
+                    <a href="{{ route('register') }}" class="wm-btn-main">Create my free account <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <div class="wm-cta-row">
+                        <a href="{{ route('login') }}" class="wm-login">I already have an account</a>
+                        <button type="button" id="wmSkip" class="wm-skip">Not now</button>
+                    </div>
+                    <p class="wm-fine"><i class="fas fa-circle-check" aria-hidden="true"></i>Free to join &middot; No card needed</p>
                 </div>
             </div>
-            <div class="wm-tutorial">
-                <div class="wm-track" id="wmTrack">
-                    <div class="wm-slide active wm-slide--shot">
-                        <div class="wm-head-row">
-                            <div class="wm-ico i1"><i class="fas fa-user-plus"></i></div>
-                            <div>
-                                <h4>1 &middot; Create your free account</h4>
-                                <p>In less than 2 minutes you unlock your personal China warehouse address — our dedicated forwarding hub that lets you buy from China stores.</p>
-                            </div>
+
+            <div class="wm-stage">
+                <div class="wm-shot is-active" id="wmShot0" role="tabpanel" aria-labelledby="wmTab0">
+                    <div class="wm-device">
+                        <div class="wm-frame">
+                            <div class="wm-frame-bar" aria-hidden="true"><span></span><span></span><span></span><b>Create account</b></div>
+                            <img data-src="{{ asset('images/tutorial/popup-signup.webp') }}" alt="The Forus Freight sign-up form: full name, email, mobile number and password" width="860" height="880" decoding="async">
                         </div>
-                        <img class="wm-shot" src="{{ asset('images/tutorial/register-card-top.png') }}"
-                            alt="Screenshot of the Forus Freight account creation form"
-                            onclick="this.style.maxHeight='none';this.style.cursor='zoom-out';" title="Click to see the full form">
-                    </div>
-                    <div class="wm-slide wm-slide--shot">
-                        <div class="wm-head-row">
-                            <div class="wm-ico i2"><i class="fas fa-cart-shopping"></i></div>
-                            <div>
-                                <h4>2 &middot; Shop &amp; ship to your China address</h4>
-                                <p>Buy on Alibaba, eBay, Amazon, Shein or Temu and use your China address as the delivery point. We receive every parcel — no forwarding apps needed.</p>
-                            </div>
-                        </div>
-                        <img class="wm-shot" src="{{ asset('images/tutorial/china-address-box.png') }}"
-                            alt="Screenshot of your Forus Freight China warehouse address"
-                            onclick="this.style.maxHeight='none';this.style.cursor='zoom-out';" title="Click to see the full address">
-                    </div>
-                    <div class="wm-slide wm-slide--shot">
-                        <div class="wm-head-row">
-                            <div class="wm-ico i3"><i class="fas fa-truck-fast"></i></div>
-                            <div>
-                                <h4>3 &middot; We consolidate, ship &amp; you track</h4>
-                                <p>We combine your parcels, route them safely to Zambia, and give you live tracking until your goods arrive at our Lusaka warehouse for collection or delivery.</p>
-                            </div>
-                        </div>
-                        <img class="wm-shot" src="{{ asset('images/tutorial/tracking-form.png') }}"
-                            alt="Screenshot of the Forus Freight live tracking screen"
-                            onclick="this.style.maxHeight='none';this.style.cursor='zoom-out';" title="Click to see the full screen">
+                        <span class="wm-chip wm-chip--br"><i class="fas fa-stopwatch" aria-hidden="true"></i>About 2 minutes</span>
                     </div>
                 </div>
-                <div class="wm-nav">
-                    <button type="button" class="wm-arrow" id="wmPrev" aria-label="Previous step"><i class="fas fa-chevron-left"></i></button>
-                    <div class="wm-dots" id="wmDots"></div>
-                    <button type="button" class="wm-arrow" id="wmNext" aria-label="Next step"><i class="fas fa-chevron-right"></i></button>
+                <div class="wm-shot" id="wmShot1" role="tabpanel" aria-labelledby="wmTab1">
+                    <div class="wm-device">
+                        <div class="wm-frame">
+                            <div class="wm-frame-bar" aria-hidden="true"><span></span><span></span><span></span><b>Your account &rsaquo; Getting started</b></div>
+                            <img data-src="{{ asset('images/tutorial/popup-china-address.webp') }}" alt="Your personal China warehouse address as shown in your Forus Freight account" width="960" height="810" decoding="async">
+                            <div class="wm-lock"><span><i class="fas fa-lock" aria-hidden="true"></i>Unlocks when you sign up</span></div>
+                        </div>
+                        <span class="wm-chip wm-chip--br"><i class="fas fa-location-dot" aria-hidden="true"></i>Foshan, China</span>
+                    </div>
                 </div>
-                <div class="wm-progress"><span id="wmBar"></span></div>
-            </div>
-            <div class="wm-cta">
-                <p>Create an account and <strong>ship your first parcel from China</strong> to Lusaka at unbeatable rates.</p>
-                <div class="wm-btns">
-                    <a href="{{ route('register') }}" class="wm-btn-ca"><i class="fas fa-user-plus"></i> Create Free Account</a>
-                    <a href="{{ route('login') }}" class="wm-btn-lo">I have an account</a>
+                <div class="wm-shot" id="wmShot2" role="tabpanel" aria-labelledby="wmTab2">
+                    <div class="wm-device">
+                        <div class="wm-frame">
+                            <div class="wm-frame-bar" aria-hidden="true"><span></span><span></span><span></span><b>Track shipment</b></div>
+                            <img data-src="{{ asset('images/tutorial/popup-tracking.webp') }}" alt="A shipment timeline: received at China warehouse, consolidated, departed China, in transit to Zambia" width="844" height="980" decoding="async">
+                        </div>
+                        <span class="wm-chip wm-chip--br"><i class="fas fa-envelope" aria-hidden="true"></i>Email at every step</span>
+                    </div>
                 </div>
-                <button type="button" id="wmSkip" class="wm-skip">Maybe later — keep browsing</button>
             </div>
         </div>
     </div>
@@ -1214,64 +1888,113 @@
             const KEY = 'forus_welcome_seen';
             try { if (sessionStorage.getItem(KEY)) return; } catch (e) {}
 
-            const slides = Array.from(document.getElementById('wmTrack').children);
-            const dotsWrap = document.getElementById('wmDots');
-            const bar = document.getElementById('wmBar');
-            const prev = document.getElementById('wmPrev');
-            const next = document.getElementById('wmNext');
+            const modal = overlay.querySelector('.wm-modal');
+            const tabs = Array.from(overlay.querySelectorAll('.wm-step'));
+            const shots = Array.from(overlay.querySelectorAll('.wm-shot'));
             const closeBtn = document.getElementById('wmClose');
             const skipBtn = document.getElementById('wmSkip');
-            const DUR = 6000;
-            let idx = 0, timer = null;
-
-            const dots = slides.map((_, i) => {
-                const d = document.createElement('button');
-                d.type = 'button';
-                d.className = 'wm-dot' + (i === 0 ? ' active' : '');
-                d.setAttribute('aria-label', 'Step ' + (i + 1));
-                d.addEventListener('click', () => go(i));
-                dotsWrap.appendChild(d);
-                return d;
-            });
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const DUR = 5500;
+            let idx = 0, timer = null, paused = false, lastFocus = null;
 
             function paint() {
-                slides.forEach((s, i) => s.classList.toggle('active', i === idx));
-                dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-                bar.style.transition = 'none';
-                bar.style.width = '0%';
-                requestAnimationFrame(() => requestAnimationFrame(() => {
-                    bar.style.transition = 'width ' + DUR + 'ms linear';
-                    bar.style.width = '100%';
-                }));
+                tabs.forEach((t, i) => {
+                    const on = i === idx;
+                    t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    t.tabIndex = on ? 0 : -1;
+                    const bar = t.querySelector('.wm-step-bar');
+                    bar.style.transition = 'none';
+                    bar.style.width = '0%';
+                    if (on && !paused && !reduceMotion.matches) {
+                        requestAnimationFrame(() => requestAnimationFrame(() => {
+                            bar.style.transition = 'width ' + DUR + 'ms linear';
+                            bar.style.width = '100%';
+                        }));
+                    }
+                });
+                shots.forEach((s, i) => s.classList.toggle('is-active', i === idx));
             }
-            function go(i) { idx = (i + slides.length) % slides.length; paint(); restart(); }
-            function restart() { clearInterval(timer); timer = setInterval(() => go(idx + 1), DUR); }
+            function go(i) { idx = (i + tabs.length) % tabs.length; paint(); restart(); }
+            function restart() {
+                clearInterval(timer);
+                if (paused || reduceMotion.matches) return;
+                timer = setInterval(() => go(idx + 1), DUR);
+            }
+            function setPaused(p) { paused = p; paint(); restart(); }
+
+            tabs.forEach((t, i) => {
+                t.addEventListener('click', () => go(i));
+                t.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); go(i + 1); tabs[idx].focus(); }
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(i - 1); tabs[idx].focus(); }
+                });
+            });
+            // Hold the current step while the visitor is reading or interacting
+            modal.addEventListener('mouseenter', () => setPaused(true));
+            modal.addEventListener('mouseleave', () => setPaused(false));
+            modal.addEventListener('focusin', () => { if (!paused) setPaused(true); });
 
             function show() {
+                // Screenshots are only downloaded once the popup is actually shown
+                overlay.querySelectorAll('img[data-src]').forEach(img => {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                });
+                lastFocus = document.activeElement;
                 overlay.hidden = false;
                 paint(); restart();
                 document.body.style.overflow = 'hidden';
+                closeBtn.focus();
             }
             function hide() {
+                if (overlay.hidden) return;
                 clearInterval(timer); overlay.hidden = true;
                 document.body.style.overflow = '';
                 try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+                if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
             }
 
-            prev.addEventListener('click', () => go(idx - 1));
-            next.addEventListener('click', () => go(idx + 1));
             closeBtn.addEventListener('click', hide);
             skipBtn.addEventListener('click', hide);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) hide(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+            document.addEventListener('keydown', (e) => {
+                if (overlay.hidden) return;
+                if (e.key === 'Escape') { hide(); return; }
+                if (e.key !== 'Tab') return;
+                // Keep keyboard focus inside the dialog while it is open
+                const f = Array.from(modal.querySelectorAll('a[href], button:not([disabled])'))
+                    .filter(el => el.offsetParent !== null && el.tabIndex !== -1);
+                if (!f.length) return;
+                const first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            });
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) clearInterval(timer); else restart();
+                if (document.hidden || overlay.hidden) clearInterval(timer); else restart();
             });
 
-            setTimeout(show, 900);
+            // Let visitors read the page first: open after a delay (10s on the
+            // homepage, 25s elsewhere), or once they've scrolled halfway down,
+            // whichever happens first.
+            let shown = false;
+            function maybeShow() {
+                if (shown) return;
+                shown = true;
+                window.removeEventListener('scroll', onScroll);
+                show();
+            }
+            function onScroll() {
+                const max = document.documentElement.scrollHeight - window.innerHeight;
+                if (max > 0 && window.scrollY / max >= 0.5) maybeShow();
+            }
+            window.addEventListener('scroll', onScroll, { passive: true });
+            setTimeout(maybeShow, {{ request()->routeIs('home') ? 10000 : 25000 }});
+
+            // Handy for previewing the design: add #preview-welcome to any URL
+            if (location.hash === '#preview-welcome') { shown = true; show(); }
         })();
     </script>
-    @endguest
+    @endif
 
     <!-- Scripts -->
     <script>
@@ -1288,6 +2011,24 @@
                 icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
                 mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
                 icon.setAttribute('aria-hidden', 'true');
+            });
+
+            function closeMobileMenu() {
+                mobileMenu.classList.remove('active');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.className = 'fas fa-bars';
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                    closeMobileMenu();
+                    mobileMenuBtn.focus();
+                }
+            });
+
+            mobileMenu.querySelectorAll('a').forEach(function (a) {
+                a.addEventListener('click', closeMobileMenu);
             });
 
             // Close mobile menu when clicking outside
@@ -1310,7 +2051,7 @@
                     const target = document.querySelector(this.getAttribute('href'));
                     if (target) {
                         window.scrollTo({
-                            top: target.offsetTop - 80,
+                            top: target.getBoundingClientRect().top + window.scrollY - (document.querySelector('.navbar')?.offsetHeight || 80),
                             behavior: 'smooth'
                         });
                     }

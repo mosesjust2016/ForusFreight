@@ -42,7 +42,7 @@ class QuoteController extends Controller
         
         try {
             app(BrevoMailService::class)->send(
-                'info@forusfl.co.zm',
+                'info@forusfreight.com',
                 'Forus Freight Quotes',
                 'New Quote Request - ' . $serviceType . ' from ' . $validated['full_name'],
                 $html
@@ -50,7 +50,7 @@ class QuoteController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => 'Quote request submitted successfully! We will contact you within 2 hours.'
+                'message' => 'Quote request submitted successfully! We will contact you soon.'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -66,6 +66,11 @@ class QuoteController extends Controller
     private function getServiceTypeName($type)
     {
         $types = [
+            'road-freight' => 'Road Freight',
+            'air-freight' => 'Air Freight',
+            'sea-freight' => 'Sea Freight',
+            'china-shopping' => 'China Orders to Lusaka',
+            'customs' => 'Customs Clearance',
             'same-day' => 'Same-Day Delivery',
             'cross-border' => 'Cross-Border Shipping',
             'warehousing' => 'Warehousing & Storage',

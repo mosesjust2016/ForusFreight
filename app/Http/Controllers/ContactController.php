@@ -27,7 +27,7 @@ class ContactController extends Controller
 
         try {
             app(BrevoMailService::class)->send(
-                'info@forusfl.co.zm',
+                'info@forusfreight.com',
                 'Forus Freight Contact',
                 'New Contact Form Message from ' . $validated['full_name'],
                 $html
@@ -35,7 +35,7 @@ class ContactController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Thank you for reaching out! Our team will respond within 24 hours.',
+                'message' => 'Thank you for reaching out! Our team will be in touch soon.',
             ]);
         } catch (\Exception $e) {
             return response()->json([

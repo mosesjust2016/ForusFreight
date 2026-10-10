@@ -44,7 +44,7 @@
         "logo": "{{ asset('images/logo-transparent.png') }}",
         "image": "{{ asset('images/logo-transparent.png') }}",
         "telephone": "+260572788685",
-        "email": "info@forusfl.co.zm",
+        "email": "info@forusfreight.com",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "METROLUX PLAZA, Plot No. 401A/8 Kafure Road",
@@ -142,7 +142,7 @@
         }
 
         .logo-icon {
-            width: 0x;
+            width: 0;
             height: 0px;
             background: var(--primary);
             border-radius: 12px;
@@ -771,6 +771,31 @@
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        summary:focus-visible,
+        [tabindex]:focus-visible {
+            outline: 3px solid var(--secondary);
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 
     @yield('styles')
@@ -789,7 +814,7 @@
 
     <div role="region" aria-label="Quick contact actions">
         <!-- WhatsApp Float Button -->
-        <a href="https://wa.me/{{ $footer['whatsapp_number'] ?? '260572788685' }}?text={{ urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services') }}" target="_blank" class="whatsapp-float" aria-label="Chat with Forus Freight on WhatsApp">
+        <a href="https://wa.me/{{ $footer['whatsapp_number'] ?? '260572788685' }}?text={{ urlencode($footer['whatsapp_message'] ?? 'Hi Forus Freight, I need a quote for logistics services') }}" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat with Forus Freight on WhatsApp">
             <i class="fab fa-whatsapp" aria-hidden="true"></i>
         </a>
     </div>
@@ -802,7 +827,7 @@
             for details.
         </p>
         <div style="display:flex; justify-content:flex-end; gap:.75rem;">
-            <button type="button" id="cookieNoticeAccept" style="background:rgb(0,127,127); color:#fff; border:none; border-radius:10px; padding:.6rem 1.25rem; font-weight:700; cursor:pointer;">Got it</button>
+            <button type="button" id="cookieNoticeAccept" style="background:rgb(0,127,127); color:#fff; border:none; border-radius:10px; padding:.75rem 1.5rem; min-height:44px; font-weight:700; cursor:pointer;">Got it</button>
         </div>
     </div>
 

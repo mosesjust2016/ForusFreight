@@ -129,9 +129,9 @@ class CmsAdminController extends Controller
     {
         $defaults = [
             'home' => [
-                'hero_title' => 'Forus Freight',
-                'hero_subtitle' => 'Cross-border logistics made simple',
-                'hero_cta_text' => 'Get a Quote',
+                'hero_title' => 'Freight to and from Zambia, handled end to end',
+                'hero_subtitle' => 'Road, air and sea freight with customs clearance between Zambia, South Africa, China and the UAE — or shop from China and collect in Lusaka.',
+                'hero_cta_text' => 'Get a free freight quote',
                 'hero_cta_link' => '/quote',
                 'hero_image' => '',
                 'features' => [
@@ -177,7 +177,7 @@ class CmsAdminController extends Controller
                 'subtitle' => 'We would love to hear from you',
                 'address' => 'METROLUX PLAZA, Plot No. 401A/8 Kafure Road, Lusaka, Zambia',
                 'phone' => '+260 572 788 685',
-                'email' => 'info@forusfl.co.zm',
+                'email' => 'info@forusfreight.com',
                 'hours' => 'Mon-Fri: 8:00 AM - 5:00 PM',
                 'map_embed' => '',
                 'form_title' => 'Send us a Message',
@@ -229,7 +229,7 @@ class CmsAdminController extends Controller
                     ['number' => '+260 766 193059', 'label' => ''],
                 ],
                 'contact_support_label' => '24/7 Support',
-                'contact_email' => 'info@forusfl.co.zm',
+                'contact_email' => 'info@forusfreight.com',
                 'contact_email_label' => 'Email Us',
                 'contact_address' => 'Forus Freight Ltd METROLUX PLAZA Plot No. 401A/8 Kafure Road',
                 'contact_city' => 'Lusaka, Zambia',

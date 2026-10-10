@@ -1,6 +1,5 @@
 @php
 $type = request()->query('type');
-$responseTime = $type === 'quote' ? '2 hours' : '24 hours';
 @endphp
 @extends('layouts.document')
 
@@ -17,7 +16,7 @@ $responseTime = $type === 'quote' ? '2 hours' : '24 hours';
             </div>
             <h1 style="font-size: 2.5rem; font-weight: 900; color: #1e293b; margin-bottom: 1rem;">Thank You — We've Received Your {{ $type === 'quote' ? 'Quote Request' : 'Message' }}</h1>
             <p style="color: #64748b; font-size: 1.05rem; margin-bottom: 1rem; line-height: 1.7;">
-                A member of the Forus Freight team will review the details you submitted and get back to you within <strong>{{ $responseTime }}</strong>.
+                A member of the Forus Freight team will review the details you submitted and get back to you as soon as possible.
             </p>
             <p style="color: #64748b; font-size: .95rem; margin-bottom: 2.5rem; line-height: 1.7;">
                 In the meantime, feel free to explore our services or track an existing shipment.
