@@ -64,9 +64,10 @@ Route::post('/lp/{slug}/submit', [PublicContentController::class, 'landingPageSu
 // Public exchange rate API
 Route::get('/api/exchange-rate/current', [ExchangeRateController::class, 'currentRate'])->name('api.exchange-rate.current');
 
-// Guest shipment creation (no auth required - creates temporary account)
-Route::get('/shipments/create', [ShipmentController::class, 'create'])->name('shipments.create.guest');
-Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store.guest');
+// The logged-out shipment form could render but never submit (POST required
+// login, losing whatever the visitor typed) and nothing linked to it —
+// send visitors into the working sign-up funnel instead.
+Route::get('/shipments/create', fn () => redirect()->route('register'))->name('shipments.create.guest');
 
 // Protected routes (require authentication + full verification)
 Route::middleware(['auth', 'fully_verified'])->group(function () {

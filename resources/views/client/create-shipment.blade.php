@@ -1,4 +1,4 @@
-@extends(Auth::check() ? 'layouts.dashboard' : 'layouts.guest-shipment')
+@extends('layouts.dashboard')
 
 @section('title', 'New shipment - Forus Freight')
 
@@ -345,26 +345,6 @@
         max-width: 44ch;
     }
 
-    /* Validation errors — the portal shell shows these too, but the guest
-       layout has nowhere to render them. */
-    .ns-alert {
-        display: flex;
-        gap: 0.7rem;
-        margin-top: 1.25rem;
-        padding: 0.9rem 1.1rem;
-        border: 1px solid #fecaca;
-        border-radius: 12px;
-        background: #fef2f2;
-        color: #991b1b;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .ns-alert ul {
-        margin: 0;
-        padding-left: 1.1rem;
-    }
-
     @media (max-width: 640px) {
         .ns-grid { grid-template-columns: 1fr; }
         .ns-card { padding: 1.25rem 1.1rem; }
@@ -396,19 +376,6 @@
 
     <h1>New shipment</h1>
     <p class="ns-sub">Tell us what’s coming — we confirm dates, weight and pricing once your goods reach our warehouse.</p>
-
-    @guest
-        @if($errors->any())
-            <div class="ns-alert" role="alert">
-                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-    @endguest
 
     <form action="{{ route('client.shipments.store') }}" method="POST" enctype="multipart/form-data" id="shipmentForm" data-loading-label="Sending request…">
         @csrf

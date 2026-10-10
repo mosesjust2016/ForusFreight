@@ -11,7 +11,7 @@
         ['label' => 'Home', 'icon' => 'fa-house', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard', 'client.tracking.auto')],
         ['label' => 'Shipments', 'icon' => 'fa-box', 'route' => 'client.shipments', 'active' => request()->routeIs('client.shipments', 'tracking.show', 'client.warehouse.cargo')],
         // Invoices live under Account (and anything due shows on Home) to keep the menu short
-        ['label' => 'Account', 'icon' => 'fa-user', 'route' => 'client.profile', 'active' => request()->routeIs('client.profile*', 'client.security', 'client.settings', 'client.invoices*', 'client.payments*', 'client.help')],
+        ['label' => 'Account', 'icon' => 'fa-user', 'route' => 'client.profile', 'active' => request()->routeIs('client.profile*', 'client.security', 'client.invoices*', 'client.payments*', 'client.help')],
     ];
 @endphp
 <!DOCTYPE html>

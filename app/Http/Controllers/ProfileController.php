@@ -47,7 +47,10 @@ class ProfileController extends Controller
 
     public function settings()
     {
-        return view('client.settings');
+        // The settings page was a stub — its toggles and selects had no
+        // name attributes and no POST route, so nothing ever persisted.
+        // Both URLs (customer and staff) now land on the real account page.
+        return redirect()->route(Auth::user()->isStaff() ? 'admin.profile' : 'client.profile');
     }
 
     public function update(Request $request)

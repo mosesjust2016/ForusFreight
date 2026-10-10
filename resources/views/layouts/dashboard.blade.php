@@ -698,10 +698,6 @@
                     <i class="fas fa-shield-halved"></i>
                     Security
                 </a>
-                <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                    <i class="fas fa-sliders"></i>
-                    Settings
-                </a>
                 <a href="{{ route('admin.help') }}" class="nav-item {{ request()->routeIs('admin.help') ? 'active' : '' }}">
                     <i class="fas fa-circle-question"></i>
                     Help Center
@@ -714,10 +710,6 @@
                 <a href="{{ route('client.security') }}" class="nav-item {{ request()->routeIs('client.security') ? 'active' : '' }}">
                     <i class="fas fa-shield-halved"></i>
                     Security
-                </a>
-                <a href="{{ route('client.settings') }}" class="nav-item {{ request()->routeIs('client.settings') ? 'active' : '' }}">
-                    <i class="fas fa-sliders"></i>
-                    Settings
                 </a>
                 <a href="{{ route('client.help') }}" class="nav-item {{ request()->routeIs('client.help') ? 'active' : '' }}">
                     <i class="fas fa-circle-question"></i>
@@ -775,18 +767,10 @@
                                 <i class="fas fa-user-circle"></i>
                                 My Profile
                             </a>
-                            <a href="{{ route('admin.settings') }}" class="dropdown-item">
-                                <i class="fas fa-sliders"></i>
-                                Account Settings
-                            </a>
                         @else
                             <a href="{{ route('client.profile') }}" class="dropdown-item">
                                 <i class="fas fa-user-circle"></i>
                                 My Profile
-                            </a>
-                            <a href="{{ route('client.settings') }}" class="dropdown-item">
-                                <i class="fas fa-sliders"></i>
-                                Account Settings
                             </a>
                         @endif
                         <div class="dropdown-divider"></div>
