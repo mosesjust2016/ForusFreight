@@ -1,3 +1,7 @@
+{{-- Customers get the simplified client portal shell; staff keep the admin layout below. --}}
+@if (Auth::check() && ! Auth::user()->isStaff())
+@include('layouts.client')
+@else
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -919,3 +923,4 @@
     @livewireScripts
 </body>
 </html>
+@endif

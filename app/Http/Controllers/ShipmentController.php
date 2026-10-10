@@ -13,26 +13,145 @@ use App\Services\SecureImageUploadService;
 class ShipmentController extends Controller
 {
     /**
+     * Countries a shipment can start from / be delivered to, and the cities
+     * we know for each. One source of truth for the create form's dropdowns,
+     * its JavaScript, and the prefill defaults below.
+     */
+    private const ORIGIN_COUNTRIES = ['China', 'Zambia', 'South Africa', 'Zimbabwe', 'Botswana', 'Namibia', 'DRC', 'Tanzania', 'Malawi', 'Mozambique'];
+
+    private const DESTINATION_COUNTRIES = ['Zambia', 'South Africa', 'Zimbabwe', 'Botswana', 'Namibia', 'DRC', 'Tanzania', 'Malawi', 'Mozambique'];
+
+    private const CITIES = [
+        'China' => ['Foshan', 'Guangzhou', 'Shenzhen', 'Shanghai', 'Ningbo', 'Qingdao', 'Xiamen', 'Yiwu'],
+        'Zambia' => ['Lusaka', 'Kitwe', 'Ndola', 'Livingstone', 'Chipata', 'Kabwe', 'Solwezi'],
+        'South Africa' => ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria', 'Port Elizabeth', 'East London'],
+        'Zimbabwe' => ['Harare', 'Bulawayo', 'Mutare', 'Gweru', 'Victoria Falls'],
+        'Botswana' => ['Gaborone', 'Francistown', 'Maun', 'Lobatse'],
+        'Namibia' => ['Windhoek', 'Walvis Bay', 'Swakopmund', 'Luderitz'],
+        'DRC' => ['Lubumbashi', 'Kinshasa', 'Goma', 'Kolwezi'],
+        'Tanzania' => ['Dar es Salaam', 'Arusha', 'Mwanza', 'Dodoma'],
+        'Malawi' => ['Lilongwe', 'Blantyre', 'Mzuzu', 'Zomba'],
+        'Mozambique' => ['Maputo', 'Beira', 'Nampula', 'Tete'],
+    ];
+
+    /**
      * List client shipments
      */
-    public function index()
+    public function index(Request $request)
     {
-        $shipments = Shipment::where('user_id', Auth::id())
+        // Simple "On the way" / "Delivered" filter for the client portal
+        $show = $request->query('show') === 'delivered' ? 'delivered' : 'active';
+        $delivered = Shipment::statusesForCanonical(['DELIVERED']);
+
+        $base = Shipment::where('user_id', Auth::id());
+        $counts = [
+            'active' => (clone $base)->whereNotIn('status', $delivered)->count(),
+            'delivered' => (clone $base)->whereIn('status', $delivered)->count(),
+        ];
+
+        $shipments = $base
+            ->when($show === 'delivered',
+                fn ($q) => $q->whereIn('status', $delivered),
+                fn ($q) => $q->whereNotIn('status', $delivered))
             ->with('trackingEvents')
             ->latest()
-            ->paginate(10);
-        
-        return view('client.shipments', compact('shipments'));
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('client.shipments', compact('shipments', 'show', 'counts'));
     }
 
     /**
      * Show form to create new shipment
+     *
+     * The form is prefilled: customers get their own details and last-used
+     * delivery route, plus sensible defaults for the usual China order.
      */
     public function create()
     {
         $parcelCode = $this->generateParcelCode();
 
-        return view('client.create-shipment', compact('parcelCode'));
+        // Staff opening the client form are creating a shipment for someone
+        // else, so only real customers get their details prefilled.
+        $account = Auth::user();
+        if ($account && $account->isStaff()) {
+            $account = null;
+        }
+
+        return view('client.create-shipment', [
+            'parcelCode' => $parcelCode,
+            'account' => $account,
+            'originCountries' => self::ORIGIN_COUNTRIES,
+            'destinationCountries' => self::DESTINATION_COUNTRIES,
+            'cities' => self::CITIES,
+            'defaults' => $this->shipmentDefaults($account),
+        ]);
+    }
+
+    /**
+     * Defaults for the "bought in China, ship it home" request: goods are
+     * collected at our China warehouse (Foshan) and travel by sea to the
+     * customer's usual delivery city — their last shipment's, or Lusaka.
+     */
+    private function shipmentDefaults(?User $user): array
+    {
+        $defaults = [
+            'origin_country' => 'China',
+            'origin_city' => 'Foshan',
+            'destination_country' => 'Zambia',
+            'destination_city' => 'Lusaka',
+            'shipping_method' => 'SEA',
+            'no_of_parcels' => 1,
+        ];
+
+        if (! $user) {
+            return $defaults;
+        }
+
+        $lastDestination = Shipment::where('user_id', $user->id)->latest('id')->value('destination');
+
+        if (! is_string($lastDestination)) {
+            return $defaults;
+        }
+
+        // Destination has been stored in three shapes over the years:
+        // "Zambia, Lusaka" (what this form writes), "Lusaka, Zambia", and
+        // just "Lusaka". Find the city and country wherever they are.
+        $parts = array_values(array_filter(array_map('trim', explode(',', $lastDestination, 2)), function ($part) {
+            return $part !== '' && strcasecmp($part, 'Other') !== 0;
+        }));
+
+        if (count($parts) === 1) {
+            // City only — the country is whatever list it belongs to.
+            foreach (self::DESTINATION_COUNTRIES as $country) {
+                foreach (self::CITIES[$country] ?? [] as $known) {
+                    if (strcasecmp($parts[0], $known) === 0) {
+                        $defaults['destination_country'] = $country;
+                        $defaults['destination_city'] = $known;
+                        return $defaults;
+                    }
+                }
+            }
+
+            return $defaults;
+        }
+
+        if (count($parts) < 2) { // nothing usable was left after filtering
+            return $defaults;
+        }
+
+        if (in_array($parts[0], self::DESTINATION_COUNTRIES, true)) {
+            [$country, $city] = $parts;
+        } elseif (in_array($parts[1], self::DESTINATION_COUNTRIES, true)) {
+            [$city, $country] = $parts;
+        } else {
+            return $defaults;
+        }
+
+        $defaults['destination_country'] = $country;
+        $defaults['destination_city'] = $city;
+
+        return $defaults;
     }
 
     /**
@@ -201,9 +320,16 @@ class ShipmentController extends Controller
 
     /**
      * Show client invoices
+     *
+     * For customers this is a section of the Account page now; staff still
+     * get the standalone list they use from the admin sidebar.
      */
     public function invoices()
     {
+        if (! Auth::user()->isStaff()) {
+            return redirect()->to(route('client.profile') . '#invoices');
+        }
+
         $invoices = Invoice::whereHas('shipment', function($query) {
             $query->where('user_id', Auth::id());
         })->latest()->paginate(10);

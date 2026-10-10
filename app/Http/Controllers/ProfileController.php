@@ -6,18 +6,42 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Models\Invoice;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        return view('client.profile.index', [
-            'user' => Auth::user(),
+        $user = Auth::user();
+
+        // Staff keep the old profile page; customers get the single Account
+        // page that folds in password, invoices and help (Phase 3).
+        if ($user->isStaff()) {
+            return view('client.profile.index', [
+                'user' => $user,
+            ]);
+        }
+
+        $ownInvoices = fn () => Invoice::whereHas('shipment', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        });
+        $pending = $ownInvoices()->where('status', 'Pending');
+
+        return view('client.account', [
+            'user' => $user,
+            'invoices' => $ownInvoices()->latest()->paginate(10)->withQueryString(),
+            'outstanding' => (clone $pending)->sum('amount'),
+            'outstandingCurrency' => (clone $pending)->value('currency'),
         ]);
     }
 
     public function security()
     {
+        // The old standalone page is now a section of the Account page.
+        if (! Auth::user()->isStaff()) {
+            return redirect()->to(route('client.profile') . '#password');
+        }
+
         return view('client.profile.security');
     }
 
@@ -65,6 +89,11 @@ class ProfileController extends Controller
 
     public function help()
     {
+        // Help is a section of the Account page now (staff keep the old one).
+        if (! Auth::user()->isStaff()) {
+            return redirect()->to(route('client.profile') . '#help');
+        }
+
         return view('client.help');
     }
 

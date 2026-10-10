@@ -1,538 +1,408 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Client Dashboard - Forus Freight')
+@section('title', 'Home - Forus Freight')
+
+@php
+    $user = Auth::user();
+    $firstName = explode(' ', trim($user->name))[0] ?: 'there';
+    $addr = config('forus.forwarding_address');
+    $mark = config('forus.parcel_code_prefix', 'ZMFFL');
+    // What the customer writes as the recipient: shipping mark + their name + phone
+    $recipientLine = trim($mark . ' ' . $user->name . ' ' . ($user->phone ?? ''));
+    $addressText = implode("\n", array_filter([
+        $recipientLine,
+        $addr['name'] ?? null,
+        $addr['line1'] ?? null,
+        $addr['line2'] ?? null,
+        $addr['line3'] ?? null,
+        $addr['country'] ?? null,
+        isset($addr['phone']) ? 'Tel: ' . $addr['phone'] : null,
+    ]));
+    $whatsapp = '260572788685';
+@endphp
 
 @section('styles')
 <style>
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+    .h-greet h1 {
+        font-family: var(--display);
+        font-stretch: 106%;
+        font-weight: 800;
+        font-size: clamp(1.7rem, 3vw, 2.2rem);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
     }
 
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 24px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        display: flex;
-        align-items: center;
+    .h-greet p {
+        margin-top: 0.35rem;
+        color: var(--ink-2);
+    }
+
+    .h-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
         gap: 1.25rem;
-        transition: all 0.3s ease;
-        border: 1px solid #f1f5f9;
+        margin-top: 1.75rem;
+        align-items: start;
     }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    .h-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 1.5rem;
     }
 
-    .stat-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .icon-shipments { background: #e0f2fe; color: #0ea5e9; }
-    .icon-spent { background: #f0fdf4; color: #22c55e; }
-    .icon-pending { background: #fff7ed; color: #f97316; }
-    .icon-total { background: #f5f3ff; color: #8b5cf6; }
-
-    .stat-info p {
-        font-size: 0.85rem;
-        color: #64748b;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-info h3 {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1e293b;
-    }
-
-    .content-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
-    }
-
-    .dashboard-section {
-        background: white;
-        border-radius: 24px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        border: 1px solid #f1f5f9;
-    }
-
-    .section-header {
+    .h-card-head {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .section-header h2 {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #1e293b;
-    }
-
-    .view-all {
-        font-size: 0.85rem;
-        color: #007f7f;
-        font-weight: 700;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    /* Shipments List */
-    .shipment-list {
-        display: flex;
-        flex-direction: column;
+        align-items: baseline;
         gap: 1rem;
-    }
-
-    .shipment-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.25rem;
-        border-radius: 16px;
-        background: #f8fafc;
-        border: 1px solid transparent;
-        transition: all 0.2s;
-    }
-
-    .shipment-item:hover {
-        border-color: #007f7f33;
-        background: white;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-
-    .shipment-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .shipment-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #64748b;
-        font-size: 1.2rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .shipment-details h4 {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 0.2rem;
-    }
-
-    .shipment-details p {
-        font-size: 0.8rem;
-        color: #94a3b8;
-    }
-
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .status-transit { background: #e0f2fe; color: #0369a1; }
-    .status-delivered { background: #f0fdf4; color: #15803d; }
-    .status-pending { background: #fefce8; color: #a16207; }
-
-    /* Payment Cards */
-    .payment-card {
-        padding: 1.25rem;
-        border-radius: 16px;
-        background: #f8fafc;
         margin-bottom: 1rem;
     }
 
-    .payment-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
+    .h-card-head h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
     }
 
-    .payment-amount {
-        font-weight: 800;
-        color: #1e293b;
+    .h-card-head a {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--teal-deep);
+        text-decoration: none;
     }
 
-    .payment-date {
-        font-size: 0.75rem;
-        color: #94a3b8;
+    .h-card-head a:hover { text-decoration: underline; }
+
+    /* China address */
+    .h-address {
+        background: var(--ink);
+        color: #fff;
+        border-color: var(--ink);
+        grid-row: span 2;
     }
 
-    .pay-btn {
-        width: 100%;
-        margin-top: 1rem;
-        padding: 0.75rem;
+    .h-address .h-card-head h2 { color: #fff; }
+
+    .h-address-box {
+        position: relative;
+        margin-top: 0.25rem;
+        padding: 1.1rem 1.15rem;
+        background: #fffdf7;
+        color: var(--ink);
         border-radius: 12px;
-        background: #ff6200;
-        color: white;
-        border: none;
-        font-weight: 700;
+        font-family: var(--mono);
+        font-size: 0.86rem;
+        line-height: 1.6;
+        white-space: pre-line;
+        word-break: break-word;
+    }
+
+    .h-address-box strong {
+        color: #b54400;
+        font-weight: 500;
+    }
+
+    .h-copy {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-height: 40px;
+        padding: 0 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        background: transparent;
+        color: #fff;
+        font: inherit;
         font-size: 0.85rem;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
     }
 
-    .pay-btn:hover {
-        background: #e65800;
-        transform: translateY(-2px);
-    }
+    .h-copy:hover { border-color: #fff; }
+    .h-copy.is-done { background: #0f766e; border-color: #0f766e; }
 
-    /* Tracking Section */
-    .tracking-panel {
-        background: linear-gradient(135deg, #f0f9f9 0%, #e0f2f2 100%);
-        border: 2px solid #007f7f;
-        border-radius: 24px;
-        padding: 2rem;
-        margin-bottom: 2.5rem;
-    }
-
-    .tracking-search {
+    .h-copy-row {
         display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
     }
 
-    .tracking-search input {
-        flex: 1;
-        padding: 1rem 1.25rem;
-        border-radius: 14px;
-        border: 2px solid #007f7f33;
-        font-size: 1rem;
-        font-family: inherit;
-        outline: none;
-        transition: all 0.3s;
+    .h-address-note {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: #b5c4c9;
+        line-height: 1.5;
     }
 
-    .tracking-search input:focus {
-        border-color: #007f7f;
-        box-shadow: 0 0 0 4px rgba(0,127,127,0.1);
+    .h-address-note a { color: #5eead4; font-weight: 600; }
+
+    /* Shipments */
+    .h-list { list-style: none; }
+
+    .h-ship {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.35rem 1rem;
+        align-items: center;
+        padding: 0.9rem 0;
+        border-top: 1px solid var(--line);
+        color: inherit;
+        text-decoration: none;
     }
 
-    .tracking-search button {
-        padding: 1rem 2rem;
-        border-radius: 14px;
-        background: #ff6200;
-        color: white;
-        border: none;
-        font-weight: 700;
+    .h-list li:first-child .h-ship { border-top: none; padding-top: 0; }
+
+    .h-ship:hover .h-ship-ref { color: var(--teal-deep); }
+
+    .h-ship-ref {
+        font-family: var(--mono);
+        font-weight: 500;
+        font-size: 0.92rem;
+    }
+
+    .h-ship-desc {
+        font-size: 0.85rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .h-status {
+        justify-self: end;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: #e6f6f4;
+        color: #005e5e;
+        white-space: nowrap;
+    }
+
+    .h-status.is-done { background: #dcfce7; color: #166534; }
+    .h-status.is-alert { background: #fef3c7; color: #92400e; }
+
+    .h-bar {
+        grid-column: 1 / -1;
+        height: 5px;
+        border-radius: 5px;
+        background: var(--paper-2);
+        overflow: hidden;
+    }
+
+    .h-bar span {
+        display: block;
+        height: 100%;
+        border-radius: 5px;
+        background: linear-gradient(90deg, var(--teal), var(--teal-bright));
+    }
+
+    .h-empty {
+        color: var(--ink-2);
         font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.3s;
+        line-height: 1.55;
+    }
+
+    .h-empty a { color: var(--teal-deep); font-weight: 700; }
+
+    /* To pay */
+    .h-due {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.2rem 1rem;
+        align-items: center;
+        padding: 0.85rem 0;
+        border-top: 1px solid var(--line);
+    }
+
+    .h-list li:first-child .h-due { border-top: none; padding-top: 0; }
+
+    .h-due-amount {
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-align: right;
+    }
+
+    .h-due-meta {
+        font-size: 0.82rem;
+        color: var(--muted);
+    }
+
+    .h-due-ref {
+        font-family: var(--mono);
+        font-size: 0.88rem;
+    }
+
+    .h-pay {
+        grid-column: 1 / -1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 40px;
+        margin-top: 0.5rem;
+        border-radius: 10px;
+        background: var(--paper);
+        border: 1px solid var(--line-strong);
+        color: var(--ink);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .h-pay:hover { border-color: var(--ink); }
+
+    .h-allclear {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-    }
-
-    .tracking-search button:hover {
-        background: #e65800;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255,98,0,0.3);
-    }
-
-    .tracking-timeline {
-        position: relative;
-        padding-left: 2rem;
-    }
-
-    .tracking-timeline::before {
-        content: '';
-        position: absolute;
-        left: 7px;
-        top: 8px;
-        bottom: 8px;
-        width: 2px;
-        background: #cccccc;
-    }
-
-    .timeline-event {
-        position: relative;
-        margin-bottom: 1.75rem;
-    }
-
-    .timeline-event:last-child {
-        margin-bottom: 0;
-    }
-
-    .timeline-dot {
-        position: absolute;
-        left: -26px;
-        top: 2px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #007f7f;
-        border: 3px solid #e0f2f2;
-    }
-
-    .timeline-dot.latest {
-        background: #ff6200;
-        border-color: #fff0e6;
-    }
-
-    .tracking-meta {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .tracking-meta-item p {
-        font-size: 0.8rem;
-        color: #64748b;
-        margin-bottom: 0.25rem;
+        gap: 0.6rem;
+        color: #166534;
         font-weight: 600;
+        font-size: 0.92rem;
     }
 
-    .tracking-meta-item h4 {
-        font-size: 1.1rem;
-        color: #1e293b;
-        font-weight: 700;
-    }
+    /* Tracking lookup result (from the old ?serial_no= links) */
+    .h-track-result { margin-top: 1.5rem; }
 
-    @media (max-width: 1280px) {
-        .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-grid { grid-template-columns: 1fr; }
-        .content-grid { grid-template-columns: 1fr; }
+    @media (max-width: 960px) {
+        .h-grid { grid-template-columns: 1fr; }
+        .h-address { grid-row: auto; }
     }
 </style>
 @endsection
 
 @section('content')
-    <div class="welcome-section">
-        <h1 style="font-size: 2rem; font-weight: 900; color: #1e293b; letter-spacing: -0.5px;">Welcome back, {{ explode(' ', Auth::user()->name)[0] }}! 👋</h1>
-        <p style="color: #64748b; font-weight: 500; margin-top: 0.5rem;">Here's what's happening with your shipments today.</p>
+    <div class="h-greet">
+        <h1>Hi {{ $firstName }}</h1>
+        <p>
+            @if($stats['active_shipments'] > 0)
+                You have {{ $stats['active_shipments'] }} {{ \Illuminate\Support\Str::plural('shipment', $stats['active_shipments']) }} on the way.
+            @else
+                Nothing on the way right now.
+            @endif
+        </p>
     </div>
 
-    <!-- Getting Started Walkthrough Banner -->
-    <div style="margin-bottom: 2rem; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; color: white;">
-        <div style="display: flex; align-items: center; gap: 1.25rem;">
-            <div style="width: 56px; height: 56px; border-radius: 16px; background: rgba(255,98,0,0.15); color: #ffd166; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-            <div>
-                <h3 style="font-weight: 800; font-size: 1.05rem; margin-bottom: 0.4rem;">New to the portal? Take the 5-minute walkthrough</h3>
-                <p style="margin: 0; font-size: 0.85rem; opacity: 0.85;">Learn how to track, create shipments, use the forwarding address, and name your parcel <strong style="color: #ffd166;">ZMFFL</strong> so it arrives in Zambia — not Ghana.</p>
-            </div>
-        </div>
-        <a href="{{ route('client.getting-started') }}" style="text-decoration: none; background: #ff6200; color: white; padding: 0.8rem 1.5rem; border-radius: 14px; font-weight: 800; font-size: 0.9rem; transition: all 0.3s;">
-            Start Walkthrough <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
-        </a>
-    </div>
-
-    <!-- Real-time Tracking Panel -->
-    <div class="tracking-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e293b;"><i class="fas fa-location-crosshairs" style="color: #007f7f; margin-right: 0.5rem;"></i>Real-time Tracking</h2>
-        </div>
-
-        <form method="GET" action="{{ route('dashboard') }}" class="tracking-search">
-            <input type="text" name="serial_no" placeholder="Enter serial number (e.g. RS.26052049)" value="{{ request('serial_no') }}" required>
-            <button type="submit"><i class="fas fa-search"></i> Track Shipment</button>
-        </form>
-
-        @if($trackingError)
-            <div style="padding: 1rem; background: rgba(239,68,68,0.08); border-radius: 12px; border-left: 4px solid #ef4444;">
-                <p style="color: #ef4444; margin: 0; font-weight: 600; font-size: 0.9rem;"><i class="fas fa-circle-exclamation" style="margin-right: 0.5rem;"></i>{{ $trackingError }}</p>
-            </div>
-        @endif
-
-        @if($trackedShipment)
-            <div style="background: white; border-radius: 20px; padding: 2rem; border: 1px solid #e2e8f0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <div>
-                        <p style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.25rem;">Serial Number</p>
-                        <h3 style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $trackedShipment->serial_no }}</h3>
-                    </div>
-                    <span style="padding: 0.5rem 1.25rem; background: #007f7f; color: white; border-radius: 9999px; font-size: 0.875rem; font-weight: 700;">
-                        {{ $trackedShipment->status_label }}
-                    </span>
+    @if($trackedShipment || $trackingError)
+        <div class="h-card h-track-result">
+            @if($trackingError)
+                <p class="h-empty">{{ $trackingError }}</p>
+            @else
+                <div class="h-card-head">
+                    <h2>{{ $trackedShipment->serial_no }}</h2>
+                    <a href="{{ route('tracking.show', $trackedShipment->serial_no) }}">Full details</a>
                 </div>
+                <p class="h-empty">{{ $trackedShipment->status_label }} · {{ $trackedShipment->origin }} → {{ $trackedShipment->destination }}</p>
+            @endif
+        </div>
+    @endif
 
-                <div class="tracking-meta">
-                    <div class="tracking-meta-item">
-                        <p>From</p>
-                        <h4>{{ $trackedShipment->origin }}</h4>
-                    </div>
-                    <div class="tracking-meta-item">
-                        <p>To</p>
-                        <h4>{{ $trackedShipment->destination }}</h4>
-                    </div>
-                    <div class="tracking-meta-item">
-                        <p>Shipped</p>
-                        <h4>{{ $trackedShipment->shipment_date ? $trackedShipment->shipment_date->format('M d, Y') : 'N/A' }}</h4>
-                    </div>
-                    <div class="tracking-meta-item">
-                        <p>Est. Delivery</p>
-                        <h4>{{ $trackedShipment->estimated_delivery ? $trackedShipment->estimated_delivery->format('M d, Y') : 'N/A' }}</h4>
-                    </div>
-                </div>
-
-                @if($trackedShipment->trackingEvents->count() > 0)
-                    <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 1.25rem; font-size: 1rem;">Shipment Timeline</h4>
-                    <div class="tracking-timeline">
-                        @foreach($trackedShipment->trackingEvents as $index => $event)
-                            <div class="timeline-event">
-                                <div class="timeline-dot {{ $index == count($trackedShipment->trackingEvents) - 1 ? 'latest' : '' }}"></div>
-                                <p style="font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; font-size: 0.95rem;">{{ $event->description }}</p>
-                                <p style="color: #64748b; font-size: 0.85rem;">
-                                    {{ $event->location }} • {{ $event->event_time->format('M d, Y • h:i A') }}
-                                </p>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div style="text-align: center; padding: 2rem 0;">
-                        <i class="fas fa-box-open" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
-                        <p style="color: #64748b; font-weight: 600;">No tracking events available yet.</p>
-                    </div>
+    <div class="h-grid">
+        {{-- Your China address: the thing China shoppers need most often --}}
+        <section class="h-card h-address" aria-labelledby="addrTitle">
+            <div class="h-card-head">
+                <h2 id="addrTitle">Your China address</h2>
+            </div>
+            <div class="h-address-box" id="chinaAddress"><strong>{{ $recipientLine }}</strong>
+{{ $addr['name'] ?? '' }}
+{{ $addr['line1'] ?? '' }}
+{{ $addr['line2'] ?? '' }}
+{{ $addr['line3'] ?? '' }}
+{{ $addr['country'] ?? '' }}
+@if(!empty($addr['phone']))Tel: {{ $addr['phone'] }}@endif</div>
+            <div class="h-copy-row">
+                <button type="button" class="h-copy" data-copy="{{ $addressText }}"><i class="far fa-copy" aria-hidden="true"></i> <span>Copy address</span></button>
+                @if(!empty($addr['address_cn']))
+                    <button type="button" class="h-copy" data-copy="{{ $recipientLine . "\n" . $addr['address_cn'] . (isset($addr['phone']) ? "\n" . $addr['phone'] : '') }}"><i class="far fa-copy" aria-hidden="true"></i> <span>Copy in Chinese</span></button>
                 @endif
             </div>
-        @endif
-    </div>
+            <p class="h-address-note">Always include <strong>{{ $mark }}</strong> with your name and phone so we can match parcels to you. <a href="{{ route('client.getting-started') }}">How it works</a></p>
+        </section>
 
-    <div class="dashboard-grid">
-        <div class="stat-card">
-            <div class="stat-icon icon-shipments">
-                <i class="fas fa-truck-fast"></i>
+        {{-- Shipments --}}
+        <section class="h-card" aria-labelledby="shipTitle">
+            <div class="h-card-head">
+                <h2 id="shipTitle">Your shipments</h2>
+                @if($stats['total_shipments'] > 0)
+                    <a href="{{ route('client.shipments') }}">See all ({{ $stats['total_shipments'] }})</a>
+                @endif
             </div>
-            <div class="stat-info">
-                <p>Active Shipments</p>
-                <h3>{{ $stats['active_shipments'] }}</h3>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-spent">
-                <i class="fas fa-wallet"></i>
-            </div>
-            <div class="stat-info">
-                <p>Total Paid</p>
-                <h3>{{ usd($stats['total_spent']) }}</h3>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-pending">
-                <i class="fas fa-file-invoice"></i>
-            </div>
-            <div class="stat-info">
-                <p>Pending Invoices</p>
-                <h3>{{ $stats['pending_invoices'] }}</h3>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-total">
-                <i class="fas fa-boxes-stacked"></i>
-            </div>
-            <div class="stat-info">
-                <p>Total Orders</p>
-                <h3>{{ $stats['total_shipments'] }}</h3>
-            </div>
-        </div>
-    </div>
+            @if($recentShipments->isEmpty())
+                <p class="h-empty">No shipments yet. When your parcels arrive at our China warehouse they’ll appear here — or <a href="{{ route('client.shipments.create') }}">tell us what’s coming</a>.</p>
+            @else
+                <ul class="h-list">
+                    @foreach($recentShipments as $s)
+                        @php
+                            $canon = \App\Models\Shipment::canonicalStatus($s->status);
+                            $tone = $canon === 'DELIVERED' ? 'is-done' : (in_array($canon, ['ON_HOLD', 'EXCEPTION'], true) ? 'is-alert' : '');
+                            $pct = max(0, min(100, (int) $s->delivery_progress_percent));
+                        @endphp
+                        <li>
+                            <a class="h-ship" href="{{ route('tracking.show', $s->serial_no) }}">
+                                <span style="min-width: 0;">
+                                    <span class="h-ship-ref">{{ $s->serial_no }}</span>
+                                    <span class="h-ship-desc" style="display: block;">{{ $s->description ?: ($s->origin . ' → ' . $s->destination) }}</span>
+                                </span>
+                                <span class="h-status {{ $tone }}">{{ $s->status_label }}</span>
+                                <span class="h-bar" aria-hidden="true"><span style="width: {{ $pct }}%;"></span></span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
 
-    <div class="content-grid">
-        <!-- Recent Shipments -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2>Recent Shipments</h2>
-                <a href="{{ route('client.shipments') }}" class="view-all">
-                    View All <i class="fas fa-arrow-right"></i>
-                </a>
+        {{-- To pay --}}
+        <section class="h-card" aria-labelledby="payTitle">
+            <div class="h-card-head">
+                <h2 id="payTitle">To pay</h2>
+                <a href="{{ route('client.invoices') }}">All invoices</a>
             </div>
-
-            <div class="shipment-list">
-                @forelse($recentShipments as $shipment)
-                    <div class="shipment-item">
-                        <div class="shipment-info">
-                            <div class="shipment-avatar">
-                                <i class="fas fa-box"></i>
+            @if($pendingPayments->isEmpty())
+                <p class="h-allclear"><i class="fas fa-circle-check" aria-hidden="true"></i> You’re all paid up.</p>
+            @else
+                <ul class="h-list">
+                    @foreach($pendingPayments as $inv)
+                        <li>
+                            <div class="h-due">
+                                <span>
+                                    <span class="h-due-ref">{{ $inv->invoice_number }}</span>
+                                    <span class="h-due-meta" style="display: block;">
+                                        @if($inv->shipment) {{ $inv->shipment->serial_no }} · @endif
+                                        Due {{ $inv->due_date ? $inv->due_date->format('j M Y') : 'on receipt' }}
+                                    </span>
+                                </span>
+                                <span class="h-due-amount">{{ money($inv->amount, $inv->currency) }}</span>
+                                <a class="h-pay" href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Forus Freight, I would like to pay invoice ' . $inv->invoice_number . '. Please send payment details.') }}" target="_blank" rel="noopener">
+                                    <i class="fab fa-whatsapp" aria-hidden="true"></i> How to pay
+                                </a>
                             </div>
-                            <div class="shipment-details">
-                                <h4>{{ $shipment->serial_no }}</h4>
-                                <p>{{ $shipment->origin }} → {{ $shipment->destination }}</p>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <span class="status-badge {{ in_array(\App\Models\Shipment::canonicalStatus($shipment->status), ['EXCEPTION', 'ON_HOLD']) ? 'status-delivered' : (in_array(\App\Models\Shipment::canonicalStatus($shipment->status), ['CREATED', 'AWAITING_RECEIPT', 'RECEIVED_CN']) ? 'status-pending' : 'status-transit') }}">
-                                {{ $shipment->status_label }}
-                            </span>
-                            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
-                                {{ $shipment->updated_at->diffForHumans() }}
-                            </p>
-                        </div>
-                    </div>
-                @empty
-                    <div style="text-align: center; padding: 3rem 0;">
-                        <i class="fas fa-truck" style="font-size: 3.5rem; color: #cbd5e1; opacity: 0.6; margin-bottom: 1.5rem; display: inline-block;" aria-hidden="true"></i>
-                        <p style="color: #64748b; font-weight: 600;">No shipments found yet.</p>
-                        <a href="{{ route('client.shipments.create') }}" style="color: #007f7f; font-size: 0.9rem; font-weight: 700; text-decoration: none; display: block; margin-top: 1rem;">Start your first shipment →</a>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- Pending Payments -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2>Pending Payments</h2>
-            </div>
-
-            @forelse($pendingPayments as $payment)
-                <div class="payment-card">
-                    <div class="payment-header">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">{{ $payment->invoice_number }}</span>
-                        <span class="payment-amount">{{ usd($payment->amount) }}</span>
-                    </div>
-                    <p style="font-size: 0.85rem; color: #475569; margin: 0.5rem 0;">Shipment: {{ $payment->shipment->serial_no }}</p>
-                    <span class="payment-date">Due: {{ $payment->due_date->format('M d, Y') }}</span>
-                    <button class="pay-btn">Pay Now</button>
-                </div>
-            @empty
-                <div style="text-align: center; padding: 2rem 0;">
-                    <div style="width: 64px; height: 64px; background: #f0fdf4; color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <p style="color: #64748b; font-weight: 600; font-size: 0.9rem;">You're all caught up!</p>
-                    <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 0.5rem;">No pending invoices found.</p>
-                </div>
-            @endforelse
-
-            <!-- Help Support Card -->
-            <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #007f7f 0%, #005f5f 100%); border-radius: 20px; color: white; position: relative; overflow: hidden;">
-                <i class="fas fa-headset" style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1;"></i>
-                <h4 style="font-weight: 800; margin-bottom: 0.5rem;">Need Help?</h4>
-                <p style="font-size: 0.8rem; opacity: 0.9; margin-bottom: 1.25rem;">Our support team is available 24/7 for your logistics needs.</p>
-                <a href="{{ route('client.help') }}" style="display: inline-block; padding: 0.6rem 1.25rem; background: white; color: #007f7f; border-radius: 12px; font-size: 0.8rem; font-weight: 800; text-decoration: none;">Contact Support</a>
-            </div>
-        </div>
+                        </li>
+                    @endforeach
+                </ul>
+                <p class="h-due-meta" style="margin-top: 0.85rem;">We accept bank transfer and mobile money.</p>
+            @endif
+        </section>
     </div>
+
+    <script>
+        // Copy the address to the clipboard, with a short "Copied" confirmation
+        document.querySelectorAll('.h-copy').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+                const label = btn.querySelector('span');
+                const original = label.textContent;
+                try {
+                    await navigator.clipboard.writeText(btn.dataset.copy);
+                    label.textContent = 'Copied';
+                } catch (e) {
+                    label.textContent = 'Press and hold to copy';
+                }
+                btn.classList.add('is-done');
+                setTimeout(function () { label.textContent = original; btn.classList.remove('is-done'); }, 2000);
+            });
+        });
+    </script>
 @endsection
