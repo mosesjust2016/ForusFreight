@@ -18,9 +18,10 @@ The deployment pipeline has been updated to use FTP for the cPanel shared hostin
 | **TerraForm/** | Manual | Git | Infrastructure as Code |
 
 ### FTP Server Details:
-- **FTP Server**: ftp.forusfl.co.zm
-- **FTP Username**: update9240@forusfl.co.zm
+- **FTP Server**: ftp.forusfreight.com
+- **FTP Username**: forusfreight
 - **FTP Port**: 21 (Explicit FTPS)
+- **Updated**: 2026-10-10 — hosting moved to forusfreight.com (old forusfl.co.zm credentials no longer valid)
 - **Target Path**: `/public_html` (web root)
 
 ---
@@ -34,8 +35,8 @@ Add these secrets to your GitHub repository:
 #### For cPanel FTP Deployment (website/ folder):
 | Secret Name | Value | Description |
 |-------------|-------|-------------|
-| `FTP_SERVER` | `ftp.forusfl.co.zm` | FTP server hostname |
-| `FTP_USERNAME` | `update9240@forusfl.co.zm` | FTP username |
+| `FTP_SERVER` | `ftp.forusfreight.com` | FTP server hostname |
+| `FTP_USERNAME` | `forusfreight` | FTP username |
 | `FTP_PASSWORD` | `[your_password]` | FTP password (keep secret!) |
 | `FTP_REMOTE_PATH` | `` (empty) or `/` | Remote path on FTP (relative to FTP home) |
 
@@ -60,8 +61,8 @@ Add these secrets to your GitHub repository:
 Click **"New repository secret"** for each:
 
 ```
-FTP_SERVER = ftp.forusfl.co.zm
-FTP_USERNAME = update9240@forusfl.co.zm
+FTP_SERVER = ftp.forusfreight.com
+FTP_USERNAME = forusfreight
 FTP_PASSWORD = [your_actual_ftp_password]
 FTP_REMOTE_PATH = [leave empty or use /]
 ```
@@ -104,7 +105,7 @@ Check GitHub Actions tab to see deployment progress.
 4. **Manual Post-Deployment** (You do this via SSH):
    ```bash
    # SSH into cPanel server
-   ssh update9240@forusfl.co.zm
+   ssh forusfreight
    
    # Navigate to web root
    cd /public_html
@@ -195,15 +196,15 @@ php artisan view:clear
 
 ### FTP Connection Fails
 
-**Error**: `Connection refused on ftp.forusfl.co.zm:21`
+**Error**: `Connection refused on ftp.forusfreight.com:21`
 
 **Solutions**:
 1. Verify FTP credentials in GitHub secrets
 2. Check FTP is enabled in cPanel (not disabled)
 3. Try connecting locally to verify credentials:
    ```bash
-   ftp ftp.forusfl.co.zm
-   # Login with update9240@forusfl.co.zm
+   ftp ftp.forusfreight.com
+   # Login with forusfreight
    ```
 
 ### Files Not Uploading
@@ -212,7 +213,7 @@ php artisan view:clear
 
 **Solutions**:
 1. Verify `CPANEL_DEPLOY_PATH` is set to `/public_html`
-2. Ensure FTP user (update9240@forusfl.co.zm) has write permissions on `/public_html`
+2. Ensure FTP user (forusfreight) has write permissions on `/public_html`
 3. Check in cPanel file manager that `/public_html` exists and is writable
 4. Verify FTP user home directory maps to root (not a subdirectory)
 
@@ -372,7 +373,7 @@ https://github.com/mosesjust2016/ForusFreight/actions
 
 ### SSH After Deployment
 ```bash
-ssh update9240@forusfl.co.zm
+ssh forusfreight
 cd /public_html/website
 php artisan migrate --force
 php artisan cache:clear
