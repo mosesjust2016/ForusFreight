@@ -108,15 +108,23 @@ jobs:
           cd ..
 
       # ── Upload website folder via FTP ─────────
-      # Only the website/ folder contents go to /public_html
+      # Only the website/ folder contents go to /public_html.
+      # Note: milanmk/actions-file-deployer changed its input interface —
+      # remote-url/local-dir/args are no longer accepted (they were being
+      # ignored, and delta sync failed without full git history). Uses a
+      # full sync: no git history needed, nothing is deleted on the server,
+      # and the composer-built vendor/ ships so code and dependencies match.
       - name: 📡 Upload website to FTP
         uses: milanmk/actions-file-deployer@master
         with:
-          remote-url: ftp://${{ secrets.FTP_SERVER }}/${{ secrets.FTP_REMOTE_PATH }}
+          remote-protocol: ftp
+          remote-host: ${{ secrets.FTP_SERVER }}
+          remote-port: 21
           remote-user: ${{ secrets.FTP_USERNAME }}
           remote-password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./website/
-          args: --delete --parallel=10 --exclude='.env' --exclude='vendor' --exclude='storage/logs' --exclude='node_modules'
+          local-path: ./website/
+          remote-path: ${{ secrets.FTP_REMOTE_PATH || '.' }}
+          sync: full
 
       # ── Run Laravel post-deployment tasks via PHP ─────
       # Note: For FTP deployments, you may need to:
@@ -163,11 +171,14 @@ jobs:
       - name: 📡 Upload to VM via FTP (Ecommerce)
         uses: milanmk/actions-file-deployer@master
         with:
-          remote-url: ftp://${{ secrets.VM_FTP_SERVER }}
+          remote-protocol: ftp
+          remote-host: ${{ secrets.VM_FTP_SERVER }}
+          remote-port: 21
           remote-user: ${{ secrets.VM_FTP_USERNAME }}
           remote-password: ${{ secrets.VM_FTP_PASSWORD }}
-          local-dir: ./Ecommerce/
-          args: --delete --parallel=5
+          local-path: ./Ecommerce/
+          remote-path: ${{ secrets.VM_FTP_REMOTE_PATH || '.' }}
+          sync: full
 
       - name: 🎉 Notify VM deployment success
         if: success()
