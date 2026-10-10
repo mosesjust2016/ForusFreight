@@ -65,6 +65,15 @@ jobs:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
 
+      # The deploy action happily "succeeds" while transferring nothing if
+      # the password is missing — fail loudly instead.
+      - name: 🚫 Require FTP credentials
+        run: |
+          if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "::error::FTP_PASSWORD secret is missing (Settings → Secrets → Actions). The upload would be a silent no-op."
+            exit 1
+          fi
+
       # ── Install dependencies (on runner, not server) ──
       - name: 🐘 Setup PHP 8.2
         uses: shivammathur/setup-php@v2
@@ -115,13 +124,17 @@ jobs:
         run: |
           sudo apt-get install -y lftp >/dev/null 2>&1
           lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" "${{ secrets.FTP_SERVER }}" -e "
+            set ssl:check-certificate no;
+            set net:timeout 20;
             pwd;
-            echo '--- top level ---';
+            echo TOP-LEVEL;
             ls -a;
-            echo '--- public_html? ---';
-            ls -a public_html 2>&1 | head -20;
-            echo '--- markers in home ---';
-            ls -a .deploy-revision website 2>&1 | head -5;
+            echo PUBLIC_HTML;
+            ls public_html;
+            echo WEBSITE-DIR;
+            ls website;
+            echo REVISION;
+            ls .deploy-revision;
             quit"
 
       # Only the website/ folder contents go to /public_html.
@@ -183,6 +196,13 @@ jobs:
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
+
+      - name: 🚫 Require VM FTP credentials
+        run: |
+          if [ -z "${{ secrets.VM_FTP_PASSWORD }}" ]; then
+            echo "::error::VM_FTP_PASSWORD secret is missing (Settings → Secrets → Actions). The upload would be a silent no-op."
+            exit 1
+          fi
 
       - name: 📡 Upload to VM via FTP (Ecommerce)
         uses: milanmk/actions-file-deployer@master
