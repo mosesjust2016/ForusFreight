@@ -155,13 +155,18 @@
                 </td>
                 <td style="text-align: right;">
                     <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-                        <a href="#" class="action-btn btn-view">
-                            <i class="fas fa-file-pdf"></i> PDF
+                        <a href="{{ route('client.invoices.show', $invoice) }}" class="action-btn btn-view">
+                            <i class="fas fa-file-pdf"></i> View
                         </a>
                         @if($invoice->status === 'Pending')
-                        <a href="#" class="action-btn btn-pay">
-                            <i class="fas fa-credit-card"></i> Pay Now
-                        </a>
+                        {{-- Staff confirm bank-transfer proofs here; gateway payments mark themselves paid. --}}
+                        <form method="POST" action="{{ route('client.invoices.mark-paid', $invoice) }}" style="display: inline;"
+                              onsubmit="return confirm('Mark {{ $invoice->invoice_number }} as paid?');">
+                            @csrf
+                            <button type="submit" class="action-btn btn-pay" style="border: none; cursor: pointer; font-family: inherit;">
+                                <i class="fas fa-check"></i> Mark paid
+                            </button>
+                        </form>
                         @endif
                     </div>
                 </td>

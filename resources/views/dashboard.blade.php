@@ -376,9 +376,15 @@
                                     </span>
                                 </span>
                                 <span class="h-due-amount">{{ money($inv->amount, $inv->currency) }}</span>
-                                <a class="h-pay" href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Forus Freight, I would like to pay invoice ' . $inv->invoice_number . '. Please send payment details.') }}" target="_blank" rel="noopener">
-                                    <i class="fab fa-whatsapp" aria-hidden="true"></i> How to pay
-                                </a>
+                                @if($inv->canPayOnline())
+                                    <a class="h-pay" href="{{ route('client.payments.checkout', $inv) }}">
+                                        <i class="fas fa-credit-card" aria-hidden="true"></i> Pay
+                                    </a>
+                                @else
+                                    <a class="h-pay" href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Forus Freight, I would like to pay invoice ' . $inv->invoice_number . '. Please send payment details.') }}" target="_blank" rel="noopener">
+                                        <i class="fab fa-whatsapp" aria-hidden="true"></i> How to pay
+                                    </a>
+                                @endif
                             </div>
                         </li>
                     @endforeach

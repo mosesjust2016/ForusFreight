@@ -1,234 +1,284 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Secure Checkout - Forus Freight')
+@section('title', 'Pay invoice ' . $invoice->invoice_number . ' - Forus Freight')
 
 @section('styles')
 <style>
-    .checkout-grid {
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 3rem;
+    .pc {
+        --ink: #0d1b20;
+        --ink-2: #33444a;
+        --muted: #56666c;
+        --teal: #007f7f;
+        --teal-deep: #005e5e;
+        --orange: #ff6200;
+        --line: rgba(13, 27, 32, 0.12);
+        --line-strong: rgba(13, 27, 32, 0.22);
+        --display: 'Archivo', 'Inter', sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+        max-width: 720px;
     }
 
-    .payment-card {
-        background: white;
-        border-radius: 30px;
-        padding: 3rem;
-        box-shadow: var(--shadow);
-        border: 1px solid #f1f5f9;
+    .pc-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 40px;
+        margin-bottom: 0.75rem;
+        color: var(--ink-2);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
     }
 
-    .payment-method {
+    .pc-back:hover { color: var(--ink); }
+
+    .pc h1 {
+        font-family: var(--display);
+        font-stretch: 106%;
+        font-weight: 800;
+        font-size: clamp(1.7rem, 3vw, 2.2rem);
+        letter-spacing: -0.02em;
+    }
+
+    .pc-sub { margin-top: 0.35rem; color: var(--ink-2); }
+
+    .pc-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 1.5rem;
+        margin-top: 1.25rem;
+    }
+
+    .pc-card h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .pc-summary {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .pc-amount {
+        font-size: 1.9rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+    }
+
+    .pc-meta {
+        font-size: 0.875rem;
+        color: var(--muted);
+        line-height: 1.6;
+        text-align: right;
+    }
+
+    .pc-meta a { color: var(--teal-deep); font-weight: 600; text-decoration: none; }
+    .pc-meta a:hover { text-decoration: underline; }
+    .pc-ref { font-family: var(--mono); }
+
+    .pc-method + .pc-method {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .pc-method-head {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        padding: 1.5rem;
-        border: 2px solid #f1f5f9;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s;
-        margin-bottom: 1.25rem;
-        position: relative;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
     }
 
-    .payment-method:hover {
-        border-color: var(--primary-green);
-        background: var(--primary-green-light);
-    }
-
-    .payment-method.active {
-        border-color: var(--primary-green);
-        background: var(--primary-green-light);
-    }
-
-    .payment-method input[type="radio"] {
-        position: absolute;
-        right: 1.5rem;
-        width: 20px;
-        height: 20px;
-        accent-color: var(--primary-green);
-    }
-
-    .method-icon {
-        width: 60px;
-        height: 60px;
+    .pc-method-icon {
+        width: 42px;
+        height: 42px;
         border-radius: 12px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
+        font-size: 1.05rem;
+        flex-shrink: 0;
+        background: #f1f5f9;
+        color: var(--ink);
     }
 
-    .method-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
+    .pc-method-icon.is-momo { background: #fff7ed; color: #c2410c; }
+    .pc-method-icon.is-card { background: #eef2ff; color: #3730a3; }
 
-    .method-info h4 {
-        font-size: 1rem;
+    .pc-method-head h3 { font-size: 0.98rem; font-weight: 700; }
+    .pc-method-head p { font-size: 0.82rem; color: var(--muted); }
+
+    .pc-field { display: flex; flex-direction: column; gap: 0.45rem; }
+
+    .pc-field label {
+        font-size: 0.72rem;
         font-weight: 800;
-        color: var(--text-dark);
-        margin-bottom: 0.25rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--muted);
     }
 
-    .method-info p {
-        font-size: 0.8rem;
-        color: var(--text-gray);
+    .pc-in {
+        width: 100%;
+        min-height: 46px;
+        padding: 0.7rem 1rem;
+        border: 1.5px solid var(--line-strong);
+        border-radius: 12px;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+        font-size: 0.95rem;
         font-weight: 600;
     }
 
-    .summary-card {
-        background: #1e293b;
-        color: white;
-        border-radius: 30px;
-        padding: 2.5rem;
-        position: sticky;
-        top: 2rem;
-    }
+    .pc-in:focus { outline: none; border-color: var(--teal); }
 
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1.25rem;
-        font-size: 0.9rem;
-        color: #94a3b8;
-    }
-
-    .summary-total {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        display: flex;
-        justify-content: space-between;
+    .pc-btn {
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        min-height: 48px;
+        padding: 0 1.4rem;
+        border: none;
+        border-radius: 12px;
+        background: var(--orange);
+        color: var(--ink);
+        font: inherit;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.15s ease;
+    }
+
+    .pc-btn:hover { background: #ff7a26; }
+
+    .pc-btn.is-outline {
+        background: #fff;
+        border: 1.5px solid var(--line-strong);
+        color: var(--ink);
+    }
+
+    .pc-btn.is-outline:hover { border-color: var(--ink); background: #fff; }
+
+    .pc-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.1rem;
+    }
+
+    .pc-hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.55;
+        margin-top: 0.6rem;
+    }
+
+    .pc-bank {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .pc-bank p { font-size: 0.9rem; color: var(--ink-2); line-height: 1.55; }
+
+    @media (max-width: 640px) {
+        .pc-card { padding: 1.25rem 1.1rem; }
+        .pc-meta { text-align: left; }
+        .pc-btn { width: 100%; }
+        .pc-actions { flex-direction: column; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="welcome-section" style="margin-bottom: 3.5rem;">
-    <div>
-        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;">Secure Payment</h1>
-        <p style="color: var(--text-gray); font-size: 0.9rem;">Complete your transaction using our secure local payment gateways.</p>
-    </div>
-</div>
+@php
+    $due = $invoice->due_date ? $invoice->due_date->format('j M Y') : 'on receipt';
+@endphp
 
-<div class="checkout-grid">
-    <div class="payment-card">
-        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-dark);">Choose Payment Method</h3>
-        
-        <form action="#" method="POST" id="paymentForm">
-            @csrf
-            
-            <!-- Airtel Money -->
-            <label class="payment-method" onclick="selectMethod('airtel')">
-                <div class="method-icon" style="background: #e11900;">
-                    <i class="fas fa-mobile-screen-button" style="color: white; font-size: 1.5rem;"></i>
-                </div>
-                <div class="method-info">
-                    <h4>Airtel Money</h4>
-                    <p>Instant mobile money payment</p>
-                </div>
-                <input type="radio" name="payment_method" value="airtel" required>
-            </label>
+<div class="pc">
+    <a href="{{ route('client.profile') }}#invoices" class="pc-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Invoices</a>
 
-            <!-- MTN Momo -->
-            <label class="payment-method" onclick="selectMethod('mtn')">
-                <div class="method-icon" style="background: #ffcc00;">
-                    <i class="fas fa-mobile-button" style="color: #003399; font-size: 1.5rem;"></i>
-                </div>
-                <div class="method-info">
-                    <h4>MTN MoMo</h4>
-                    <p>Secure mobile wallet transaction</p>
-                </div>
-                <input type="radio" name="payment_method" value="mtn">
-            </label>
+    <h1>Pay invoice</h1>
+    <p class="pc-sub">Choose how you’d like to pay {{ money($invoice->amount, $invoice->currency) }}.</p>
 
-            <!-- Credit Card -->
-            <label class="payment-method" onclick="selectMethod('card')">
-                <div class="method-icon" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <i class="fas fa-credit-card" style="color: #64748b; font-size: 1.5rem;"></i>
-                </div>
-                <div class="method-info">
-                    <h4>Visa / Mastercard</h4>
-                    <p>Debit or Credit Card</p>
-                </div>
-                <input type="radio" name="payment_method" value="card">
-            </label>
+    <section class="pc-card" aria-label="Invoice summary">
+        <div class="pc-summary">
+            <span class="pc-amount">{{ money($invoice->amount, $invoice->currency) }}</span>
+            <span class="pc-meta">
+                <span class="pc-ref">{{ $invoice->invoice_number }}</span><br>
+                @if($invoice->shipment)
+                    Shipment <a href="{{ route('tracking.show', $invoice->shipment->serial_no) }}">{{ $invoice->shipment->serial_no }}</a><br>
+                @endif
+                Due {{ $due }}
+            </span>
+        </div>
+    </section>
 
-            <!-- Bank Transfer -->
-            <label class="payment-method" onclick="selectMethod('bank')">
-                <div class="method-icon" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <i class="fas fa-building-columns" style="color: #64748b; font-size: 1.5rem;"></i>
-                </div>
-                <div class="method-info">
-                    <h4>Bank Transfer</h4>
-                    <p>Manual EFT / Proof of Payment</p>
-                </div>
-                <input type="radio" name="payment_method" value="bank">
-            </label>
-
-            <div style="margin-top: 3rem;">
-                <button type="submit" style="width: 100%; padding: 1.5rem; background: var(--primary-green); color: white; border: none; border-radius: 20px; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 15px 30px rgba(76, 175, 80, 0.3); display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                    PROCEED TO PAY {{ number_format($invoice->amount, 2) }} {{ $invoice->currency }} <i class="fas fa-arrow-right"></i>
-                </button>
+    <section class="pc-card" aria-label="Payment methods">
+        <div class="pc-method">
+            <div class="pc-method-head">
+                <span class="pc-method-icon is-momo" aria-hidden="true"><i class="fas fa-mobile-screen-button"></i></span>
+                <span>
+                    <h3>Mobile money</h3>
+                    <p>MTN, Airtel or Zamtel — approve the prompt on your phone.</p>
+                </span>
             </div>
-        </form>
-    </div>
-
-    <div class="summary-card">
-        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 2rem; color: white;">Order Summary</h3>
-        
-        <div class="summary-item">
-            <span>Invoice Number</span>
-            <span style="color: white; font-weight: 800;">#INV-{{ $invoice->invoice_number }}</span>
+            <form action="{{ route('client.payments.store', $invoice) }}" method="POST">
+                @csrf
+                <input type="hidden" name="method" value="momo">
+                <div class="pc-field">
+                    <label for="pc_phone">Phone number to charge</label>
+                    <input id="pc_phone" type="tel" name="phone" class="pc-in" value="{{ old('phone', Auth::user()->phone ?? '') }}" placeholder="e.g. 260970026344" required>
+                    @error('phone')<span style="color:#b91c1c;font-size:0.78rem;font-weight:700;">{{ $message }}</span>@enderror
+                </div>
+                <div class="pc-actions">
+                    <button type="submit" class="pc-btn" data-loading-label="Sending prompt…">
+                        Send payment prompt <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <p class="pc-hint">You’ll get a prompt on this number — enter your PIN to approve. If it doesn’t arrive, dial <strong>*115#</strong> (MTN).</p>
+            </form>
         </div>
 
-        @if($invoice->shipment)
-        <div class="summary-item">
-            <span>Shipment Reference</span>
-            <span style="color: var(--primary-green); font-weight: 800;">{{ $invoice->shipment->serial_no }}</span>
-        </div>
-        <div class="summary-item">
-            <span>Route</span>
-            <span style="color: white; font-weight: 600;">{{ $invoice->shipment->origin }} → {{ $invoice->shipment->destination }}</span>
-        </div>
-        @endif
-
-        <div class="summary-item">
-            <span>Tax (VAT 16%)</span>
-            <span style="color: white; font-weight: 600;">Included</span>
-        </div>
-
-        <div class="summary-total">
-            <div>
-                <p style="font-size: 0.75rem; color: #94a3b8; font-weight: 800; text-transform: uppercase;">Total Payable</p>
-                <h2 style="font-size: 1.75rem; font-weight: 900; color: white; margin-top: 0.25rem;">{{ number_format($invoice->amount, 2) }} <span style="font-size: 0.9rem; font-weight: 600; opacity: 0.7;">{{ $invoice->currency }}</span></h2>
+        <div class="pc-method">
+            <div class="pc-method-head">
+                <span class="pc-method-icon is-card" aria-hidden="true"><i class="fas fa-credit-card"></i></span>
+                <span>
+                    <h3>Debit or credit card</h3>
+                    <p>Visa, Mastercard or American Express.</p>
+                </span>
             </div>
-            <i class="fas fa-shield-halved" style="font-size: 2rem; color: var(--primary-green); opacity: 0.5;"></i>
+            <form action="{{ route('client.payments.store', $invoice) }}" method="POST">
+                @csrf
+                <input type="hidden" name="method" value="card">
+                <div class="pc-actions">
+                    <button type="submit" class="pc-btn is-outline" data-loading-label="Opening secure page…">
+                        Pay by card <i class="fas fa-lock" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <p class="pc-hint">You’ll be taken to our payment provider’s secure page to enter your card details.</p>
+            </form>
         </div>
+    </section>
 
-        <div style="margin-top: 2.5rem; padding: 1.25rem; background: rgba(255,255,255,0.05); border-radius: 15px; display: flex; gap: 1rem; align-items: center;">
-            <i class="fas fa-lock" style="color: var(--primary-green);"></i>
-            <p style="font-size: 0.75rem; color: #94a3b8; line-height: 1.4;">Your transaction is protected by 256-bit SSL encryption and secure local banking protocols.</p>
+    <section class="pc-card" aria-label="Bank transfer">
+        <div class="pc-bank">
+            <p><strong>Prefer bank transfer?</strong><br>Ask for our details and send proof of payment — we confirm it and mark the invoice paid.</p>
+            <a class="pc-btn is-outline" href="https://wa.me/260572788685?text={{ urlencode('Hi Forus Freight, I would like to pay invoice ' . $invoice->invoice_number . ' by bank transfer. Please send me the payment details.') }}" target="_blank" rel="noopener">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i> How to pay
+            </a>
         </div>
-    </div>
+    </section>
 </div>
-
-<script>
-    function selectMethod(method) {
-        // Remove active class from all
-        document.querySelectorAll('.payment-method').forEach(el => {
-            el.classList.remove('active');
-        });
-        
-        // Add active class to clicked one
-        const el = event.currentTarget;
-        el.classList.add('active');
-        
-        // Check the radio
-        el.querySelector('input[type="radio"]').checked = true;
-    }
-</script>
 @endsection

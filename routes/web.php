@@ -6,6 +6,7 @@ use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\CrmContactController;
 use App\Http\Controllers\CrmSalesController;
@@ -69,6 +70,11 @@ Route::get('/api/exchange-rate/current', [ExchangeRateController::class, 'curren
 // send visitors into the working sign-up funnel instead.
 Route::get('/shipments/create', fn () => redirect()->route('register'))->name('shipments.create.guest');
 
+// Lipila payment callbacks — public by design (verified by HMAC signature).
+Route::post('/webhooks/lipila', [PaymentController::class, 'webhook'])
+    ->middleware('throttle:60,1')
+    ->name('payments.webhook');
+
 // Protected routes (require authentication + full verification)
 Route::middleware(['auth', 'fully_verified'])->group(function () {
     // Dashboard for logged in users
@@ -84,6 +90,15 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::post('/client/shipments', [ShipmentController::class, 'store'])->name('client.shipments.store');
     Route::get('/client/warehouse-cargo', [\App\Http\Controllers\ShipmentController::class, 'warehouseCargo'])->name('client.warehouse.cargo');
     Route::get('/client/invoices', [ShipmentController::class, 'invoices'])->name('client.invoices');
+
+    // Invoice payments (Lipila gateway: mobile money + cards)
+    Route::get('/client/invoices/{invoice}', [PaymentController::class, 'show'])->name('client.invoices.show');
+    Route::get('/client/invoices/{invoice}/pay', [PaymentController::class, 'checkout'])->name('client.payments.checkout');
+    Route::post('/client/invoices/{invoice}/pay', [PaymentController::class, 'pay'])->name('client.payments.store');
+    Route::get('/client/payments/{payment}', [PaymentController::class, 'result'])->name('client.payments.result');
+    Route::get('/client/payments/{payment}/status', [PaymentController::class, 'status'])->name('client.payments.status');
+    Route::post('/client/invoices/{invoice}/mark-paid', [PaymentController::class, 'markPaid'])->name('client.invoices.mark-paid');
+
     Route::get('/client/tracking/auto', [\App\Http\Controllers\DashboardController::class, 'index'])->name('client.tracking.auto');
     
     Route::get('/client/settings', [ProfileController::class, 'settings'])->name('client.settings');

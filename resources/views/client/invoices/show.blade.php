@@ -162,8 +162,8 @@
             <a href="javascript:window.print()" class="btn-action" style="background: #f1f5f9; color: #475569;">
                 <i class="fas fa-print"></i> Print Invoice
             </a>
-            @if($invoice->status === 'pending')
-            <a href="{{ route('client.payments.checkout', $invoice->invoice_number) }}" class="btn-action" style="background: var(--primary-green); color: white;">
+            @if($invoice->status !== 'Paid' && $invoice->canPayOnline())
+            <a href="{{ route('client.payments.checkout', $invoice) }}" class="btn-action" style="background: var(--primary-green); color: white;">
                 <i class="fas fa-credit-card"></i> Pay Now
             </a>
             @endif
@@ -193,8 +193,8 @@
         <div class="meta-grid">
             <div class="meta-box">
                 <h4>Billed To</h4>
-                <p>{{ Auth::user()->name }}</p>
-                <p style="font-weight: 500; font-size: 0.85rem; color: var(--text-gray);">{{ Auth::user()->email }}</p>
+                <p>{{ $invoice->user->name ?? 'Customer' }}</p>
+                <p style="font-weight: 500; font-size: 0.85rem; color: var(--text-gray);">{{ $invoice->user->email ?? '' }}</p>
             </div>
             <div class="meta-box" style="text-align: right;">
                 <h4>Date Details</h4>

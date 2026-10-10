@@ -66,4 +66,17 @@ return [
         'send_delay_ms' => (int) env('NOTIFY_SEND_DELAY_MS', 500),
     ],
 
+    /*
+    | Lipila payment gateway (invoice payments: cards + mobile money).
+    | Defaults to the sandbox API — set LIPILA_BASE_URL=https://blz.lipila.io
+    | together with a live key when going to production.
+    | API key: dashboard → Wallets → API Keys (starts with "Lsk").
+    | Webhook secret: dashboard → Settings → Webhooks (base64, 32 bytes).
+    */
+    'lipila' => [
+        'key'            => env('LIPILA_API_KEY'),
+        'webhook_secret' => env('LIPILA_WEBHOOK_SECRET'),
+        'base_url'       => env('LIPILA_BASE_URL', 'https://api.lipila.dev'),
+    ],
+
 ];

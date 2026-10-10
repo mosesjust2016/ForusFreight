@@ -268,7 +268,11 @@
         font-family: var(--mono);
         font-weight: 500;
         font-size: 0.92rem;
+        color: inherit;
+        text-decoration: none;
     }
+
+    .ac-inv-ref:hover { color: var(--teal-deep); }
 
     .ac-inv-meta {
         display: block;
@@ -340,6 +344,14 @@
     }
 
     .ac-pay:hover { border-color: var(--ink); }
+
+    .ac-pay.is-primary {
+        background: var(--orange);
+        border-color: var(--orange);
+        color: var(--ink);
+    }
+
+    .ac-pay.is-primary:hover { background: #ff7a26; border-color: #ff7a26; }
 
     .ac-empty {
         padding: 2rem 1rem;
@@ -619,7 +631,7 @@
                     <li>
                         <div class="ac-row">
                             <span style="min-width: 0;">
-                                <span class="ac-inv-ref">{{ $invoice->invoice_number }}</span>
+                                <a class="ac-inv-ref" href="{{ route('client.invoices.show', $invoice) }}">{{ $invoice->invoice_number }}</a>
                                 <span class="ac-inv-meta">
                                     @if($invoice->shipment)
                                         <a href="{{ route('tracking.show', $invoice->shipment->serial_no) }}">{{ $invoice->shipment->serial_no }}</a>
@@ -643,9 +655,15 @@
                                     </small>
                                 </span>
                                 @if($invoice->status === 'Pending')
-                                    <a class="ac-pay" href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Forus Freight, I would like to pay invoice ' . $invoice->invoice_number . '. Please send payment details.') }}" target="_blank" rel="noopener">
-                                        <i class="fab fa-whatsapp" aria-hidden="true"></i> How to pay
-                                    </a>
+                                    @if($invoice->canPayOnline())
+                                        <a class="ac-pay is-primary" href="{{ route('client.payments.checkout', $invoice) }}">
+                                            <i class="fas fa-credit-card" aria-hidden="true"></i> Pay
+                                        </a>
+                                    @else
+                                        <a class="ac-pay" href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Forus Freight, I would like to pay invoice ' . $invoice->invoice_number . '. Please send payment details.') }}" target="_blank" rel="noopener">
+                                            <i class="fab fa-whatsapp" aria-hidden="true"></i> How to pay
+                                        </a>
+                                    @endif
                                 @endif
                             </span>
                         </div>

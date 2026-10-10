@@ -39,4 +39,15 @@ class Invoice extends Model
     {
         return $this->belongsTo(Shipment::class);
     }
+
+    /**
+     * Online payment (Lipila) supports ZMW and USD, and only appears once
+     * an API key is configured — otherwise the portal offers the WhatsApp
+     * payment instructions instead.
+     */
+    public function canPayOnline(): bool
+    {
+        return in_array($this->currency, ['USD', 'ZMW'], true)
+            && filled(config('services.lipila.key'));
+    }
 }
