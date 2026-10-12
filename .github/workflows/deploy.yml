@@ -124,22 +124,37 @@ jobs:
           cd ..
 
       # Only the website/ folder contents go to /public_html.
-      # Note: milanmk/actions-file-deployer changed its input interface —
-      # remote-url/local-dir/args are no longer accepted (they were being
-      # ignored, and delta sync failed without full git history). Uses a
-      # full sync: no git history needed, nothing is deleted on the server,
-      # and the composer-built vendor/ ships so code and dependencies match.
+      # Use lftp directly so the transfer has retries, passive mode, parallel
+      # transfers, and a bounded timeout. The previous third-party action
+      # could remain running without reporting progress.
       - name: 📡 Upload website to FTP
-        uses: milanmk/actions-file-deployer@master
-        with:
-          remote-protocol: ftp
-          remote-host: ${{ secrets.FTP_SERVER || '157.20.105.138' }}
-          remote-port: 21
-          remote-user: ${{ secrets.FTP_USERNAME || 'forusfreight' }}
-          remote-password: ${{ secrets.FTP_PASSWORD || secrets.FORUS_FTP_PASSWORD }}
-          local-path: ./website/
-          remote-path: ${{ secrets.FTP_REMOTE_PATH || '.' }}
-          sync: full
+        timeout-minutes: 20
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER || '157.20.105.138' }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME || 'forusfreight' }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || secrets.FORUS_FTP_PASSWORD }}
+          FTP_REMOTE_PATH: ${{ secrets.FTP_REMOTE_PATH || '.' }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" "ftp://$FTP_SERVER:21" -e "
+            set ftp:passive-mode true;
+            set ftp:ssl-allow no;
+            set net:timeout 30;
+            set net:max-retries 3;
+            set net:reconnect-interval-base 5;
+            mirror --reverse --continue --parallel=4 --verbose \
+              --exclude-glob .env \
+              --exclude-glob .env.* \
+              --exclude-glob .git/\* \
+              --exclude-glob node_modules/\* \
+              --exclude-glob storage/logs/\* \
+              --exclude-glob storage/framework/cache/\* \
+              --exclude-glob storage/framework/sessions/\* \
+              --exclude-glob storage/framework/views/\* \
+              --exclude-glob database/database.sqlite \
+              ./website/ \"$FTP_REMOTE_PATH\";
+            quit"
 
       # ── Run Laravel post-deployment tasks via PHP ─────
       # Note: For FTP deployments, you may need to:
