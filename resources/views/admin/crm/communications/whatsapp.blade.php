@@ -63,6 +63,9 @@
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.active { display: flex; }
     .modal-content { background: white; border-radius: 20px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .communication-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:1px solid #e2e8f0; }
+    .communication-tabs a { padding:.75rem 1rem; color:#64748b; text-decoration:none; font-weight:800; border-bottom:3px solid transparent; }
+    .communication-tabs a.active { color:#22c55e; border-bottom-color:#22c55e; }
 
     @media (max-width: 900px) {
         div[style*="grid-template-columns: repeat(5, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
@@ -80,6 +83,7 @@
 @endsection
 
 @section('content')
+@include('admin.crm.communications._tabs')
 <div class="welcome-section" style="margin-bottom: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
         <div>

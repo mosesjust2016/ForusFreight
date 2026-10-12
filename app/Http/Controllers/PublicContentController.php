@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\KnowledgeBaseArticle;
 use App\Models\LandingPage;
+use App\Models\LandingPageVisit;
+use Illuminate\Support\Str;
 
 class PublicContentController extends Controller
 {
@@ -81,7 +83,31 @@ class PublicContentController extends Controller
             'content' => $request->get('utm_content'),
         ];
 
-        return view('public.lp.page', compact('page', 'utm'));
+        $visit = LandingPageVisit::create([
+            'landing_page_id' => $page->id,
+            'source' => $utm['source'] ?: 'direct',
+            'medium' => $utm['medium'] ?: 'direct',
+            'campaign' => $utm['campaign'],
+            'session_key' => Str::random(40),
+        ]);
+
+        return view('public.lp.page', compact('page', 'utm', 'visit'));
+    }
+
+    public function landingPageEngagement(Request $request, $slug)
+    {
+        $page = LandingPage::where('slug', $slug)->where('status', 'published')->firstOrFail();
+        $validated = $request->validate(['visit_id' => 'required|integer', 'duration_seconds' => 'required|integer|min:0|max:86400', 'bounced' => 'required|boolean', 'event' => 'nullable|in:cta_click']);
+        $visitUpdate = [
+            'duration_seconds' => $validated['duration_seconds'],
+            'bounced' => $validated['bounced'],
+        ];
+        if (($validated['event'] ?? null) === 'cta_click') {
+            $visitUpdate['cta_clicked'] = true;
+            $visitUpdate['cta_type'] = $request->string('cta_type')->limit(40)->toString();
+        }
+        LandingPageVisit::where('id', $validated['visit_id'])->where('landing_page_id', $page->id)->update($visitUpdate);
+        return response()->json(['ok' => true]);
     }
 
     public function landingPageSubmit(Request $request, $slug)
@@ -90,13 +116,12 @@ class PublicContentController extends Controller
             ->where('status', 'published')
             ->firstOrFail();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:50',
-            'message' => 'nullable|string',
-            'consent' => 'required|accepted',
-        ]);
+        $fields = $page->form_fields ?: ['name', 'email', 'phone', 'message'];
+        $rules = ['email' => 'required|email|max:255', 'consent' => 'required|accepted'];
+        foreach (['name' => 'string|max:255', 'phone' => 'string|max:50', 'company' => 'string|max:255', 'service' => 'string|max:255', 'origin' => 'string|max:255', 'destination' => 'string|max:255', 'message' => 'string|max:5000'] as $field => $rule) {
+            $rules[$field] = in_array($field, $fields, true) ? 'required|' . $rule : 'nullable|' . $rule;
+        }
+        $validated = $request->validate($rules);
 
         $page->increment('submissions');
 
@@ -104,7 +129,7 @@ class PublicContentController extends Controller
         \App\Models\User::firstOrCreate(
             ['email' => $validated['email']],
             [
-                'name' => $validated['name'],
+                'name' => $validated['name'] ?? $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'is_admin' => false,
                 'crm_status' => 'lead',

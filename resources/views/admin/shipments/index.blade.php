@@ -129,6 +129,45 @@
         color: white;
     }
 
+    .registry-toolbar { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; }
+    .registry-count { color:var(--text-gray); font-size:.82rem; font-weight:700; }
+    .registry-filter { min-height:44px; background:#fff; }
+    .bulk-delete-button {
+        min-height:44px;
+        border:1px solid #fecaca;
+        border-radius:14px;
+        background:#fff7f7;
+        color:#b42318;
+        padding:.7rem 1rem;
+        font-size:.82rem;
+        font-weight:800;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:.55rem;
+        cursor:pointer;
+        transition:background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+    .bulk-delete-button:not(:disabled):hover { background:#fee4e2; border-color:#fca5a5; color:#991b1b; transform:translateY(-1px); box-shadow:0 8px 18px rgba(180,35,24,.12); }
+    .bulk-delete-button:not(:disabled):focus-visible { outline:3px solid rgba(180,35,24,.2); outline-offset:2px; }
+    .bulk-delete-button:disabled { background:#f8fafc; border-color:#e2e8f0; color:#94a3b8; cursor:not-allowed; opacity:1 !important; box-shadow:none; }
+    .bulk-delete-button .bulk-count-badge { min-width:1.45rem; height:1.45rem; padding:0 .35rem; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; background:#b42318; color:#fff; font-size:.7rem; line-height:1; }
+    .bulk-delete-button:disabled .bulk-count-badge { background:#cbd5e1; }
+    @media (max-width: 900px) {
+        .admin-shipment-grid { padding:1.25rem; border-radius:22px; }
+        .welcome-section > div:first-child { align-items:flex-start !important; flex-direction:column; gap:1rem; }
+        .welcome-section > div:first-child > div:last-child { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; }
+        .welcome-section > div:first-child > div:last-child a,
+        .welcome-section > div:first-child > div:last-child button { justify-content:center; }
+    }
+    @media (max-width: 600px) {
+        .welcome-section { margin-bottom:1.5rem !important; }
+        .welcome-section > div:first-child > div:last-child { grid-template-columns:1fr; }
+        .welcome-section form { display:grid !important; grid-template-columns:1fr; }
+        .welcome-section form > div { max-width:none !important; }
+        .registry-toolbar { align-items:flex-start; flex-direction:column; }
+    }
+
 </style>
 @endsection
 
@@ -151,23 +190,39 @@
             <a href="{{ route('admin.shipments.create') }}" style="background: var(--primary-green); color: white; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-plus"></i> New Shipment
             </a>
-            <button type="button" id="bulk-delete-btn" onclick="submitBulkDelete()" disabled
-                style="background: #fef2f2; color: #dc2626; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; border: 1px solid #fecaca; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; opacity: 0.5;">
-                <i class="fas fa-trash-can"></i> Delete Selected (<span id="bulk-count">0</span>)
+            <button type="button" id="bulk-delete-btn" class="bulk-delete-button" onclick="submitBulkDelete()" disabled aria-disabled="true" title="Select shipments to enable bulk deletion">
+                <i class="fas fa-trash-can" aria-hidden="true"></i> Delete selected <span class="bulk-count-badge" id="bulk-count" aria-live="polite">0</span>
             </button>
         </div>
     </div>
 
-    <form method="GET" action="{{ route('admin.shipments') }}" style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+    <form method="GET" action="{{ route('admin.shipments') }}" style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <div style="position: relative; flex: 1; max-width: 420px;">
             <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 0.85rem;"></i>
             <input type="text" name="search" value="{{ $search }}" placeholder="Search by tracking number or customer name..."
                 style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border-radius: 15px; border: 1px solid #e2e8f0; font-size: 0.85rem; box-sizing: border-box;">
         </div>
+        <select name="status" class="registry-filter" style="padding: 0.75rem 1rem; border-radius: 15px; border: 1px solid #e2e8f0; font-size: 0.85rem; color: var(--text-dark);">
+            <option value="">All statuses</option>
+            @foreach($statusOptions as $code => $label)
+                <option value="{{ $code }}" @selected($statusFilter === $code)>{{ $label }}</option>
+            @endforeach
+        </select>
+        <select name="shipping_method" class="registry-filter" style="padding: 0.75rem 1rem; border-radius: 15px; border: 1px solid #e2e8f0; font-size: 0.85rem; color: var(--text-dark);">
+            <option value="">All methods</option>
+            @foreach($shippingMethods as $method)
+                <option value="{{ $method }}" @selected($methodFilter === $method)>{{ $method }}</option>
+            @endforeach
+        </select>
+        <select name="per_page" class="registry-filter" style="padding: 0.75rem 1rem; border-radius: 15px; border: 1px solid #e2e8f0; font-size: 0.85rem; color: var(--text-dark);" aria-label="Shipments per page">
+            @foreach([10, 25, 50] as $size)
+                <option value="{{ $size }}" @selected($perPage === $size)>{{ $size }} per page</option>
+            @endforeach
+        </select>
         <button type="submit" style="background: var(--text-dark); color: white; padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; border: none; cursor: pointer;">
             Search
         </button>
-        @if($search !== '')
+        @if($search !== '' || $statusFilter !== '' || $methodFilter !== '')
         <a href="{{ route('admin.shipments') }}" style="background: #f1f5f9; color: var(--text-gray); padding: 0.75rem 1.5rem; border-radius: 15px; font-size: 0.85rem; font-weight: 800; text-decoration: none; display: flex; align-items: center;">
             Clear
         </a>
@@ -176,6 +231,13 @@
 </div>
 
 <div class="admin-shipment-grid">
+    <div class="registry-toolbar">
+        <div class="registry-count">
+            Showing {{ $shipments->firstItem() ?: 0 }}–{{ $shipments->lastItem() ?: 0 }} of {{ $shipments->total() }} matching shipments
+            @if($search !== '') · Search: “{{ $search }}” @endif
+        </div>
+        <span style="font-size:.78rem;color:var(--text-gray);"><i class="fas fa-circle-info"></i> Select rows for bulk actions</span>
+    </div>
     <div class="table-scroll">
     <table class="shipment-table">
         <thead>
@@ -252,6 +314,7 @@
                         <div style="display: flex; gap: 0.5rem; justify-content: center;">
                             <a href="{{ route('admin.shipments.edit', $shipment) }}" class="action-btn" title="Edit Shipment"><i class="fas fa-pen-to-square"></i></a>
                             <a href="{{ route('admin.shipments.edit', $shipment) }}#add-event" class="action-btn" title="Add Tracking Event"><i class="fas fa-location-dot"></i></a>
+                            <a href="{{ route('admin.shipments.delivery-note', $shipment) }}" target="_blank" class="action-btn" title="Release Instruction (PDF)"><i class="fas fa-file-pdf"></i></a>
                             <form method="POST" action="{{ route('admin.shipments.destroy', $shipment) }}" onsubmit="return confirm('Delete this shipment permanently? Tracking events will be removed too.')" style="margin: 0;">
                                 @csrf
                                 @method('DELETE')
@@ -297,8 +360,8 @@
         var checked = document.querySelectorAll('.shipment-check:checked').length;
         countEl.textContent = checked;
         bulkBtn.disabled = checked === 0;
-        bulkBtn.style.opacity = checked === 0 ? '0.5' : '1';
-        bulkBtn.style.cursor = checked === 0 ? 'not-allowed' : 'pointer';
+        bulkBtn.setAttribute('aria-disabled', checked === 0 ? 'true' : 'false');
+        bulkBtn.title = checked === 0 ? 'Select shipments to enable bulk deletion' : 'Delete the selected shipments';
         if (allBox) {
             allBox.checked = items.length > 0 && checked === items.length;
         }

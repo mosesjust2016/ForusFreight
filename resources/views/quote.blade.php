@@ -7,6 +7,23 @@ $whatsappLink = 'https://wa.me/' . ($footer['whatsapp_number'] ?? '260572788685'
 @section('title', 'Get a Free Freight Quote - Forus Freight')
 @section('meta_description', 'Request a free, no-obligation freight quote from Forus Freight: road, air and sea freight, customs clearance, warehousing, bulk cargo and same-day delivery in Lusaka.')
 
+@section('structured_data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => 'Get a Free Freight Quote',
+    'description' => 'Request a freight quote for road, air, sea, customs, warehousing, and delivery services from Forus Freight.',
+    'url' => url('/quote'),
+    'potentialAction' => [
+        '@type' => 'CommunicateAction',
+        'target' => url('/quote'),
+        'name' => 'Request a freight quote',
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+@endsection
+
 @section('styles')
     @include('partials.ui-base-styles')
     <style>

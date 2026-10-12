@@ -12,16 +12,16 @@ class QuoteController extends Controller
     {
         // Validate the request
         $validated = $request->validate([
-            'service_type' => 'required|string',
+            'service_type' => 'required|string|in:road-freight,air-freight,sea-freight,china-shopping,customs,same-day,cross-border,warehousing,bulk-cargo,express,other',
             'full_name' => 'required|string|max:255',
             'company' => 'nullable|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'pickup' => 'required|string',
-            'delivery' => 'required|string',
-            'weight' => 'nullable|numeric',
-            'dimensions' => 'nullable|string',
-            'details' => 'nullable|string'
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:30',
+            'pickup' => 'required|string|max:255',
+            'delivery' => 'required|string|max:255',
+            'weight' => 'nullable|numeric|min:0|max:1000000',
+            'dimensions' => 'nullable|string|max:255',
+            'details' => 'nullable|string|max:5000'
         ]);
         
         $serviceType = $this->getServiceTypeName($validated['service_type']);

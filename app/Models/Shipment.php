@@ -68,6 +68,89 @@ class Shipment extends Model
     }
 
     /**
+     * Return the zero-based position of a normal freight milestone.
+     * Hold and exception are operational states, not milestones.
+     */
+    public static function statusPosition(?string $status): ?int
+    {
+        $code = self::canonicalStatus($status);
+        $milestones = array_values(array_diff(self::statusList(), ['ON_HOLD', 'EXCEPTION']));
+        $position = array_search($code, $milestones, true);
+
+        return $position === false ? null : $position;
+    }
+
+    /**
+     * Validate the only status changes allowed by the freight workflow.
+     * A shipment may repeat its current status, advance exactly one normal
+     * milestone, or enter a hold/exception state. Terminal shipments cannot
+     * be moved again.
+     */
+    public function statusTransitionError(?string $targetStatus): ?string
+    {
+        $current = self::canonicalStatus($this->status);
+        $target = self::canonicalStatus($targetStatus);
+
+        if (!$target) {
+            return 'Choose a valid shipment status.';
+        }
+
+        if ($current === $target) {
+            return null;
+        }
+
+        if ($this->isTerminalStatus()) {
+            return 'A completed or exception shipment cannot be moved to another status.';
+        }
+
+        if (in_array($target, ['ON_HOLD', 'EXCEPTION'], true)) {
+            return null;
+        }
+
+        $currentPosition = self::statusPosition($current);
+        if ($current === 'ON_HOLD') {
+            $currentPosition = $this->latestMilestonePosition();
+        }
+        $targetPosition = self::statusPosition($target);
+
+        if ($currentPosition === null || $targetPosition !== $currentPosition + 1) {
+            return 'Shipment statuses must follow the freight timeline one step at a time.';
+        }
+
+        return null;
+    }
+
+    /**
+     * Statuses the admin may choose next in the normal workflow.
+     */
+    public function nextStatusLabels(): array
+    {
+        $labels = self::statusLabels();
+        $position = self::statusPosition($this->status);
+        if (self::canonicalStatus($this->status) === 'ON_HOLD') {
+            $position = $this->latestMilestonePosition();
+        }
+        $milestones = array_values(array_diff(self::statusList(), ['ON_HOLD', 'EXCEPTION']));
+        $next = $position !== null ? ($milestones[$position + 1] ?? null) : null;
+
+        $current = self::canonicalStatus($this->status);
+
+        return array_filter($labels, fn ($label, $code) => $code === $current || $code === $next || in_array($code, ['ON_HOLD', 'EXCEPTION'], true), ARRAY_FILTER_USE_BOTH);
+    }
+
+    private function latestMilestonePosition(): ?int
+    {
+        $events = $this->relationLoaded('trackingEvents')
+            ? $this->trackingEvents
+            : $this->trackingEvents()->get();
+
+        return $events
+            ->map(fn ($event) => self::statusPosition($event->status))
+            ->filter(fn ($position) => $position !== null)
+            ->max();
+    }
+
+    /**
      * Resolve a stored (possibly legacy) status to its canonical code.
      */
     public static function canonicalStatus(?string $status): ?string

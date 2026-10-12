@@ -3,6 +3,8 @@
 @section('title', 'Add Company - CRM - Forus Freight')
 
 @section('content')
+@include('admin.crm._workspace-nav')
+@include('admin.crm.companies._pacra-verification')
 <div class="welcome-section" style="margin-bottom: 2rem;">
     <a href="{{ route('admin.crm.companies') }}" style="color: var(--text-gray); text-decoration: none; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
         <i class="fas fa-arrow-left"></i> Back to Companies
@@ -11,7 +13,7 @@
     <p style="color: var(--text-gray); font-size: 0.9rem;">Create a new corporate account and assign an agent.</p>
 </div>
 
-<div style="background: white; border-radius: 24px; padding: 2.5rem; box-shadow: var(--shadow); max-width: 800px;">
+<div class="crm-form-card" style="background: white; border-radius: 24px; padding: 2.5rem; box-shadow: var(--shadow);">
     <form action="{{ route('admin.crm.companies.store') }}" method="POST">
         @csrf
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">

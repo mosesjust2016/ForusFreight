@@ -228,9 +228,7 @@
             <div class="form-group">
                 <label>Initial Status</label>
                 <select name="status" required>
-                    @foreach($statuses as $code => $label)
-                        <option value="{{ $code }}" {{ old('status', 'CREATED') === $code ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
+                    <option value="CREATED" selected>{{ $statuses['CREATED'] ?? 'Shipment Created' }}</option>
                 </select>
                 @error('status')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>

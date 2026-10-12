@@ -60,6 +60,10 @@ website/public/build/
 dist/
 build/
 
+# ---- Infrastructure secrets ----
+TerraForm/terraform.tfvars
+TerraForm/*.tfvars
+
 # ---- OS / Editor ----
 .DS_Store
 Thumbs.db

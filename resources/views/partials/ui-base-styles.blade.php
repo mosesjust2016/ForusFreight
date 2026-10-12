@@ -1,8 +1,7 @@
 {{-- Shared design tokens and base components (type, buttons, layout) used by
      the redesigned marketing pages. Wrap page content in .ui-page to use them. --}}
 <style>
-        .home,
-        .ui-page {
+        :root {
             --paper: #f5f4ef;
             --paper-2: #ebe9e2;
             --ink: #0d1b20;
@@ -19,6 +18,10 @@
             --mono: 'IBM Plex Mono', ui-monospace, monospace;
             --radius: 20px;
 
+        }
+
+        .home,
+        .ui-page {
             background: var(--paper);
             color: var(--ink);
             font-family: 'Inter', sans-serif;

@@ -397,6 +397,7 @@
             <dl>
                 <div><dt>Cargo</dt><dd>{{ $shipment->description ?: 'Not specified' }}</dd></div>
                 <div><dt>Current location</dt><dd>{{ $shipment->current_location_display ?: 'Not available yet' }}</dd></div>
+                <div><dt>Next action</dt><dd>{{ $shipment->next_action ?: 'No next action recorded' }}</dd></div>
                 <div><dt>Days in transit</dt><dd>{{ $shipment->days_in_transit !== null ? $shipment->days_in_transit . ' day(s)' : 'Not recorded' }}</dd></div>
             </dl>
             <div class="t-eta">
@@ -428,6 +429,7 @@
                                 @if($i === 0)<span class="t-latest">Latest</span>@endif
                             </p>
                             <p class="t-event-meta">
+                                @if($event->status){{ \App\Models\Shipment::statusLabelFor($event->status) }} &middot; @endif
                                 {{ $event->location }}@if($event->location && $event->event_time) &middot; @endif{{ $event->event_time ? $event->event_time->format('M j, Y · H:i') : '' }}
                             </p>
                         </li>

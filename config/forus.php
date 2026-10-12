@@ -41,6 +41,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Company identity (generated documents)
+    |--------------------------------------------------------------------------
+    | Letterhead for documents we generate: release instructions (and later,
+    | invoices). Kept here so the Zambian entity details live in one place
+    | instead of being hardcoded in each view.
+    */
+    'company' => [
+        'name'         => 'Forus Freight Limited',
+        'address'      => 'METROLUX PLAZA, Plot No. 401A/8 Kafue Road',
+        'city'         => 'Lusaka, Zambia',
+        'phone'        => '+260 572 788 685',
+        'email'        => 'accounts@forusfreight.com',
+        'website'      => 'forusfreight.com',
+        'registration' => 'PACRA Reg No. 120251030444 · TPIN 2003929264',
+    ],
+
+    'warehouse_address' => [
+        'name' => 'Forus Freight Warehouse',
+        'line1' => 'Plot No. F/26/397a, Robert ‘B’ Warehouse ‘A’',
+        'line2' => 'Off Kafue Road, Makeni',
+        'city' => 'Lusaka, Zambia',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Canonical shipment tracking statuses
     |--------------------------------------------------------------------------
     | Single source of truth for shipment status. The key (CODE) is what is

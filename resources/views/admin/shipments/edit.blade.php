@@ -190,9 +190,14 @@
                 &nbsp;&middot;&nbsp; Client: <strong>{{ $shipment->user?->name ?? 'N/A' }}</strong>
             </p>
         </div>
-        <a href="{{ route('admin.shipments') }}" style="background: white; border: 1.5px solid #e2e8f0; color: var(--text-dark); padding: 0.6rem 1.25rem; border-radius: 12px; font-size: 0.85rem; font-weight: 700; text-decoration: none;">
-            <i class="fas fa-arrow-left"></i> Back to Shipments
-        </a>
+        <div style="display: flex; gap: 0.6rem;">
+            <a href="{{ route('admin.shipments.delivery-note', $shipment) }}" download="release-instruction-{{ $shipment->serial_no }}.pdf" style="background: var(--primary-green); border: 1.5px solid var(--primary-green); color: white; padding: 0.6rem 1.25rem; border-radius: 12px; font-size: 0.85rem; font-weight: 700; text-decoration: none;">
+                <i class="fas fa-file-pdf"></i> Download delivery PDF
+            </a>
+            <a href="{{ route('admin.shipments') }}" style="background: white; border: 1.5px solid #e2e8f0; color: var(--text-dark); padding: 0.6rem 1.25rem; border-radius: 12px; font-size: 0.85rem; font-weight: 700; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to Shipments
+            </a>
+        </div>
     </div>
 </div>
 
@@ -217,7 +222,7 @@
                 <label>Status</label>
                 <select name="status">
                         @php $currentCanonical = \App\Models\Shipment::canonicalStatus($shipment->status); @endphp
-                        @foreach($statuses as $code => $label)
+                        @foreach($shipment->nextStatusLabels() as $code => $label)
                             <option value="{{ $code }}" {{ ($currentCanonical ?? $shipment->status) === $code ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
@@ -276,6 +281,24 @@
                 <label>Date of Load</label>
                 <input type="date" name="date_of_load" value="{{ old('date_of_load', $shipment->date_of_load?->format('Y-m-d')) }}">
                 @error('date_of_load')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Delivery Date <span style="font-weight: 600; text-transform: none; color: #94a3b8;">(auto-filled when marked Delivered)</span></label>
+                <input type="date" name="delivery_date" value="{{ old('delivery_date', $shipment->delivery_date?->format('Y-m-d')) }}">
+                @error('delivery_date')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Next Action</label>
+                <input type="text" name="next_action" value="{{ old('next_action', $shipment->next_action) }}" placeholder="e.g. Awaiting customs clearance">
+                @error('next_action')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Proof of Delivery</label>
+                <input type="text" name="proof_of_delivery" value="{{ old('proof_of_delivery', $shipment->proof_of_delivery) }}" placeholder="Photo reference or document link">
+                @error('proof_of_delivery')<span style="color:#ef4444;font-size:0.75rem;">{{ $message }}</span>@enderror
             </div>
 
             <div class="form-group">
@@ -366,7 +389,7 @@
                     <label>Update Shipment Status <span style="font-weight:500;text-transform:none;color:#94a3b8;">(optional — updates the shipment's status)</span></label>
                     <select name="status">
                         <option value="">— Keep current status —</option>
-                        @foreach($statuses as $code => $label)
+                        @foreach($shipment->nextStatusLabels() as $code => $label)
                             <option value="{{ $code }}" {{ old('status') === $code ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>

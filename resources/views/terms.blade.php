@@ -6,6 +6,7 @@ $sections = $page?->sections ?? [];
 
 @section('title', ($page?->title ?? 'Terms & Conditions') . ' - Forus Freight')
 @section('meta_description', 'Terms and Conditions governing the use of Forus Freight Limited\'s freight, customs, and warehousing services in Zambia.')
+@section('body_class', 'legal-page')
 
 @section('styles')
 <style>

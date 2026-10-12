@@ -178,6 +178,7 @@ class BulkShipmentImportController extends Controller
 
         $results = ['success' => 0, 'failed' => 0, 'errors' => []];
         $sequenceByShipment = [];
+        $statusByShipment = [];
 
         foreach ($rows as $rowNum => $row) {
             $rowNum += 2;
@@ -201,6 +202,17 @@ class BulkShipmentImportController extends Controller
                 $results['failed']++;
                 $results['errors'][] = "Row $rowNum: No shipment found with Tracking Number '{$trackingNumber}'";
                 continue;
+            }
+
+            if ($status !== '') {
+                $statusByShipment[$shipment->id] ??= $shipment->status;
+                $candidate = new Shipment(['status' => $statusByShipment[$shipment->id]]);
+                if ($error = $candidate->statusTransitionError($status)) {
+                    $results['failed']++;
+                    $results['errors'][] = "Row $rowNum: {$error}";
+                    continue;
+                }
+                $statusByShipment[$shipment->id] = $status;
             }
 
             $sequenceByShipment[$shipment->id] = ($sequenceByShipment[$shipment->id] ?? 0) + 1;
@@ -338,6 +350,14 @@ class BulkShipmentImportController extends Controller
             $estimatedDelivery = $this->parseDate($get('estimated_delivery'));
             $deliveryDate = $this->parseDate($get('delivery_date'));
             $dateOfLoad = $this->parseDate($get('date_of_load'));
+            $requestedStatus = $get('status') ?: 'CREATED';
+
+            if (!$shipment && $requestedStatus !== 'CREATED') {
+                return ['success' => false, 'error' => "Row $rowNum: New shipments must start at Shipment Created"];
+            }
+            if ($shipment && ($error = $shipment->statusTransitionError($requestedStatus))) {
+                return ['success' => false, 'error' => "Row $rowNum: {$error}"];
+            }
 
             // Auto-generate a serial number only for brand-new shipments that
             // didn't supply one; never overwrite an existing serial number.
@@ -366,7 +386,7 @@ class BulkShipmentImportController extends Controller
                 'current_border' => $get('current_border') ?: null,
                 'destination' => $destination,
                 'shipping_method' => $get('shipping_method') ?: null,
-                'status' => $get('status') ?: 'CREATED',
+                'status' => $requestedStatus,
                 'date_of_load' => $dateOfLoad,
                 'estimated_delivery' => $estimatedDelivery,
                 'delivery_date' => $deliveryDate,

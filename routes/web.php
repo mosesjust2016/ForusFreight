@@ -35,7 +35,9 @@ Route::get('/services', fn() => view('services'))->name('services');
 
 // Quote routes
 Route::get('/quote', fn() => view('quote'))->name('quote');
-Route::post('/quote/submit', [QuoteController::class, 'submit'])->name('quote.submit');
+Route::post('/quote/submit', [QuoteController::class, 'submit'])
+    ->middleware('throttle:10,1')
+    ->name('quote.submit');
 
 // Contact route
 Route::get('/contact', fn() => view('contact'))->name('contact');
@@ -52,6 +54,7 @@ Route::get('/thank-you', fn() => view('thank-you'))->name('thank-you');
 // Tracking routes
 Route::get('/track', [TrackingController::class, 'show'])->name('track');
 Route::get('/tracking', [TrackingController::class, 'show'])->name('tracking');
+Route::get('/delivery-note/verify/{token}', [AdminController::class, 'verifyDeliveryNote'])->name('delivery-notes.verify');
 Route::post('/track/check', [TrackingController::class, 'check'])->middleware('throttle:10,1')->name('track.check');
 
 // Public Knowledge Base
@@ -60,7 +63,12 @@ Route::get('/kb/{slug}', [PublicContentController::class, 'knowledgeBaseArticle'
 
 // Public Landing Pages
 Route::get('/lp/{slug}', [PublicContentController::class, 'landingPage'])->name('public.lp.page');
-Route::post('/lp/{slug}/submit', [PublicContentController::class, 'landingPageSubmit'])->name('public.lp.submit');
+Route::post('/lp/{slug}/engagement', [PublicContentController::class, 'landingPageEngagement'])
+    ->middleware('throttle:60,1')
+    ->name('public.lp.engagement');
+Route::post('/lp/{slug}/submit', [PublicContentController::class, 'landingPageSubmit'])
+    ->middleware('throttle:10,1')
+    ->name('public.lp.submit');
 
 // Public exchange rate API
 Route::get('/api/exchange-rate/current', [ExchangeRateController::class, 'currentRate'])->name('api.exchange-rate.current');
@@ -136,6 +144,7 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
     Route::middleware('permission:admin.shipments.view')->group(function () {
         Route::get('/shipments', [AdminController::class, 'shipments'])->name('admin.shipments');
         Route::get('/shipments/{shipment}/edit', [AdminController::class, 'editShipment'])->name('admin.shipments.edit');
+        Route::get('/shipments/{shipment}/delivery-note', [AdminController::class, 'deliveryNote'])->name('admin.shipments.delivery-note');
         Route::put('/shipments/{shipment}', [AdminController::class, 'updateShipment'])->name('admin.shipments.update');
         Route::post('/shipments/{shipment}/images/remove', [AdminController::class, 'removeShipmentImage'])->name('admin.shipments.images.remove');
         Route::post('/shipments/{shipment}/events', [AdminController::class, 'storeTrackingEvent'])->name('admin.shipments.events.store');
@@ -144,7 +153,7 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
         Route::get('/shipments/{shipment}/events', function (\App\Models\Shipment $shipment) {
             return redirect()->route('admin.shipments.edit', $shipment)->withFragment('add-event');
         });
-        Route::delete('/shipments/{shipment}/events/{event}', fn() => back())->name('admin.shipments.events.destroy');
+        Route::delete('/shipments/{shipment}/events/{event}', [AdminController::class, 'destroyTrackingEvent'])->name('admin.shipments.events.destroy');
     });
 
     // Bulk Shipment Import
@@ -216,6 +225,7 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
     });
     Route::middleware('permission:crm.companies.manage')->group(function () {
         Route::get('/crm/companies/create', [CrmContactController::class, 'createCompany'])->name('admin.crm.companies.create');
+        Route::get('/crm/companies/verify-pacra', [CrmContactController::class, 'verifyPacra'])->name('admin.crm.companies.verify-pacra');
         Route::post('/crm/companies', [CrmContactController::class, 'storeCompany'])->name('admin.crm.companies.store');
         Route::get('/crm/companies/{company}/edit', [CrmContactController::class, 'editCompany'])->name('admin.crm.companies.edit');
         Route::put('/crm/companies/{company}', [CrmContactController::class, 'updateCompany'])->name('admin.crm.companies.update');
@@ -271,7 +281,12 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
     });
     Route::middleware('permission:crm.landing_pages.manage')->group(function () {
         Route::get('/crm/landing-pages', [CrmMarketingController::class, 'landingPages'])->name('admin.crm.landing-pages');
+        Route::get('/crm/landing-pages/create', [CrmMarketingController::class, 'createLandingPage'])->name('admin.crm.landing-pages.create');
+        Route::get('/crm/landing-pages/{page}/edit', [CrmMarketingController::class, 'editLandingPage'])->name('admin.crm.landing-pages.edit');
+        Route::get('/crm/landing-pages/{page}/preview', [CrmMarketingController::class, 'previewLandingPage'])->name('admin.crm.landing-pages.preview');
         Route::post('/crm/landing-pages', [CrmMarketingController::class, 'storeLandingPage'])->name('admin.crm.landing-pages.store');
+        Route::put('/crm/landing-pages/{page}', [CrmMarketingController::class, 'updateLandingPage'])->name('admin.crm.landing-pages.update');
+        Route::delete('/crm/landing-pages/{page}', [CrmMarketingController::class, 'destroyLandingPage'])->name('admin.crm.landing-pages.destroy');
         Route::put('/crm/landing-pages/{page}/status', [CrmMarketingController::class, 'updateLandingPageStatus'])->name('admin.crm.landing-pages.status');
     });
 

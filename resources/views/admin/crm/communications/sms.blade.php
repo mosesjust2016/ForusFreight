@@ -29,6 +29,9 @@
     .results-success { background: #f0fdf4; color: #16a34a; }
     .results-warning { background: #fff8e1; color: #f59e0b; }
     .results-error { background: #fef2f2; color: #ef4444; }
+    .communication-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:1px solid #e2e8f0; }
+    .communication-tabs a { padding:.75rem 1rem; color:#64748b; text-decoration:none; font-weight:800; border-bottom:3px solid transparent; }
+    .communication-tabs a.active { color:var(--primary-green); border-bottom-color:var(--primary-green); }
 
     @media (max-width: 900px) {
         div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
@@ -41,11 +44,12 @@
 @endsection
 
 @section('content')
+@include('admin.crm.communications._tabs')
 <div class="welcome-section" style="margin-bottom: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
         <div>
             <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;">Bulk SMS</h1>
-            <p style="color: var(--text-gray); font-size: 0.9rem;">Send personalized SMS campaigns to contacts and leads via Molo Marketing Cloud.</p>
+            <p style="color: var(--text-gray); font-size: 0.9rem;">Send personalized SMS campaigns to contacts and leads.</p>
         </div>
         <a href="{{ route('admin.crm.communications.whatsapp') }}" class="btn-secondary"><i class="fab fa-whatsapp"></i> Switch to WhatsApp</a>
     </div>

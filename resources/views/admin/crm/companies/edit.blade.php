@@ -3,6 +3,8 @@
 @section('title', 'Edit ' . $company->name . ' - CRM - Forus Freight')
 
 @section('content')
+@include('admin.crm._workspace-nav')
+@include('admin.crm.companies._pacra-verification')
 <div class="welcome-section" style="margin-bottom: 2rem;">
     <a href="{{ route('admin.crm.companies.show', $company) }}" style="color: var(--text-gray); text-decoration: none; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
         <i class="fas fa-arrow-left"></i> Back to Company

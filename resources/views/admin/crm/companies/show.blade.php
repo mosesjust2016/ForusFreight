@@ -17,6 +17,7 @@
 @endsection
 
 @section('content')
+@include('admin.crm._workspace-nav')
 <div style="margin-bottom: 2rem;">
     <a href="{{ route('admin.crm.companies') }}" style="color: var(--text-gray); text-decoration: none; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
         <i class="fas fa-arrow-left"></i> Back to Companies

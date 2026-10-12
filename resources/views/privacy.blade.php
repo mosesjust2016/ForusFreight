@@ -6,6 +6,7 @@ $sections = $page?->sections ?? [];
 
 @section('title', ($page?->title ?? 'Privacy Policy') . ' - Forus Freight')
 @section('meta_description', 'How Forus Freight Limited collects, uses, and protects your personal data, in accordance with the Data Protection Act No. 3 of 2021 of Zambia.')
+@section('body_class', 'legal-page')
 
 @section('content')
 @include('partials.breadcrumbs', ['crumbs' => [['label' => 'Privacy Policy', 'url' => null]]])

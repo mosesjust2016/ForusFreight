@@ -27,6 +27,7 @@ class Kernel extends ConsoleKernel
         // Keeps the USD conversion used across the app current — see usd()
         // in app/helpers.php.
         $schedule->command('exchange-rate:sync')->dailyAt('07:00');
+        $schedule->command('pacra:import-prospects')->dailyAt('06:30')->withoutOverlapping();
     }
 
     /**

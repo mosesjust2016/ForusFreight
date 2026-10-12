@@ -36,6 +36,51 @@
         <priority>0.6</priority>
     </url>
     <url>
+        <loc>https://forusfreight.com/kb</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url><loc>https://forusfreight.com/kb/how-to-ship-goods-to-zambia</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://forusfreight.com/kb/road-air-or-sea-freight</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://forusfreight.com/kb/customs-clearance-zambia-importers-guide</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://forusfreight.com/kb/how-to-track-forus-freight-shipment</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://forusfreight.com/kb/forus-freight-china-shopping-address</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url>
+        <loc>https://forusfreight.com/lp/test-freight-quote-zambia</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://forusfreight.com/lp/test-lead-generation-template</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://forusfreight.com/lp/freight-quote-demo</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://forusfreight.com/lp/lead-generation-demo</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://forusfreight.com/lp/corporate-logistics-demo</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://forusfreight.com/lp/service-promotion-demo</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://forusfreight.com/lp/tracking-support-demo</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://forusfreight.com/terms</loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>

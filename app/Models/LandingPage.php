@@ -10,9 +10,13 @@ class LandingPage extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'slug', 'content', 'campaign_source', 'campaign_medium',
+        'title', 'slug', 'template', 'content', 'campaign_source', 'campaign_medium',
         'views', 'submissions', 'status',
+        'hero_title', 'hero_text', 'hero_image_url', 'cta_label', 'cta_url',
+        'form_title', 'form_description', 'primary_color', 'accent_color', 'show_form', 'form_fields', 'gallery_images',
     ];
+
+    protected $casts = ['show_form' => 'boolean', 'form_fields' => 'array', 'gallery_images' => 'array'];
 
     public function getConversionRateAttribute(): float
     {

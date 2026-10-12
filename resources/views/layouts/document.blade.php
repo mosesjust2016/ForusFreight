@@ -101,6 +101,12 @@
             line-height: 1.6;
         }
 
+        body.legal-page { background: #f5f4ef; color: #0d1b20; }
+        body.legal-page section[style*="background: #f8fafc"] { background: #f5f4ef !important; }
+        body.legal-page article { border-color: rgba(13,27,32,.12) !important; color: #33444a !important; box-shadow: 0 18px 45px rgba(13,27,32,.07) !important; }
+        body.legal-page article h2, body.legal-page article h3 { color: #005e5e !important; }
+        body.legal-page article p, body.legal-page article li { color: #33444a !important; }
+
         /* Color Variables */
         :root {
             --primary: rgb(0, 127, 127);    /* Teal/Blue */
@@ -800,7 +806,7 @@
 
     @yield('styles')
 </head>
-<body>
+<body class="@yield('body_class')">
 
     <!-- Main Content -->
     <main>

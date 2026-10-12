@@ -6,6 +6,7 @@ $sections = $page?->sections ?? [];
 
 @section('title', ($page?->title ?? 'Cookie Policy') . ' - Forus Freight')
 @section('meta_description', 'What cookies and similar technologies Forus Freight\'s website uses, and why.')
+@section('body_class', 'legal-page')
 
 @section('content')
 @include('partials.breadcrumbs', ['crumbs' => [['label' => 'Cookie Policy', 'url' => null]]])

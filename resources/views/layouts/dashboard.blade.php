@@ -16,19 +16,31 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Archivo:wdth,wght@100..125,500..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
             --sidebar-width: 260px;
-            --bg-body: #f4f7f6;
-            --bg-sidebar: #ffffff;
-            --primary: #007f7f;
-            --primary-green: #4caf50;
-            --primary-green-light: #e8f5e9;
-            --text-dark: #2d3436;
-            --text-gray: #636e72;
+            --paper: #f5f4ef;
+            --paper-2: #ebe9e2;
+            --ink: #0d1b20;
+            --ink-2: #33444a;
+            --muted: #56666c;
+            --teal: #007f7f;
+            --teal-deep: #005e5e;
+            --teal-bright: #2dd4bf;
+            --orange: #ff6200;
+            --orange-hover: #ff7a26;
+            --line: rgba(13, 27, 32, 0.12);
+            --line-strong: rgba(13, 27, 32, 0.22);
+            --bg-body: var(--paper);
+            --bg-sidebar: var(--ink);
+            --primary: var(--orange);
+            --primary-green: var(--orange);
+            --primary-green-light: rgba(255, 98, 0, 0.14);
+            --text-dark: var(--ink);
+            --text-gray: var(--muted);
             --white: #ffffff;
             --shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
@@ -55,7 +67,7 @@
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid rgba(0,0,0,0.05);
+            border-right: 1px solid rgba(255,255,255,0.08);
             z-index: 100;
             overflow-y: auto;
             scrollbar-width: thin;
@@ -112,21 +124,21 @@
             gap: 1rem;
             padding: 0.875rem 1.25rem;
             text-decoration: none;
-            color: var(--text-gray);
+            color: #c4d1d5;
             font-weight: 500;
             border-radius: 12px;
             transition: all 0.3s ease;
         }
 
         .nav-item:hover {
-            background: var(--primary-green-light);
-            color: var(--primary-green);
+            background: rgba(255,255,255,0.06);
+            color: #ffffff;
         }
 
         .nav-item.active {
-            background: var(--primary-green-light);
-            color: var(--primary-green);
-            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.1);
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            box-shadow: none;
         }
 
         .nav-item i {
@@ -213,7 +225,7 @@
             flex-direction: column;
             gap: 0.5rem;
             padding-top: 2rem;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         /* Main Content */
@@ -746,10 +758,6 @@
             </div>
 
             <div class="top-actions">
-                <div style="display: flex; gap: 1rem; color: var(--text-gray); font-size: 1.2rem;">
-                    <i class="far fa-bell" style="cursor: pointer;"></i>
-                </div>
-
                 <div class="user-profile" id="userDropdownTrigger">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=4caf50&color=fff" alt="{{ Auth::user()->name }}">
                     <span>{{ explode(' ', Auth::user()->name)[0] }}</span>

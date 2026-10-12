@@ -104,7 +104,7 @@ class BulkCommunicationsController extends Controller
                 'status' => $ok ? 'sent' : 'failed',
             ]);
 
-            $ok ? $results['sent']++ : ($results['failed']++ && $results['errors'][] = ['phone' => $phone, 'reason' => 'Molo API error.']);
+            $ok ? $results['sent']++ : ($results['failed']++ && $results['errors'][] = ['phone' => $phone, 'reason' => 'Message provider error.']);
         }
 
         $status = $results['failed'] === 0 ? 'success' : ($results['sent'] > 0 ? 'warning' : 'error');

@@ -117,6 +117,37 @@ $services = [
 @section('title', 'Freight Services: Road, Air, Sea, Customs & Warehousing - Forus Freight')
 @section('meta_description', 'Forus Freight services: cross-border road freight, air and sea freight, customs clearance, warehousing in Lusaka, bulk and project cargo, same-day delivery and a free China shopping address.')
 
+@section('structured_data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'ItemList',
+    'name' => 'Forus Freight services',
+    'itemListElement' => collect($services)->values()->map(fn ($service, $index) => [
+        '@type' => 'ListItem',
+        'position' => $index + 1,
+        'name' => $service['title'],
+        'url' => url('/services#'.$service['id']),
+        'item' => [
+            '@type' => 'Service',
+            'name' => $service['title'],
+            'serviceType' => $service['mode'],
+            'description' => $service['summary'],
+            'provider' => [
+                '@type' => 'LocalBusiness',
+                'name' => 'Forus Freight Limited',
+                'url' => url('/'),
+            ],
+            'areaServed' => [
+                '@type' => 'Place',
+                'name' => 'Zambia and the SADC region',
+            ],
+        ],
+    ])->all(),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+@endsection
+
 @section('styles')
     @include('partials.ui-base-styles')
     <style>

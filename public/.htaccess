@@ -30,6 +30,9 @@
 
     RewriteEngine On
 
+    # Legacy static portal mockups are not application routes and must not be public.
+    RewriteRule ^_portal(?:/|$) - [R=404,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

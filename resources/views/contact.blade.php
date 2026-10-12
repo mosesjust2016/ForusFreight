@@ -29,6 +29,29 @@ $addressLines = fn (string $address) => preg_split('/,\s+(?=Off\b|Plot\b)/i', $a
 @section('title', ($page?->title ?? 'Contact Us') . ' - Forus Freight')
 @section('meta_description', 'Contact Forus Freight in Lusaka, Zambia: call, WhatsApp or email our team, or visit our Kafue Road office and Makeni warehouse.')
 
+@section('structured_data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'ContactPage',
+    'name' => 'Contact Forus Freight',
+    'url' => url('/contact'),
+    'mainEntity' => [
+        '@type' => 'LocalBusiness',
+        'name' => 'Forus Freight Limited',
+        'telephone' => $phones->first(),
+        'email' => $email,
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $office,
+            'addressLocality' => 'Lusaka',
+            'addressCountry' => 'ZM',
+        ],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+@endsection
+
 @section('styles')
     @include('partials.ui-base-styles')
     <style>

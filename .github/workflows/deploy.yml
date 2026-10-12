@@ -3,8 +3,15 @@ name: 🚀 Deploy to cPanel via FTP
 on:
   push:
     branches:
-      - main          # trigger on every push to main
-  workflow_dispatch:  # allow manual trigger from GitHub UI
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-ftp-deploy
+  cancel-in-progress: true
 
 jobs:
   # ─────────────────────────────────────────────
@@ -69,8 +76,8 @@ jobs:
       # the password is missing — fail loudly instead.
       - name: 🚫 Require FTP credentials
         run: |
-          if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
-            echo "::error::FTP_PASSWORD secret is missing (Settings → Secrets → Actions). The upload would be a silent no-op."
+          if [ -z "${{ secrets.FTP_PASSWORD || secrets.FORUS_FTP_PASSWORD }}" ]; then
+            echo "::error::Set FTP_PASSWORD (or FORUS_FTP_PASSWORD) in GitHub Actions secrets."
             exit 1
           fi
 
@@ -116,27 +123,6 @@ jobs:
           find . -name '.DS_Store' -delete
           cd ..
 
-      # ── Upload website folder via FTP ─────────
-      # TEMPORARY: show where this FTP account actually lands, so the
-      # remote-path can be corrected (files uploaded fine but the site
-      # didn't change — the FTP home is not the web root).
-      - name: 🔍 Inspect FTP home (temporary)
-        run: |
-          sudo apt-get install -y lftp >/dev/null 2>&1
-          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" "${{ secrets.FTP_SERVER }}" -e "
-            set ssl:check-certificate no;
-            set net:timeout 20;
-            pwd;
-            echo TOP-LEVEL;
-            ls -a;
-            echo PUBLIC_HTML;
-            ls public_html;
-            echo WEBSITE-DIR;
-            ls website;
-            echo REVISION;
-            ls .deploy-revision;
-            quit"
-
       # Only the website/ folder contents go to /public_html.
       # Note: milanmk/actions-file-deployer changed its input interface —
       # remote-url/local-dir/args are no longer accepted (they were being
@@ -147,10 +133,10 @@ jobs:
         uses: milanmk/actions-file-deployer@master
         with:
           remote-protocol: ftp
-          remote-host: ${{ secrets.FTP_SERVER }}
+          remote-host: ${{ secrets.FTP_SERVER || '157.20.105.138' }}
           remote-port: 21
-          remote-user: ${{ secrets.FTP_USERNAME }}
-          remote-password: ${{ secrets.FTP_PASSWORD }}
+          remote-user: ${{ secrets.FTP_USERNAME || 'forusfreight' }}
+          remote-password: ${{ secrets.FTP_PASSWORD || secrets.FORUS_FTP_PASSWORD }}
           local-path: ./website/
           remote-path: ${{ secrets.FTP_REMOTE_PATH || '.' }}
           sync: full
@@ -189,6 +175,7 @@ jobs:
   # ─────────────────────────────────────────────
   deploy-vm:
     name: Deploy Forus Digital to VM
+    if: ${{ vars.DEPLOY_VM == 'true' }}
     runs-on: ubuntu-latest
     needs: build
     environment: production

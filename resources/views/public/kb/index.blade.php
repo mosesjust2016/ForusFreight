@@ -4,25 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help Center - Forus Freight</title>
+    <meta name="description" content="Freight guides from Forus Freight covering shipping to Zambia, road, air and sea freight, customs clearance, tracking, and China shopping.">
+    <link rel="canonical" href="{{ route('public.kb.index') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Forus Freight">
+    <meta property="og:title" content="Freight guides and help center - Forus Freight">
+    <meta property="og:description" content="Practical freight and shipping guidance for customers moving cargo to and from Zambia.">
+    <meta property="og:url" content="{{ route('public.kb.index') }}">
+    <meta property="og:image" content="{{ asset('images/og-default.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo:wdth,wght@100..125,500..800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: #f5f4ef; color: #0d1b20; line-height: 1.6; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
-        header { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 3rem 0; text-align: center; }
-        header h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; }
+        header { background: linear-gradient(135deg, #007f7f 0%, #00a6a6 100%); color: white; padding: 3.5rem 0; text-align: center; }
+        header h1 { font-family:'Archivo','Inter',sans-serif; font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; }
         header p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
         .search-bar { max-width: 600px; margin: -1.5rem auto 3rem; position: relative; z-index: 10; }
         .search-bar input { width: 100%; padding: 1rem 1.5rem; border: none; border-radius: 16px; font-size: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1); outline: none; }
-        .search-bar button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #22c55e; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; cursor: pointer; font-weight: 700; }
+        .search-bar button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff6200; color: #0d1b20; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; cursor: pointer; font-weight: 800; }
         .categories { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
         .category-pill { padding: 0.5rem 1rem; border-radius: 20px; background: white; color: #475569; font-weight: 700; font-size: 0.85rem; text-decoration: none; border: 2px solid #e2e8f0; transition: all 0.2s; }
-        .category-pill:hover, .category-pill.active { background: #22c55e; color: white; border-color: #22c55e; }
+        .category-pill:hover, .category-pill.active { background: #007f7f; color: white; border-color: #007f7f; }
         .articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
         .article-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: all 0.2s; text-decoration: none; color: inherit; display: block; }
-        .article-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: #22c55e; }
-        .article-category { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #22c55e; margin-bottom: 0.5rem; }
-        .article-title { font-weight: 800; font-size: 1.05rem; color: #1e293b; margin-bottom: 0.5rem; }
+        .article-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(13,27,32,0.1); border-color: #007f7f; }
+        .article-category { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #007f7f; margin-bottom: 0.5rem; }
+        .article-title { font-weight: 800; font-size: 1.05rem; color: #0d1b20; margin-bottom: 0.5rem; }
         .article-excerpt { font-size: 0.9rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem; }
         .article-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
         .popular-section { background: white; border-radius: 20px; padding: 2rem; margin-bottom: 3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
@@ -33,13 +44,13 @@
         .popular-rank { width: 32px; height: 32px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: #475569; }
         .popular-title { font-weight: 700; font-size: 0.9rem; color: #1e293b; }
         .popular-views { margin-left: auto; font-size: 0.75rem; color: #94a3b8; font-weight: 700; }
-        footer { background: #1e293b; color: #94a3b8; padding: 2rem 0; text-align: center; font-size: 0.85rem; }
-        footer a { color: #22c55e; text-decoration: none; }
+        footer { background: #007f7f; color: rgba(255,255,255,.8); padding: 2rem 0; text-align: center; font-size: 0.85rem; }
+        footer a { color: #ffb38b; text-decoration: none; }
         .empty-state { text-align: center; padding: 4rem 0; color: #94a3b8; }
         .empty-state i { font-size: 3rem; margin-bottom: 1rem; }
         .pagination { display: flex; justify-content: center; margin-top: 2rem; }
         .pagination a, .pagination span { padding: 0.5rem 1rem; margin: 0 0.25rem; border-radius: 8px; background: white; color: #475569; text-decoration: none; font-weight: 700; }
-        .pagination .active { background: #22c55e; color: white; }
+        .pagination .active { background: #007f7f; color: white; }
     </style>
 </head>
 <body>

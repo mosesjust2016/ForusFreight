@@ -6,6 +6,7 @@ $sections = $page?->sections ?? [];
 
 @section('title', ($page?->title ?? 'Refund Policy') . ' - Forus Freight')
 @section('meta_description', 'Forus Freight\'s refund and cancellation policy, consistent with the Competition and Consumer Protection Act of Zambia.')
+@section('body_class', 'legal-page')
 
 @section('content')
 @include('partials.breadcrumbs', ['crumbs' => [['label' => 'Refund Policy', 'url' => null]]])

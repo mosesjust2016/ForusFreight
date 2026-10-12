@@ -2,6 +2,13 @@
 
 return [
 
+    'pacra' => [
+        'registry_search_url' => env('PACRA_REGISTRY_SEARCH_URL', 'https://xatu.pacra.org.zm:8344/api/v1/Search/registrysearch'),
+        'min_delay_ms' => (int) env('PACRA_MIN_DELAY_MS', 1200),
+        'max_requests_per_run' => (int) env('PACRA_MAX_REQUESTS_PER_RUN', 40),
+        'retry_times' => (int) env('PACRA_RETRY_TIMES', 3),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

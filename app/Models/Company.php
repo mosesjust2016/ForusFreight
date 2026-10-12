@@ -16,10 +16,16 @@ class Company extends Model
         'name', 'industry', 'website', 'email', 'phone', 'address',
         'city', 'country', 'tax_id', 'annual_revenue', 'employee_count',
         'status', 'notes', 'assigned_agent_id',
+        'pacra_entity_number', 'pacra_entity_status', 'pacra_business_nature', 'pacra_verified_at',
+        'pacra_entity_id', 'pacra_registration_date', 'pacra_entity_type', 'pacra_company_type',
+        'pacra_entity_limit', 'pacra_isic_classification', 'pacra_isic_description', 'pacra_record',
     ];
 
     protected $casts = [
         'annual_revenue' => 'decimal:2',
+        'pacra_verified_at' => 'datetime',
+        'pacra_registration_date' => 'date',
+        'pacra_record' => 'array',
     ];
 
     public function contacts(): BelongsToMany

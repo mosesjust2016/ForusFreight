@@ -11,6 +11,7 @@ use App\Services\BrevoMailService;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use App\Models\CommunicationsLog;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -124,6 +125,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function communicationLogs(): HasMany
     {
         return $this->hasMany(CommunicationLog::class);
+    }
+
+    public function messagingLogs(): HasMany
+    {
+        return $this->hasMany(CommunicationsLog::class);
     }
 
     /* ──────────────────────────────────────────────────────────

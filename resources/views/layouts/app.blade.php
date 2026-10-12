@@ -19,6 +19,8 @@
     <!-- Meta Description -->
     <meta name="description" content="@yield('meta_description', 'Forus Freight Limited is a Zambian logistics company providing road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.')">
     <meta name="robots" content="@yield('robots', 'index, follow')">
+    <meta name="theme-color" content="#007f7f">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -27,12 +29,15 @@
     <meta property="og:title" content="@yield('title', 'Forus Freight - Global Logistics Solutions')">
     <meta property="og:description" content="@yield('meta_description', 'Forus Freight Limited is a Zambian logistics company providing road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.')">
     <meta property="og:image" content="@yield('og_image', asset('images/og-default.png'))">
+    <meta property="og:image:alt" content="Forus Freight logistics services">
+    <meta property="og:locale" content="en_ZM">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'Forus Freight - Global Logistics Solutions')">
     <meta name="twitter:description" content="@yield('meta_description', 'Forus Freight Limited is a Zambian logistics company providing road, air, and sea freight, customs brokerage, and warehousing across Zambia and the SADC region.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.png'))">
+    <meta name="twitter:image:alt" content="Forus Freight logistics services">
 
     <!-- Structured Data: Organization / LocalBusiness -->
     <script type="application/ld+json">
@@ -47,7 +52,7 @@
         "email": "info@forusfreight.com",
         "address": {
             "@type": "PostalAddress",
-            "streetAddress": "METROLUX PLAZA, Plot No. 401A/8 Kafure Road",
+            "streetAddress": "METROLUX PLAZA, Plot No. 401A/8 Kafue Road",
             "addressLocality": "Lusaka",
             "addressCountry": "ZM"
         },
@@ -100,6 +105,12 @@
             overflow-x: hidden;
             line-height: 1.6;
         }
+
+        body.legal-page { background: var(--paper); color: var(--ink); }
+        body.legal-page section[style*="background: #f8fafc"] { background: var(--paper) !important; }
+        body.legal-page article { border-color: var(--line) !important; color: var(--ink-2) !important; box-shadow: 0 18px 45px rgba(13,27,32,.07) !important; }
+        body.legal-page article h2, body.legal-page article h3 { color: var(--teal-deep) !important; }
+        body.legal-page article p, body.legal-page article li { color: var(--ink-2) !important; }
 
         /* Color Variables */
         :root {
@@ -1127,7 +1138,7 @@
 
     @yield('styles')
 </head>
-<body class="{{ request()->routeIs('quote') ? '' : 'has-sticky-cta' }}">
+<body class="{{ request()->routeIs('quote') ? '' : 'has-sticky-cta' }} @yield('body_class')">
 
     <a href="#main-content" class="skip-link">Skip to main content</a>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\ContactNote;
@@ -11,6 +12,7 @@ use App\Models\Deal;
 use App\Models\SupportTicket;
 use App\Models\Shipment;
 use App\Models\CommunicationLog;
+use App\Services\PacraCompanyService;
 
 class CrmContactController extends Controller
 {
@@ -43,6 +45,19 @@ class CrmContactController extends Controller
         return view('admin.crm.companies.create', compact('agents'));
     }
 
+    public function verifyPacra(Request $request, PacraCompanyService $pacra)
+    {
+        if ($redirect = $this->checkAdmin()) return $redirect;
+        $validated = $request->validate(['search' => 'required|string|min:2|max:150']);
+
+        try {
+            return response()->json(['results' => $pacra->search($validated['search'])]);
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json(['message' => 'PACRA could not be reached right now.'], 502);
+        }
+    }
+
     public function storeCompany(Request $request)
     {
         if ($redirect = $this->checkAdmin()) return $redirect;
@@ -61,7 +76,11 @@ class CrmContactController extends Controller
             'status' => 'nullable|string',
             'notes' => 'nullable|string',
             'assigned_agent_id' => 'nullable|exists:users,id',
+            'pacra_entity_number' => 'nullable|string|max:100',
+            'pacra_entity_status' => 'nullable|string|max:100',
+            'pacra_business_nature' => 'nullable|string|max:255',
         ]);
+        if (!empty($validated['pacra_entity_number'])) $validated['pacra_verified_at'] = now();
         Company::create($validated);
         return redirect()->route('admin.crm.companies')->with('success', 'Company created successfully.');
     }
@@ -102,7 +121,11 @@ class CrmContactController extends Controller
             'status' => 'nullable|string',
             'notes' => 'nullable|string',
             'assigned_agent_id' => 'nullable|exists:users,id',
+            'pacra_entity_number' => 'nullable|string|max:100',
+            'pacra_entity_status' => 'nullable|string|max:100',
+            'pacra_business_nature' => 'nullable|string|max:255',
         ]);
+        if (!empty($validated['pacra_entity_number'])) $validated['pacra_verified_at'] = now();
         $company->update($validated);
         return redirect()->route('admin.crm.companies')->with('success', 'Company updated successfully.');
     }
@@ -134,7 +157,7 @@ class CrmContactController extends Controller
     {
         if ($redirect = $this->checkAdmin()) return $redirect;
 
-        $user->load(['company', 'companies', 'shipments', 'deals.stage', 'tasks', 'tickets', 'notes.creator', 'communicationLogs']);
+        $user->load(['company', 'companies', 'shipments', 'deals.stage', 'tasks', 'tickets', 'notes.creator', 'communicationLogs', 'messagingLogs']);
 
         $shipments = $user->shipments()->latest()->get();
         $totalSpent = $shipments->sum('cost');
@@ -181,12 +204,27 @@ class CrmContactController extends Controller
         }
 
         foreach ($user->communicationLogs as $log) {
+            $channel = $log->channel ?? $log->type ?? 'message';
+            $direction = $log->direction ?? 'outgoing';
             $timeline->push([
                 'date' => $log->created_at,
                 'type' => 'communication',
-                'icon' => $log->type === 'email' ? 'fa-envelope' : ($log->type === 'sms' ? 'fa-comment-sms' : 'fa-whatsapp'),
-                'color' => $log->type === 'email' ? '#3b82f6' : ($log->type === 'sms' ? '#f59e0b' : '#22c55e'),
-                'title' => ucfirst($log->type) . ' Sent',
+                'icon' => $channel === 'sms' ? 'fa-comment-sms' : ($channel === 'whatsapp' ? 'fa-whatsapp' : 'fa-envelope'),
+                'color' => $channel === 'sms' ? '#ff6200' : ($channel === 'whatsapp' ? '#007f7f' : '#3b82f6'),
+                'title' => ucfirst($channel) . ' ' . ucfirst($direction),
+                'description' => Str::limit($log->message, 80),
+            ]);
+        }
+
+        foreach ($user->messagingLogs as $log) {
+            $channel = $log->channel ?? 'message';
+            $direction = $log->direction ?? 'outgoing';
+            $timeline->push([
+                'date' => $log->created_at,
+                'type' => 'communication',
+                'icon' => $channel === 'sms' ? 'fa-comment-sms' : 'fa-whatsapp',
+                'color' => $channel === 'sms' ? '#ff6200' : '#007f7f',
+                'title' => ucfirst($channel) . ' ' . ucfirst($direction),
                 'description' => Str::limit($log->message, 80),
             ]);
         }

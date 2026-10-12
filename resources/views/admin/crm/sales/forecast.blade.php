@@ -23,6 +23,7 @@
 @endsection
 
 @section('content')
+@include('admin.crm._workspace-nav')
 <div class="welcome-section" style="margin-bottom: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
         <div>

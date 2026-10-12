@@ -103,8 +103,26 @@
     /* Main Grid */
     .dashboard-grid {
         display: grid;
-        grid-template-columns: 1fr 340px;
+        grid-template-columns: 1fr;
         gap: 2rem;
+    }
+
+    /* The admin home is for daily shipment work. Keep secondary shortcuts
+       available in the sidebar without competing with the shipment queue. */
+    .crm-quick-stats,
+    .map-card,
+    .status-list {
+        display: none !important;
+    }
+
+    .stat-chart { display: none; }
+
+    .stats-grid .stat-card:nth-child(3) {
+        display: none;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .recent-shipments {
@@ -316,7 +334,7 @@
     $isSuperAdmin = $authUser->is_admin;
     $canSeeShipments = $authUser->hasPermission('admin.shipments.view');
     $roleLabel = $isSuperAdmin ? 'SYSTEM ADMINISTRATOR' : ($authUser->hasRole('sales') ? 'SALES' : 'ADMIN STAFF');
-    $roleBg = $isSuperAdmin ? 'var(--primary-green)' : ($authUser->hasRole('sales') ? '#2563eb' : '#7c3aed');
+    $roleBg = $isSuperAdmin ? 'var(--orange)' : 'var(--teal-deep)';
 @endphp
 
 <div class="welcome-section">
@@ -332,7 +350,7 @@
 </div>
 
 <!-- CRM Quick Stats -->
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+<div class="crm-quick-stats" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
     @if($authUser->hasPermission('crm.reports.view'))
     <a href="{{ route('admin.crm.reports') }}" style="background: white; border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform 0.2s;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
