@@ -18,3 +18,14 @@ The workflow already uses these supplied defaults:
 Optional overrides are supported with `FTP_SERVER` and `FTP_USERNAME`. The password is never stored in the repository.
 
 The separate VM deployment is disabled unless the repository variable `DEPLOY_VM` is set to `true`.
+
+The FTP upload excludes `vendor/` to keep the deployment fast. The hosting account must already contain Composer dependencies. After the first upload, run this once from cPanel Terminal or SSH in the Laravel application directory:
+
+```bash
+composer install --no-dev --optimize-autoloader --no-interaction
+php artisan storage:link
+php artisan migrate --force
+php artisan optimize:clear
+```
+
+Repeat `composer install` whenever `composer.lock` changes or a new PHP package is added.
