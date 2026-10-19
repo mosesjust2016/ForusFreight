@@ -9,6 +9,7 @@ use App\Models\TicketReply;
 use App\Models\KnowledgeBaseArticle;
 use App\Models\User;
 use App\Models\Company;
+use Mews\Purifier\Facades\Purifier;
 
 class CrmSupportController extends Controller
 {
@@ -139,6 +140,7 @@ class CrmSupportController extends Controller
             'status' => 'required|string',
             'is_internal' => 'nullable|boolean',
         ]);
+        $validated['content'] = Purifier::clean($validated['content']);
         $validated['author_id'] = Auth::id();
         KnowledgeBaseArticle::create($validated);
         return back()->with('success', 'Article published.');
@@ -153,6 +155,7 @@ class CrmSupportController extends Controller
             'category' => 'required|string',
             'status' => 'required|string',
         ]);
+        $validated['content'] = Purifier::clean($validated['content']);
         $article->update($validated);
         return back()->with('success', 'Article updated.');
     }

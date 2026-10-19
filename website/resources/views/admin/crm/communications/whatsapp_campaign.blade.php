@@ -18,6 +18,16 @@
     .ab-card { background: #f8fafc; border-radius: 16px; padding: 1.5rem; border: 2px solid #e2e8f0; }
     .ab-card.winner { border-color: #22c55e; background: #f0fdf4; }
     .ab-bar { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 0.5rem; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(5, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+        div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(5, 1fr)"] { grid-template-columns: 1fr !important; }
+        div[style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
+        div[style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
     .ab-fill { height: 100%; border-radius: 10px; }
     .status-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
 </style>

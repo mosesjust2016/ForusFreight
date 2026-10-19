@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .crm-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); }
+    .crm-grid { background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); overflow-x: auto; }
     .stat-card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); text-align: center; }
     .ticket-row { transition: all 0.2s; }
     .ticket-row:hover { background: #fcfdfe; }
@@ -21,6 +21,13 @@
     .form-inline { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
     .form-inline input, .form-inline select, .form-inline textarea { padding: 0.6rem 1rem; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 0.9rem; outline: none; background: white; }
     .btn-primary { background: var(--primary-green); color: white; padding: 0.6rem 1.25rem; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 0.9rem; text-decoration: none; }
+
+    @media (max-width: 900px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 480px) {
+        div[style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: 1fr !important; }
+    }
 </style>
 @endsection
 

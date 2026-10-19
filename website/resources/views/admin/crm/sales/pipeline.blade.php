@@ -39,7 +39,7 @@
     @foreach($pipelineStats as $stat)
     <div class="stage-card" style="--stage-color: {{ $stat['color'] }};">
         <div class="stage-name">{{ $stat['name'] }}</div>
-        <div class="stage-meta">{{ $stat['count'] }} Deals &middot; {{ number_format($stat['value'], 2) }} ZMW</div>
+        <div class="stage-meta">{{ $stat['count'] }} Deals &middot; {{ usd($stat['value']) }}</div>
     </div>
     @endforeach
 </div>
@@ -70,7 +70,7 @@
 </div>
 
 <!-- Deals List -->
-<div style="background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow);">
+<div style="background: white; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow); overflow-x: auto;">
     <table style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="text-align: left; border-bottom: 2px solid #f8fafc;">

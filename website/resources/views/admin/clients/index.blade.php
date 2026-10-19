@@ -10,6 +10,7 @@
         padding: 2.5rem;
         box-shadow: var(--shadow);
         border: 1px solid #f1f5f9;
+        overflow-x: auto;
     }
 
     .client-table {
@@ -306,7 +307,7 @@
                         </div>
                     </td>
                     <td>
-                        <div style="font-weight: 700; color: var(--text-dark); font-size: 0.9rem;">{{ $client->email }}</div>
+                        <div style="font-weight: 700; color: var(--text-dark); font-size: 0.9rem;">{{ $client->email ?: 'No email on file' }}</div>
                         <div style="font-size: 0.8rem; color: var(--text-gray); font-weight: 600;">{{ $client->phone ?? 'No phone' }}</div>
                     </td>
                     <td>
@@ -318,7 +319,7 @@
                         @php
                             $totalSpent = $client->shipments->sum('total_charge');
                         @endphp
-                        <div style="font-weight: 900; color: var(--text-dark);">{{ number_format($totalSpent, 2) }} ZMW</div>
+                        <div style="font-weight: 900; color: var(--text-dark);">{{ usd($totalSpent) }}</div>
                         <div style="font-size: 0.7rem; color: var(--text-gray); font-weight: 700;">LIFETIME VALUE</div>
                     </td>
                     <td>
@@ -344,9 +345,11 @@
                                 
                                 <div class="dropdown-divider"></div>
                                 <div class="dropdown-header">COMMUNICATIONS</div>
+                                @if($client->email)
                                 <button onclick="openMessageModal('email', '{{ $client->email }}', '{{ $client->name }}', '{{ $client->id }}')" class="dropdown-item">
                                     <i class="fas fa-envelope" style="color: #3b82f6;"></i> Send Email
                                 </button>
+                                @endif
                                 @if($client->phone)
                                     <button onclick="openMessageModal('sms', '{{ $client->phone }}', '{{ $client->name }}', '{{ $client->id }}')" class="dropdown-item">
                                         <i class="fas fa-comment-sms" style="color: #f59e0b;"></i> Send SMS
@@ -365,7 +368,7 @@
                                     </div>
                                     <div class="crm-stat">
                                         <span>Limit</span>
-                                        <span style="font-weight: 800;">{{ number_format($client->credit_limit, 0) }} ZMW</span>
+                                        <span style="font-weight: 800;">{{ usd($client->credit_limit) }}</span>
                                     </div>
                                     <button onclick="unlockCRM('{{ $client->id }}')" class="crm-unlock-btn">
                                         <i class="fas fa-lock-open"></i> UNLOCK CRM
