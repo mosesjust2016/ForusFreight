@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Notifications\ResetPasswordNotification;
 use App\Services\BrevoMailService;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -56,20 +55,17 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'phone_verified_at' => 'datetime',
-            'phone_otp_expires_at' => 'datetime',
-            'email_otp_expires_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
+        'phone_otp_expires_at' => 'datetime',
+        'email_otp_expires_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     public function shipments(): HasMany
     {
@@ -323,9 +319,28 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Send password reset notification via BrevoMailService instead of default SMTP.
+     *
+     * Bypasses Laravel's notification 'mail' channel entirely: that channel calls
+     * toMail() and sends through the raw SMTP mailer, which does not use
+     * BrevoMailService's HTTP-API-first (with SMTP fallback) delivery logic.
      */
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new ResetPasswordNotification($token));
+        $url = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->getEmailForPasswordReset(),
+        ], false));
+
+        $html = view('emails.reset-password', [
+            'name' => $this->name ?? 'User',
+            'url'  => $url,
+        ])->render();
+
+        app(BrevoMailService::class)->send(
+            $this->email,
+            $this->name ?? 'User',
+            'Reset Password - ' . config('app.name'),
+            $html
+        );
     }
 }
