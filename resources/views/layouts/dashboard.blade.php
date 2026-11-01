@@ -236,6 +236,32 @@
             width: calc(100% - var(--sidebar-width));
         }
 
+        .admin-section-label {
+            font-size: .68rem;
+            color: #8fa1a6;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 1.35rem 0 .45rem 1.25rem;
+            letter-spacing: .09em;
+        }
+
+        .admin-home-link {
+            background: rgba(255, 98, 0, .14);
+            color: #fff !important;
+        }
+
+        .admin-home-link i { color: var(--orange); }
+
+        .nav-item-collapsible > .nav-item.active {
+            background: rgba(255,255,255,.12);
+            border-left: 3px solid var(--orange);
+            padding-left: calc(1.25rem - 3px);
+        }
+
+        @media (min-width: 1025px) {
+            .main-content { max-width: 1680px; }
+        }
+
         /* Top Bar */
         .top-bar {
             display: flex;
@@ -461,7 +487,7 @@
             @endphp
 
             @if($isAdmin || $u->hasAnyPermission(['admin.shipments.view','admin.reports.view','admin.exchange_rates.manage']))
-                <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}" class="nav-item admin-home-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-th-large"></i>
                     Admin Home
                 </a>
@@ -498,13 +524,17 @@
 
             <!-- CRM Hub -->
             @if($isAdmin || $u->hasAnyPermission(['crm.contacts.view','crm.companies.view','crm.pipeline.view','crm.deals.manage','crm.tasks.manage','crm.documents.manage','crm.forecast.view','crm.leads.manage','crm.campaigns.manage','crm.landing_pages.manage','crm.tickets.manage','crm.knowledge_base.manage','crm.reports.view','crm.communications.manage']))
-            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 1.5rem 0 0.5rem 1.25rem; letter-spacing: 0.05em;">CRM Hub</div>
+            <div class="admin-section-label">CRM</div>
+            <a href="{{ route('admin.crm.home') }}" class="nav-item {{ request()->routeIs('admin.crm.*') ? 'active' : '' }}">
+                <i class="fas fa-gauge-high"></i>
+                <span>CRM Home</span>
+            </a>
 
             @if($canContacts || $canCompanies)
             <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.companies*') || request()->routeIs('admin.crm.contacts*') || request()->routeIs('admin.clients*') || request()->has('status') ? 'expanded' : '' }}">
                 <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.companies*') || request()->routeIs('admin.crm.contacts*') || request()->routeIs('admin.clients*') ? 'active' : '' }}">
                     <i class="fas fa-address-book"></i>
-                    <span>Contact Management</span>
+                    <span>Customers</span>
                     <i class="fas fa-chevron-down chevron"></i>
                 </a>
                 <div class="nav-sub-group">
@@ -535,7 +565,7 @@
             <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.pipeline') || request()->routeIs('admin.crm.deals*') || request()->routeIs('admin.crm.tasks') || request()->routeIs('admin.crm.documents') || request()->routeIs('admin.crm.forecast') || request()->routeIs('admin.crm.leads') || request()->routeIs('admin.crm.stages') ? 'expanded' : '' }}">
                 <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.pipeline') || request()->routeIs('admin.crm.deals*') || request()->routeIs('admin.crm.tasks') || request()->routeIs('admin.crm.documents') || request()->routeIs('admin.crm.forecast') || request()->routeIs('admin.crm.leads') || request()->routeIs('admin.crm.stages') ? 'active' : '' }}">
                     <i class="fas fa-funnel-dollar"></i>
-                    <span>Sales Automation</span>
+                    <span>Sales</span>
                     <i class="fas fa-chevron-down chevron"></i>
                 </a>
                 <div class="nav-sub-group">
@@ -572,7 +602,7 @@
             <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.campaigns') || request()->routeIs('admin.crm.landing-pages') ? 'expanded' : '' }}">
                 <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.campaigns') || request()->routeIs('admin.crm.landing-pages') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i>
-                    <span>Marketing</span>
+                    <span>Campaigns</span>
                     <i class="fas fa-chevron-down chevron"></i>
                 </a>
                 <div class="nav-sub-group">
@@ -594,7 +624,7 @@
             <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.communications*') ? 'expanded' : '' }}">
                 <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.communications*') ? 'active' : '' }}">
                     <i class="fas fa-paper-plane"></i>
-                    <span>Communications</span>
+                    <span>Messaging</span>
                     <i class="fas fa-chevron-down chevron"></i>
                 </a>
                 <div class="nav-sub-group">
@@ -612,7 +642,7 @@
             <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.tickets*') || request()->routeIs('admin.crm.knowledge-base*') ? 'expanded' : '' }}">
                 <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.tickets*') || request()->routeIs('admin.crm.knowledge-base*') ? 'active' : '' }}">
                     <i class="fas fa-headset"></i>
-                    <span>Customer Support</span>
+                    <span>Support</span>
                     <i class="fas fa-chevron-down chevron"></i>
                 </a>
                 <div class="nav-sub-group">
@@ -634,7 +664,7 @@
             <div class="nav-item-collapsible {{ request()->routeIs('admin.crm.reports') || request()->routeIs('admin.crm.analytics') ? 'expanded' : '' }}">
                 <a href="javascript:void(0)" onclick="toggleSidebarMenu(this)" class="nav-item {{ request()->routeIs('admin.crm.reports') || request()->routeIs('admin.crm.analytics') ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i>
-                    <span>Reporting & AI</span>
+                    <span>Reports</span>
                     <i class="fas fa-chevron-down chevron"></i>
                 </a>
                 <div class="nav-sub-group">
@@ -650,6 +680,7 @@
             @endif
 
             @if($canCMS)
+            <div class="admin-section-label">Administration</div>
             <a href="{{ route('admin.cms.pages.index') }}" class="nav-item {{ request()->routeIs('admin.cms.pages*') ? 'active' : '' }}">
                 <i class="fas fa-globe"></i>
                 <span>Website CMS</span>

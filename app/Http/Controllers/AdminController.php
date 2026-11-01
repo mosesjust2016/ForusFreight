@@ -10,6 +10,10 @@ use App\Models\AdminAuditLog;
 use App\Models\LandingPage;
 use App\Models\LandingPageVisit;
 use App\Models\TrackingEvent;
+use App\Models\Deal;
+use App\Models\Task;
+use App\Models\SupportTicket;
+use App\Models\QuoteRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
@@ -33,6 +37,21 @@ class AdminController extends Controller
         $shipmentStats = ['total' => 0, 'inTransit' => 0, 'pending' => 0];
         $shipments = collect();
         $recentUpdates = collect();
+        $crmStats = [
+            'contacts' => User::where('is_admin', false)->count(),
+            'newLeads' => User::where('is_admin', false)->where('crm_status', 'lead')->count(),
+            'openDeals' => Deal::whereHas('stage', fn ($query) => $query->where('is_closed', false))->count(),
+            'pipelineValue' => (float) Deal::whereHas('stage', fn ($query) => $query->where('is_closed', false))->sum('value'),
+            'followUps' => Task::where('status', 'pending')->whereNotNull('due_at')->where('due_at', '<=', now()->endOfDay())->count(),
+            'openTickets' => SupportTicket::whereNotIn('status', ['closed', 'resolved'])->count(),
+            'newQuotes' => QuoteRequest::where('status', 'new')->count(),
+        ];
+        $crmActions = collect([
+            ['label' => 'New quote requests', 'count' => $crmStats['newQuotes'], 'route' => 'admin.quote-requests', 'icon' => 'fa-file-invoice-dollar'],
+            ['label' => 'Follow-ups due today', 'count' => $crmStats['followUps'], 'route' => 'admin.crm.tasks', 'icon' => 'fa-list-check'],
+            ['label' => 'Open support tickets', 'count' => $crmStats['openTickets'], 'route' => 'admin.crm.tickets', 'icon' => 'fa-headset'],
+            ['label' => 'New leads', 'count' => $crmStats['newLeads'], 'route' => 'admin.crm.leads', 'icon' => 'fa-user-plus'],
+        ]);
 
         if ($canViewShipments) {
             // Stats need to reflect ALL shipments, not just the current page,
@@ -49,7 +68,7 @@ class AdminController extends Controller
             $recentUpdates = Shipment::with('user')->latest()->take(5)->get();
         }
 
-        return view('admin.dashboard', compact('shipments', 'shipmentStats', 'recentUpdates'));
+        return view('admin.dashboard', compact('shipments', 'shipmentStats', 'recentUpdates', 'crmStats', 'crmActions'));
     }
 
     public function shipments(Request $request)

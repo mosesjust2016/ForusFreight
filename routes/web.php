@@ -13,6 +13,7 @@ use App\Http\Controllers\CrmSalesController;
 use App\Http\Controllers\CrmMarketingController;
 use App\Http\Controllers\CrmSupportController;
 use App\Http\Controllers\CrmReportController;
+use App\Http\Controllers\CrmHomeController;
 use App\Http\Controllers\BulkCommunicationsController;
 use App\Http\Controllers\PublicContentController;
 use App\Http\Controllers\CmsAdminController;
@@ -224,6 +225,9 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
     });
 
     // ─────────── CRM ───────────
+    // CRM home is the daily work queue for sales and support staff.
+    Route::get('/crm', [CrmHomeController::class, 'index'])->name('admin.crm.home');
+
     // Contact Management
     Route::middleware('permission:crm.companies.view,crm.contacts.view')->group(function () {
         Route::get('/crm/companies', [CrmContactController::class, 'companies'])->name('admin.crm.companies');

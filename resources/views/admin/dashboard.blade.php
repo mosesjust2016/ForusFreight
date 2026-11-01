@@ -121,6 +121,22 @@
         display: none;
     }
 
+    .crm-command-center { background: linear-gradient(135deg, #102a2f 0%, #163f42 100%); color: #fff; border-radius: 24px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 16px 40px rgba(16,42,47,.18); }
+    .crm-command-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1.25rem; }
+    .crm-command-header h2 { margin:0 0 .3rem; font-size:1.2rem; }
+    .crm-command-header p { margin:0; color:rgba(255,255,255,.68); font-size:.82rem; }
+    .crm-command-link { color:#102a2f; background:#ffb703; border-radius:10px; padding:.65rem .9rem; font-size:.78rem; font-weight:900; text-decoration:none; white-space:nowrap; }
+    .crm-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem; margin-bottom:1rem; }
+    .crm-kpi { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.11); border-radius:14px; padding:1rem; }
+    .crm-kpi-label { color:rgba(255,255,255,.64); text-transform:uppercase; letter-spacing:.06em; font-size:.65rem; font-weight:900; }
+    .crm-kpi-value { font-size:1.35rem; font-weight:900; margin-top:.35rem; }
+    .crm-action-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem; }
+    .crm-action { display:flex; align-items:center; gap:.75rem; background:#fff; color:#102a2f; border-radius:12px; padding:.8rem; text-decoration:none; }
+    .crm-action-icon { width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:#edf7f5; color:#147d72; }
+    .crm-action-label { font-size:.76rem; font-weight:800; line-height:1.2; }
+    .crm-action-count { display:block; color:#147d72; font-size:.72rem; margin-top:.15rem; }
+    @media (max-width: 800px) { .crm-kpi-grid, .crm-action-grid { grid-template-columns:repeat(2,1fr); } .crm-command-header { flex-direction:column; } }
+
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -348,6 +364,34 @@
         </div>
     </div>
 </div>
+
+<section class="crm-command-center" aria-labelledby="crm-command-title">
+    <div class="crm-command-header">
+        <div>
+            <h2 id="crm-command-title"><i class="fas fa-sparkles" style="color:#ffb703;"></i> CRM command center</h2>
+            <p>Prioritise conversations, follow-ups and revenue opportunities from one place.</p>
+        </div>
+        @if($authUser->hasPermission('crm.reports.view'))
+            <a class="crm-command-link" href="{{ route('admin.crm.reports') }}">Open CRM reports <i class="fas fa-arrow-right"></i></a>
+        @endif
+    </div>
+    <div class="crm-kpi-grid">
+        <div class="crm-kpi"><div class="crm-kpi-label">Contacts</div><div class="crm-kpi-value">{{ number_format($crmStats['contacts']) }}</div></div>
+        <div class="crm-kpi"><div class="crm-kpi-label">Open deals</div><div class="crm-kpi-value">{{ number_format($crmStats['openDeals']) }}</div></div>
+        <div class="crm-kpi"><div class="crm-kpi-label">Pipeline value</div><div class="crm-kpi-value">{{ usd($crmStats['pipelineValue']) }}</div></div>
+        <div class="crm-kpi"><div class="crm-kpi-label">New leads</div><div class="crm-kpi-value">{{ number_format($crmStats['newLeads']) }}</div></div>
+    </div>
+    <div class="crm-action-grid">
+        @foreach($crmActions as $action)
+            @if(Route::has($action['route']))
+                <a class="crm-action" href="{{ route($action['route']) }}">
+                    <span class="crm-action-icon"><i class="fas {{ $action['icon'] }}"></i></span>
+                    <span class="crm-action-label">{{ $action['label'] }}<small class="crm-action-count">{{ number_format($action['count']) }} needing attention</small></span>
+                </a>
+            @endif
+        @endforeach
+    </div>
+</section>
 
 <!-- CRM Quick Stats -->
 <div class="crm-quick-stats" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
