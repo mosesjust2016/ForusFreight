@@ -10,7 +10,8 @@
         table { width: 100%; border-collapse: collapse; }
         .ticket { border: 1px solid #cbd5da; border-radius: 12px; overflow: hidden; }
         .header { padding: 14px 16px 12px; border-bottom: 4px solid #ff6200; }
-        .logo { width: 150px; max-height: 62px; object-fit: contain; object-position: left center; }
+        .logo-box { width: 170px; height: 68px; display: flex; align-items: center; }
+        .logo { display: block; max-width: 160px; max-height: 64px; width: auto; height: auto; }
         .brand { font-size: 16pt; font-weight: 800; margin: 4px 0 2px; }
         .muted { color: #5d7076; }
         .small { font-size: 7.5pt; }
@@ -46,9 +47,10 @@
 <div class="ticket">
     <table class="header"><tr>
         <td style="vertical-align:top;">
-            @if($logoData)<img class="logo" src="{{ $logoData }}" alt="Forus Freight">@endif
+            @if($logoData)<div class="logo-box"><img class="logo" src="{{ $logoData }}" alt="Forus Freight"></div>@endif
             <div class="brand">{{ $company['name'] }}</div>
-            <div class="muted small">{{ config('forus.warehouse_address.line1') }} · {{ config('forus.warehouse_address.line2') }}</div>
+            <div class="muted small">{{ config('forus.warehouse_address.line1') }}</div>
+            <div class="muted small">{{ config('forus.warehouse_address.line2') }}</div>
             <div class="muted small">{{ config('forus.warehouse_address.city') }}</div>
             <div class="muted small">{{ $company['phone'] }} · {{ $company['email'] }}</div>
         </td>
@@ -76,7 +78,7 @@
             <tr><td class="cell"><span class="label">Current border / location</span><span class="value">{{ $shipment->current_border ?: '—' }}</span></td><td class="cell"><span class="label">Driver</span><span class="value">{{ $shipment->driver ?: '—' }}</span></td><td class="cell"><span class="label">Vehicle registration</span><span class="value">{{ $shipment->vehicle_registration ?: '—' }}</span></td></tr>
         </table></div>
 
-        <div class="section"><div class="section-title">Forus Freight warehouse</div><p class="small" style="margin:0;">{{ config('forus.warehouse_address.name') }} · {{ config('forus.warehouse_address.line1') }}, {{ config('forus.warehouse_address.line2') }}, {{ config('forus.warehouse_address.city') }}</p></div>
+        <div class="section"><div class="section-title">Forus Freight warehouse</div><p class="small" style="margin:0;">{{ config('forus.warehouse_address.name') }}<br>{{ config('forus.warehouse_address.line1') }}<br>{{ config('forus.warehouse_address.line2') }}<br>{{ config('forus.warehouse_address.city') }}</p></div>
 
         <table style="margin: 4px 0 11px;"><tr><td style="vertical-align:top; padding-right:14px;">@if($barcodeBottomSvg)<div class="barcode"><img src="{{ $barcodeBottomSvg }}" alt="{{ $trackingNumberClean }}"></div>@endif<div class="barcode-text">{{ $trackingNumberClean }}</div></td><td class="verify"><img src="{{ $verificationQr }}" alt="Verify release instruction"><small>Verify document<br>{{ $noteNumber }}</small></td></tr></table>
 
