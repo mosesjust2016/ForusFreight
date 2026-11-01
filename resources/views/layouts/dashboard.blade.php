@@ -523,6 +523,9 @@
                     <a href="{{ route('admin.clients') }}" class="sub-nav-item {{ request()->routeIs('admin.clients*') || request()->has('status') ? 'active' : '' }}">
                         <i class="fas fa-circle"></i> Contacts
                     </a>
+                    <a href="{{ route('admin.quote-requests') }}" class="sub-nav-item {{ request()->routeIs('admin.quote-requests*') ? 'active' : '' }}">
+                        <i class="fas fa-circle"></i> Quote Requests
+                    </a>
                     @endif
                 </div>
             </div>

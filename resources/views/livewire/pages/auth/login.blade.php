@@ -3,6 +3,7 @@
 use App\Livewire\Forms\LoginForm;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Services\BrevoMailService;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -20,6 +21,20 @@ new #[Layout('layouts.guest')] class extends Component
         Session::regenerate();
 
         $user = Auth::user();
+
+        if ($user->two_factor_enabled) {
+            $code = $user->generateEmailOtp();
+            $sent = app(BrevoMailService::class)->sendOtpEmail($user->email, $user->name, $code);
+            if (!$sent) {
+                Auth::guard('web')->logout();
+                $this->addError('form.email', 'We could not send your security code. Please try again or contact support.');
+                return;
+            }
+            session(['two_factor_user_id' => $user->id, 'two_factor_guard' => 'web']);
+            Auth::guard('web')->logout();
+            $this->redirect(route('two-factor.challenge'), navigate: true);
+            return;
+        }
 
         // Check email verification
         if (! $user->hasVerifiedEmail()) {

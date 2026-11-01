@@ -90,6 +90,16 @@ class ProfileController extends Controller
         return back()->with('status', 'password-updated');
     }
 
+    public function updateTwoFactor(Request $request)
+    {
+        $user = $request->user();
+        $user->update(['two_factor_enabled' => $request->boolean('two_factor_enabled')]);
+
+        return back()->with('success', $user->two_factor_enabled
+            ? 'Email two-factor authentication enabled.'
+            : 'Email two-factor authentication disabled.');
+    }
+
     public function help()
     {
         // Help is a section of the Account page now (staff keep the old one).

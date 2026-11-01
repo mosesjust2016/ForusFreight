@@ -14,6 +14,7 @@
     $events = $shipment->trackingEvents->reverse()->values();
     $images = is_string($shipment->images) ? json_decode($shipment->images, true) : ($shipment->images ?? []);
     $progress = max(0, min(100, (int) $shipment->delivery_progress_percent));
+    $publicTracking = auth()->guest();
 @endphp
 @once
 <style>
@@ -395,9 +396,13 @@
     <div class="t-body">
         <div class="t-facts">
             <dl>
-                <div><dt>Cargo</dt><dd>{{ $shipment->description ?: 'Not specified' }}</dd></div>
+                @unless($publicTracking)
+                    <div><dt>Cargo</dt><dd>{{ $shipment->description ?: 'Not specified' }}</dd></div>
+                @endunless
                 <div><dt>Current location</dt><dd>{{ $shipment->current_location_display ?: 'Not available yet' }}</dd></div>
-                <div><dt>Next action</dt><dd>{{ $shipment->next_action ?: 'No next action recorded' }}</dd></div>
+                @unless($publicTracking)
+                    <div><dt>Next action</dt><dd>{{ $shipment->next_action ?: 'No next action recorded' }}</dd></div>
+                @endunless
                 <div><dt>Days in transit</dt><dd>{{ $shipment->days_in_transit !== null ? $shipment->days_in_transit . ' day(s)' : 'Not recorded' }}</dd></div>
             </dl>
             <div class="t-eta">
@@ -439,7 +444,7 @@
         </div>
     </div>
 
-    @if(!empty($images))
+    @if(!$publicTracking && !empty($images))
         <div class="t-photos">
             <h3 class="t-section-label">Shipment photos</h3>
             <div class="t-photo-grid">

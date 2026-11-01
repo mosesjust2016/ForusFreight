@@ -35,6 +35,9 @@ Route::get('/services', fn() => view('services'))->name('services');
 
 // Quote routes
 Route::get('/quote', fn() => view('quote'))->name('quote');
+Route::post('/quote/estimate', [QuoteController::class, 'estimate'])
+    ->middleware('throttle:30,1')
+    ->name('quote.estimate');
 Route::post('/quote/submit', [QuoteController::class, 'submit'])
     ->middleware('throttle:10,1')
     ->name('quote.submit');
@@ -112,6 +115,7 @@ Route::middleware(['auth', 'fully_verified'])->group(function () {
     Route::get('/client/settings', [ProfileController::class, 'settings'])->name('client.settings');
     Route::get('/client/security', [ProfileController::class, 'security'])->name('client.security');
     Route::put('/client/security/password', [ProfileController::class, 'updatePassword'])->name('client.password.update');
+    Route::put('/client/security/2fa', [ProfileController::class, 'updateTwoFactor'])->name('client.2fa.update');
     Route::get('/client/help', [ProfileController::class, 'help'])->name('client.help');
     Route::get('/client/getting-started', [ProfileController::class, 'gettingStarted'])->name('client.getting-started');
     Route::get('/client/profile', [ProfileController::class, 'index'])->name('client.profile');
@@ -176,16 +180,18 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
     // Note: specific routes (/create, /send-message) come before wildcards (/{user}) to avoid capture
     Route::middleware('permission:admin.clients.manage')->group(function () {
         Route::get('/clients/create', [AdminController::class, 'createClient'])->name('admin.clients.create');
-        Route::post('/clients', [AdminController::class, 'clients'])->name('admin.clients.store');
+        Route::post('/clients', [AdminController::class, 'storeClient'])->name('admin.clients.store');
     });
     Route::middleware('permission:admin.clients.view')->group(function () {
+        Route::get('/quote-requests', [\App\Http\Controllers\QuoteRequestController::class, 'index'])->name('admin.quote-requests');
         Route::get('/clients', [AdminController::class, 'clients'])->name('admin.clients');
-        Route::post('/clients/send-message', [AdminController::class, 'clients'])->name('admin.clients.send-message');
+        Route::post('/clients/send-message', [AdminController::class, 'sendClientMessage'])->name('admin.clients.send-message');
         Route::get('/clients/{user}', [AdminController::class, 'showClient'])->name('admin.clients.show');
     });
     Route::middleware('permission:admin.clients.manage')->group(function () {
+        Route::put('/quote-requests/{quoteRequest}', [\App\Http\Controllers\QuoteRequestController::class, 'update'])->name('admin.quote-requests.update');
         Route::get('/clients/{user}/edit', [AdminController::class, 'editClient'])->name('admin.clients.edit');
-        Route::put('/clients/{user}', [AdminController::class, 'editClient'])->name('admin.clients.update');
+        Route::match(['put', 'patch'], '/clients/{user}', [AdminController::class, 'updateClient'])->name('admin.clients.update');
     });
 
     // System Reports — admin_staff and super-admin only
@@ -355,6 +361,7 @@ Route::middleware(['auth:admin', 'fully_verified', 'password.change_required', '
     Route::get('/profile', [ProfileController::class, 'index'])->name('admin.profile');
     Route::get('/security', [ProfileController::class, 'security'])->name('admin.security');
     Route::put('/security/password', [ProfileController::class, 'updatePassword'])->name('admin.password.update');
+    Route::put('/security/2fa', [ProfileController::class, 'updateTwoFactor'])->name('admin.2fa.update');
     Route::get('/settings', [ProfileController::class, 'settings'])->name('admin.settings');
     Route::get('/help', [ProfileController::class, 'help'])->name('admin.help');
 });

@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'quote_rates' => [
+        'road-freight' => ['base' => 1800, 'per_kg' => 7.50, 'days' => '5–10 business days'],
+        'air-freight' => ['base' => 950, 'per_kg' => 85.00, 'days' => '3–7 business days'],
+        'sea-freight' => ['base' => 3200, 'per_kg' => 4.25, 'days' => '30–45 business days'],
+        'china-shopping' => ['base' => 1200, 'per_kg' => 12.50, 'days' => '15–30 business days'],
+        'same-day' => ['base' => 250, 'per_kg' => 8.00, 'days' => 'Same day in Lusaka'],
+        'express' => ['base' => 500, 'per_kg' => 35.00, 'days' => '1–3 business days'],
+    ],
 
     /*
     |--------------------------------------------------------------------------

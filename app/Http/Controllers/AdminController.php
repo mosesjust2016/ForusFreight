@@ -6,13 +6,18 @@ use Illuminate\Http\Request;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\CommunicationsLog;
+use App\Models\AdminAuditLog;
 use App\Models\LandingPage;
 use App\Models\LandingPageVisit;
 use App\Models\TrackingEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use App\Services\SecureImageUploadService;
+use App\Services\BrevoMailService;
+use App\Services\SmsService;
+use App\Services\GreenApiService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Logo\Logo;
@@ -549,6 +554,26 @@ class AdminController extends Controller
 
         $clients = $query->latest()->paginate(20);
 
+        // Keep the registration progress derived from the verification fields
+        // so the admin view always reflects the actual account state.
+        $clients->getCollection()->transform(function (User $client) {
+            if ($client->account_status === 'suspended') {
+                $client->registration_status = 'Suspended';
+                $client->registration_stuck_at = 'Account suspended';
+            } elseif ($client->hasVerifiedEmail() && $client->hasVerifiedPhone()) {
+                $client->registration_status = 'Verified';
+                $client->registration_stuck_at = 'Completed';
+            } elseif (!$client->hasVerifiedEmail()) {
+                $client->registration_status = 'Pending verification';
+                $client->registration_stuck_at = 'Email verification';
+            } else {
+                $client->registration_status = 'Pending verification';
+                $client->registration_stuck_at = 'Phone verification';
+            }
+
+            return $client;
+        });
+
         $base = User::whereDoesntHave('roles')->where('is_admin', false);
         $statusCounts = [
             'all'        => (clone $base)->count(),
@@ -568,6 +593,70 @@ class AdminController extends Controller
         return view('admin.clients.create');
     }
 
+    public function storeClient(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'max:60'],
+            'crm_status' => ['required', 'in:lead,active,high_value'],
+            'internal_notes' => ['nullable', 'string'],
+        ]);
+
+        $user = User::create([
+            ...$data,
+            'password' => Str::password(32),
+            'account_status' => 'pending',
+            'is_temporary' => true,
+        ]);
+
+        // Give an admin-created client a real path into the same OTP
+        // activation flow as self-registered clients.
+        $phoneOtpSent = app(SmsService::class)->sendOtp($user->phone, $user->generatePhoneOtp());
+        $emailOtpSent = app(BrevoMailService::class)->sendOtpEmail($user->email, $user->name, $user->generateEmailOtp());
+
+        $delivery = $phoneOtpSent && $emailOtpSent
+            ? 'Verification codes were sent by SMS and email.'
+            : 'The account was created, but one or more verification messages could not be sent. Check the communication service configuration.';
+
+        return redirect()->route('admin.clients')->with('success', "Client registered. {$delivery} Ask them to continue at /activate-account.");
+    }
+
+    public function sendClientMessage(Request $request)
+    {
+        $data = $request->validate([
+            'type' => ['required', 'in:email,sms,whatsapp'],
+            'message' => ['required', 'string', 'max:5000'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $user = User::findOrFail($data['user_id']);
+        $sent = match ($data['type']) {
+            'email' => $user->email
+                ? app(BrevoMailService::class)->send($user->email, $user->name, 'Message from Forus Freight', nl2br(e($data['message'])), $data['message'])
+                : false,
+            'sms' => $user->phone
+                ? app(SmsService::class)->send($user->phone, $data['message'])
+                : false,
+            'whatsapp' => $user->phone
+                ? app(GreenApiService::class)->sendMessage($user->phone, $data['message'])['success']
+                : false,
+        };
+
+        if (!$sent) {
+            return back()->with('error', 'Message could not be sent. Check the user contact details and service configuration.');
+        }
+
+        CommunicationLog::create([
+            'user_id' => $user->id,
+            'type' => $data['type'],
+            'recipient' => $data['type'] === 'email' ? $user->email : $user->phone,
+            'message' => $data['message'],
+        ]);
+
+        return back()->with('success', ucfirst($data['type']) . ' sent to ' . $user->name . '.');
+    }
+
     public function showClient(User $user)
     {
         $shipments = $user->shipments()->latest()->get();
@@ -579,6 +668,75 @@ class AdminController extends Controller
     public function editClient(User $user)
     {
         return view('admin.clients.edit', compact('user'));
+    }
+
+    public function updateClient(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone'          => 'nullable|string|max:60',
+            'status'         => 'nullable|string|in:verified,unverified,suspended',
+            'notes'          => 'nullable|string',
+            'crm_status'     => 'nullable|string|in:lead,active,high_value,inactive,blocked',
+            'credit_limit'   => 'nullable|numeric|min:0',
+            'assigned_agent' => 'nullable|string|max:255',
+            'payment_terms'  => 'nullable|string|max:50',
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->phone = $validated['phone'] ?? null;
+        if (isset($validated['notes'])) {
+            $user->internal_notes = $validated['notes'];
+        }
+
+        // Verification & Account status mapping
+        if (!empty($validated['status'])) {
+            if ($validated['status'] === 'verified') {
+                $user->email_verified_at = $user->email_verified_at ?? now();
+                $user->phone_verified_at = $user->phone_verified_at ?? now();
+                $user->account_status = 'active';
+                $auditAction = 'client.manually_verified';
+            } elseif ($validated['status'] === 'unverified') {
+                $user->email_verified_at = null;
+                $user->phone_verified_at = null;
+                $user->account_status = 'pending';
+                $auditAction = 'client.marked_unverified';
+            } elseif ($validated['status'] === 'suspended') {
+                $user->account_status = 'suspended';
+                $auditAction = 'client.suspended';
+            }
+        }
+
+        // CRM details if submitted
+        if ($request->has('crm_status')) {
+            $user->crm_status = $validated['crm_status'];
+        }
+        if ($request->has('credit_limit')) {
+            $user->credit_limit = $validated['credit_limit'] ?? 0;
+        }
+        if ($request->has('assigned_agent')) {
+            $user->assigned_agent = $validated['assigned_agent'];
+        }
+        if ($request->has('payment_terms')) {
+            $user->payment_terms = $validated['payment_terms'];
+        }
+
+        $user->save();
+
+        if (isset($auditAction)) {
+            AdminAuditLog::create([
+                'actor_id' => $request->user('admin')?->id ?? $request->user()?->id,
+                'action' => $auditAction,
+                'subject_type' => User::class,
+                'subject_id' => $user->id,
+                'metadata' => ['status' => $validated['status']],
+                'ip_address' => $request->ip(),
+            ]);
+        }
+
+        return redirect()->route('admin.clients.show', $user)->with('success', 'Client details updated successfully.');
     }
 
     public function reports(Request $request)

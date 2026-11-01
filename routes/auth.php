@@ -14,6 +14,9 @@ Route::middleware('guest')->group(function () {
     Volt::route('login', 'pages.auth.login')
         ->name('login');
 
+    Volt::route('two-factor-challenge', 'pages.auth.two-factor')
+        ->name('two-factor.challenge');
+
     Route::get('activate-account', ActivateAccount::class)
         ->name('activation.phone');
 

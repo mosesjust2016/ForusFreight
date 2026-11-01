@@ -601,6 +601,22 @@
         </form>
     </section>
 
+    {{-- Two-factor authentication --}}
+    <section class="ac-card" id="two-factor" aria-labelledby="acTwoFactorH">
+        <div class="ac-card-head">
+            <h2 id="acTwoFactorH">Two-factor authentication</h2>
+        </div>
+        <p style="color:var(--muted); font-size:.9rem; margin-bottom:1rem;">Require a one-time code sent to your email each time you sign in.</p>
+        <form action="{{ route('client.2fa.update') }}" method="POST" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            @csrf @method('PUT')
+            <label style="display:flex; align-items:center; gap:.65rem; font-weight:700; color:var(--ink);">
+                <input type="checkbox" name="two_factor_enabled" value="1" @checked($user->two_factor_enabled) onchange="this.form.submit()">
+                Email security code {{ $user->two_factor_enabled ? '(enabled)' : '(disabled)' }}
+            </label>
+            <noscript><button type="submit" class="ac-btn">Save security setting</button></noscript>
+        </form>
+    </section>
+
     {{-- Invoices --}}
     <section class="ac-card" id="invoices" aria-labelledby="acInvoicesH">
         <div class="ac-card-head">

@@ -4,10 +4,34 @@
 namespace App\Http\Controllers;
 
 use App\Services\BrevoMailService;
+use App\Models\QuoteRequest;
 use Illuminate\Http\Request;
 
 class QuoteController extends Controller
 {
+    public function estimate(Request $request)
+    {
+        $data = $request->validate([
+            'service_type' => 'required|in:road-freight,air-freight,sea-freight,same-day,express,china-shopping',
+            'pickup' => 'required|string|max:255',
+            'delivery' => 'required|string|max:255',
+            'weight' => 'required|numeric|min:0.1|max:1000000',
+            'dimensions' => 'nullable|string|max:255',
+        ]);
+
+        $rate = config('forus.quote_rates.' . $data['service_type']);
+        $subtotal = $rate['base'] + ((float) $data['weight'] * $rate['per_kg']);
+
+        return response()->json([
+            'success' => true,
+            'currency' => 'ZMW',
+            'min' => round($subtotal * 0.9, 2),
+            'max' => round($subtotal * 1.15, 2),
+            'transit_time' => $rate['days'],
+            'disclaimer' => 'Indicative estimate. Final pricing depends on the confirmed route, cargo type, dimensions and applicable duties.',
+        ]);
+    }
+
     public function submit(Request $request)
     {
         // Validate the request
@@ -25,6 +49,8 @@ class QuoteController extends Controller
         ]);
         
         $serviceType = $this->getServiceTypeName($validated['service_type']);
+
+        $quoteRequest = QuoteRequest::create($validated);
         
         $html = view('emails.quote-request', [
             'serviceType'  => $serviceType,
@@ -53,6 +79,7 @@ class QuoteController extends Controller
                 'message' => 'Quote request submitted successfully! We will contact you soon.'
             ]);
         } catch (\Exception $e) {
+            report($e);
             return response()->json([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again or contact us directly.'

@@ -19,7 +19,7 @@ class RegistrationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Create Account');
+            ->assertSee('Create your free account');
     }
 
     public function test_new_users_can_register(): void

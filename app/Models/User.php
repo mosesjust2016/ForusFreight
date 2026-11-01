@@ -33,13 +33,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'is_temporary',
         'must_change_password',
+        'two_factor_enabled',
         'account_status',
         'phone_otp',
         'phone_otp_expires_at',
         'email_otp',
         'email_otp_expires_at',
         'crm_status',
+        'credit_limit',
+        'payment_terms',
         'assigned_agent',
+        'internal_notes',
         'lead_score',
         'last_engagement_at',
         'preferences',
@@ -68,6 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_otp_expires_at' => 'datetime',
         'password' => 'hashed',
         'must_change_password' => 'boolean',
+        'two_factor_enabled' => 'boolean',
     ];
 
     public function shipments(): HasMany

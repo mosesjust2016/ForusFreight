@@ -394,6 +394,82 @@ $whatsappLink = 'https://wa.me/' . ($footer['whatsapp_number'] ?? '260572788685'
                 width: 100%;
             }
         }
+
+    .estimate-card { background: linear-gradient(135deg, #f0fbf8, #f7faf9); border: 1px solid #ccebe3; border-radius: 22px; padding: 1.4rem; margin-bottom: 1.5rem; }
+    .estimate-heading { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; margin-bottom:1rem; }
+    .estimate-heading h2 { margin:.45rem 0 .35rem; color:#0d3435; font-size:1.45rem; letter-spacing:-.025em; }
+    .estimate-heading p { margin:0; color:#587276; font-size:.85rem; }
+    .estimate-kicker { display:inline-flex; align-items:center; gap:.4rem; color:#007f7f; font-size:.7rem; font-weight:900; text-transform:uppercase; letter-spacing:.1em; }
+    .estimate-icon { color:#007f7f; font-size:1.25rem; padding:.85rem; background:#d8f4ed; border:1px solid #bce7dc; border-radius:16px; }
+    .estimate-form { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1rem; align-items:end; }
+    .estimate-field { min-width:0; }
+    .estimate-field label { display:flex; align-items:center; gap:.45rem; margin:0 0 .45rem .1rem; color:#315759; font-size:.74rem; font-weight:800; }
+    .estimate-field label span { display:inline-flex; align-items:center; justify-content:center; width:1.35rem; height:1.35rem; border-radius:50%; background:#e0f4ef; color:#007f7f; font-size:.62rem; }
+    .estimate-form input, .estimate-form select { min-width:0; border:1px solid #cfe1df; border-radius:10px; padding:.8rem .75rem; background:#fff; color:#173436; }
+    .estimate-form input, .estimate-form select { width:100%; box-sizing:border-box; }
+    .estimate-input-unit { position:relative; }
+    .estimate-input-unit input { padding-right:2.5rem; }
+    .estimate-input-unit span { position:absolute; right:.8rem; top:50%; transform:translateY(-50%); color:#789092; font-size:.78rem; font-weight:800; pointer-events:none; }
+    .estimate-form input, .estimate-form select { min-height:50px; }
+    .estimate-form .h-btn { grid-column:1 / -1; white-space:nowrap; border:0; padding:.8rem 1rem; }
+    .estimate-result { margin-top:1rem; padding:1rem; background:#fff; border-radius:14px; border:1px solid #ccebe3; color:#173436; }
+    .estimate-result strong { font-size:1.2rem; color:#007f7f; }
+    .estimate-service, .estimate-weight { grid-column:1 / -1; }
+    @media (max-width: 520px) { .estimate-form { grid-template-columns:1fr; } .estimate-service, .estimate-form .h-btn { grid-column:1; } }
+    @media (max-width: 520px) { .estimate-form { grid-template-columns:1fr; } }
+
+    /* Premium form treatment */
+    .q-card {
+        padding: 2.75rem;
+        border: 1px solid #e5eeee;
+        border-radius: 28px;
+        box-shadow: 0 20px 60px rgba(13, 52, 53, 0.08);
+    }
+    .q-step-head { margin-bottom: 1.4rem; }
+    .q-step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9px;
+        background: #fff1e8;
+        color: #c34b08;
+        font-weight: 800;
+    }
+    .q-step-head h2 { font-size: 1.5rem; color: #0d3435; }
+    .q-field { margin-bottom: 1.35rem; }
+    .q-field label { color: #24484a; font-size: .82rem; letter-spacing: .01em; margin-bottom: .55rem; }
+    .q-field input, .q-field select, .q-field textarea {
+        border: 1px solid #d6e4e4;
+        border-radius: 14px;
+        background: #fbfdfd;
+        padding: .95rem 1rem;
+        box-shadow: inset 0 1px 2px rgba(13,52,53,.025);
+    }
+    .q-field input::placeholder, .q-field textarea::placeholder { color: #9aabad; }
+    .q-field input:hover, .q-field select:hover, .q-field textarea:hover { border-color: #9dc5c1; background: #fff; }
+    .q-field input:focus, .q-field select:focus, .q-field textarea:focus {
+        border-color: #007f7f;
+        box-shadow: 0 0 0 4px rgba(0,127,127,.11), 0 8px 18px rgba(0,127,127,.06);
+    }
+    .q-step + .q-step { border-top: 1px solid #e7eeee; }
+    .q-submit, .h-btn--primary {
+        border-radius: 14px;
+        box-shadow: 0 10px 22px rgba(0, 127, 127, .18);
+        transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .q-submit:hover, .h-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0,127,127,.24); }
+    .estimate-card {
+        padding: 1.65rem;
+        border-radius: 22px;
+        box-shadow: 0 12px 30px rgba(0,127,127,.07);
+    }
+    .estimate-form input, .estimate-form select { border-radius: 12px; min-height: 48px; font: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
+    .estimate-form input:focus, .estimate-form select:focus { border-color:#007f7f; box-shadow:0 0 0 4px rgba(0,127,127,.1); }
+    .estimate-form .h-btn { min-height: 48px; border-radius: 12px; }
+    .estimate-result { box-shadow: 0 8px 22px rgba(13,52,53,.06); }
+    @media (max-width: 640px) { .q-card { padding: 1.35rem 1rem; border-radius: 20px; } .estimate-card { padding: 1.2rem; } }
     </style>
 @endsection
 
@@ -419,6 +495,33 @@ $whatsappLink = 'https://wa.me/' . ($footer['whatsapp_number'] ?? '260572788685'
     <section class="q-main">
         <div class="h-wrap q-grid">
             <div class="q-card">
+                <section class="estimate-card" aria-labelledby="estimate-title">
+                    <div class="estimate-heading">
+                        <div>
+                            <span class="estimate-kicker"><i class="fas fa-bolt"></i> Instant estimate</span>
+                            <h2 id="estimate-title">Estimate your shipping cost</h2>
+                            <p>Get an indicative price and transit time before requesting a formal quote.</p>
+                        </div>
+                        <div class="estimate-icon" aria-hidden="true"><i class="fas fa-calculator"></i></div>
+                    </div>
+                    <form id="estimateForm" class="estimate-form" novalidate>
+                        @csrf
+                        <div class="estimate-field estimate-service"><label for="estimate_service"><span>01</span> Shipping method</label><select id="estimate_service" name="service_type" required>
+                            <option value="">Choose service</option>
+                            <option value="road-freight">Road freight</option>
+                            <option value="air-freight">Air freight</option>
+                            <option value="sea-freight">Sea freight</option>
+                            <option value="china-shopping">China orders</option>
+                            <option value="same-day">Same-day delivery</option>
+                            <option value="express">Express delivery</option>
+                        </select></div>
+                        <div class="estimate-field"><label for="estimate_pickup"><span>02</span> Pickup location</label><input id="estimate_pickup" name="pickup" placeholder="e.g. Guangzhou" required></div>
+                        <div class="estimate-field"><label for="estimate_delivery"><span>03</span> Delivery location</label><input id="estimate_delivery" name="delivery" placeholder="e.g. Lusaka" required></div>
+                        <div class="estimate-field estimate-weight"><label for="estimate_weight"><span>04</span> Cargo weight</label><div class="estimate-input-unit"><input id="estimate_weight" name="weight" type="number" min="0.1" step="0.1" placeholder="e.g. 25" required><span>kg</span></div></div>
+                        <button type="submit" class="h-btn h-btn--primary">Calculate <i class="fas fa-arrow-right"></i></button>
+                    </form>
+                    <div id="estimateResult" class="estimate-result" hidden role="status"></div>
+                </section>
                 <form id="quoteForm" action="{{ route('quote.submit') }}" method="POST" novalidate>
                     @csrf
                     <div id="quoteFormError" class="quote-error-summary" role="alert" tabindex="-1" hidden></div>
@@ -546,6 +649,35 @@ $whatsappLink = 'https://wa.me/' . ($footer['whatsapp_number'] ?? '260572788685'
     </section>
 
 </div>
+<script>
+    document.getElementById('estimateForm')?.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const form = this;
+        const button = form.querySelector('button');
+        const result = document.getElementById('estimateResult');
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Calculating…';
+        result.hidden = true;
+
+        try {
+            const response = await fetch('{{ route('quote.estimate') }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value, 'Accept': 'application/json' },
+                body: new FormData(form),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Please check the estimate details.');
+            result.innerHTML = '<div>Estimated shipping cost</div><strong>ZMW ' + Number(data.min).toLocaleString() + ' – ' + Number(data.max).toLocaleString() + '</strong><div style="margin-top:.35rem;font-size:.85rem">Estimated transit: ' + data.transit_time + '</div><small style="display:block;margin-top:.65rem;color:#6b7d7f">' + data.disclaimer + '</small>';
+            result.hidden = false;
+        } catch (error) {
+            result.textContent = error.message;
+            result.hidden = false;
+        } finally {
+            button.disabled = false;
+            button.innerHTML = 'Calculate <i class="fas fa-arrow-right"></i>';
+        }
+    });
+</script>
 <script>
     // Pre-select the service when arriving from a service's quote button (?service=road-freight)
     (function () {

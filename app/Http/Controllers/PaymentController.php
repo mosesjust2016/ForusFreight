@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\AdminAuditLog;
 use Illuminate\Http\Client\Response as ClientResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -254,6 +255,15 @@ class PaymentController extends Controller
         }
 
         $invoice->update(['status' => 'Paid', 'paid_at' => now()]);
+
+        AdminAuditLog::create([
+            'actor_id' => Auth::id(),
+            'action' => 'invoice.marked_paid',
+            'subject_type' => Invoice::class,
+            'subject_id' => $invoice->id,
+            'metadata' => ['invoice_number' => $invoice->invoice_number],
+            'ip_address' => $request->ip(),
+        ]);
 
         return redirect()->back()->with('success', "Invoice {$invoice->invoice_number} marked as paid.");
     }

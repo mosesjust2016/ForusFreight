@@ -283,6 +283,8 @@
             <tr>
                 <th>Client Details</th>
                 <th>Contact Info</th>
+                <th>Registration Status</th>
+                <th>Stuck At</th>
                 <th>Shipments</th>
                 <th>Financials</th>
                 <th>Joined Date</th>
@@ -311,8 +313,28 @@
                         <div style="font-size: 0.8rem; color: var(--text-gray); font-weight: 600;">{{ $client->phone ?? 'No phone' }}</div>
                     </td>
                     <td>
+                        @php
+                            $registrationClass = $client->registration_status === 'Verified'
+                                ? ['#dcfce7', '#166534', 'fa-check-circle']
+                                : ($client->registration_status === 'Suspended'
+                                    ? ['#fee2e2', '#991b1b', 'fa-ban']
+                                    : ['#fef3c7', '#92400e', 'fa-clock']);
+                        @endphp
+                        <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: {{ $registrationClass[0] }}; color: {{ $registrationClass[1] }}; padding: 0.35rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 800; white-space: nowrap;">
+                            <i class="fas {{ $registrationClass[2] }}"></i> {{ $client->registration_status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.82rem; font-weight: 800; color: {{ $client->registration_stuck_at === 'Completed' ? '#166534' : '#92400e' }};">
+                            {{ $client->registration_stuck_at }}
+                        </div>
+                        @if($client->registration_stuck_at !== 'Completed')
+                            <div style="font-size: 0.7rem; color: var(--text-gray); margin-top: 0.2rem;">Needs follow-up</div>
+                        @endif
+                    </td>
+                    <td>
                         <div class="stat-pill">
-                            <i class="fas fa-box" style="margin-right: 0.4rem;"></i> {{ $client->shipments->count() }} Orders
+                            <i class="fas fa-box" style="margin-right: 0.4rem;"></i> {{ $client->shipments_count }} Orders
                         </div>
                     </td>
                     <td>
@@ -370,7 +392,7 @@
                                         <span>Limit</span>
                                         <span style="font-weight: 800;">{{ usd($client->credit_limit) }}</span>
                                     </div>
-                                    <button onclick="unlockCRM('{{ $client->id }}')" class="crm-unlock-btn">
+                                    <button onclick="window.location.href='{{ route('admin.clients.edit', [$client, 'unlock' => 'true']) }}'" class="crm-unlock-btn">
                                         <i class="fas fa-lock-open"></i> UNLOCK CRM
                                     </button>
                                 </div>
@@ -547,9 +569,7 @@
     }
 
     function unlockCRM(clientId) {
-        activeClientId = clientId;
-        document.getElementById('securityModal').style.display = 'flex';
-        document.getElementById('adminPin').focus();
+        window.location.href = "{{ url('admin/clients') }}/" + clientId + "/edit?unlock=true";
     }
 
     function closeSecurityModal() {

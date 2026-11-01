@@ -97,7 +97,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
             <div class="form-group">
                 <label class="form-label">Phone Number</label>
-                <input type="text" name="phone" class="form-input" placeholder="+260 ...">
+                <input type="text" name="phone" class="form-input" placeholder="+260 ..." required>
             </div>
             <div class="form-group">
                 <label class="form-label">WhatsApp Number</label>

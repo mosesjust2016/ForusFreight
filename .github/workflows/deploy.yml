@@ -34,11 +34,11 @@ jobs:
           coverage: none
 
       - name: 📝 Create SQLite database (for composer)
-        working-directory: website
+        working-directory: .
         run: touch database/database.sqlite
 
       - name: 📦 Install Composer dependencies
-        working-directory: website
+        working-directory: .
         env:
           APP_ENV: testing
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
@@ -49,14 +49,14 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: website/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: 📦 Install NPM dependencies
-        working-directory: website
+        working-directory: .
         run: npm ci
 
       - name: 🏗️ Build frontend assets
-        working-directory: website
+        working-directory: .
         run: npm run build
 
   # ─────────────────────────────────────────────
@@ -89,11 +89,11 @@ jobs:
           extensions: mbstring, bcmath, pdo, pdo_mysql, xml, curl, zip, sqlite3
 
       - name: 📝 Create SQLite database (for composer)
-        working-directory: website
+        working-directory: .
         run: touch database/database.sqlite
 
       - name: 📦 Install Composer dependencies
-        working-directory: website
+        working-directory: .
         env:
           APP_ENV: testing
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
@@ -103,20 +103,20 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: website/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: 📦 Install NPM dependencies
-        working-directory: website
+        working-directory: .
         run: npm ci
 
       - name: 🏗️ Build frontend assets
-        working-directory: website
+        working-directory: .
         run: npm run build
 
       # ── Prepare website for FTP upload ────────
       - name: 🗑️ Clean up website before FTP upload
         run: |
-          cd website
+          cd .
           rm -rf node_modules
           # Composer dependencies are installed once on the hosting account;
           # do not place thousands of vendor files into the FTP mirror.
@@ -126,7 +126,7 @@ jobs:
           echo "$GITHUB_SHA" > .deploy-revision
           cd ..
 
-      # Only the website/ folder contents go to /public_html.
+      # The repository root is the canonical Laravel app and is deployed to /public_html.
       # Use lftp directly so the transfer has retries, passive mode, parallel
       # transfers, and a bounded timeout. The previous third-party action
       # could remain running without reporting progress.
@@ -157,7 +157,12 @@ jobs:
               --exclude-glob 'storage/framework/sessions/*' \
               --exclude-glob 'storage/framework/views/*' \
               --exclude-glob database/database.sqlite \
-              ./website/ \"$FTP_REMOTE_PATH\";
+              --exclude-glob 'website/*' \
+              --exclude-glob 'manual-upload/*' \
+              --exclude-glob 'Ecommerce/*' \
+              --exclude-glob 'TerraForm/*' \
+              --exclude-glob 'plans/*' \
+              ./ \"$FTP_REMOTE_PATH\";
             quit"
 
       # ── Run Laravel post-deployment tasks via PHP ─────
@@ -168,10 +173,10 @@ jobs:
 
       - name: ℹ️ Deployment Info
         run: |
-          echo "✅ Website folder deployed to cPanel FTP!"
+          echo "✅ Canonical Laravel root deployed to cPanel FTP!"
           echo ""
           echo "📂 Deployment Summary:"
-          echo "  ✅ Website folder → FTP → /public_html (cPanel)"
+          echo "  ✅ Laravel root → FTP → /public_html (cPanel)"
           echo "  ⏳ Ecommerce folder → Docker → VM (deploy-vm job)"
           echo ""
           echo "⚠️  Manual post-deployment steps (run via SSH):"

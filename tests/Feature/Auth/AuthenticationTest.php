@@ -64,7 +64,7 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Welcome back');
+            ->assertSee('Hi ' . explode(' ', $user->name)[0]);
     }
 
     public function test_users_can_logout(): void

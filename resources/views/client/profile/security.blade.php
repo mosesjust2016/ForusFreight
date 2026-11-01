@@ -137,13 +137,19 @@
         </form>
     </div>
 
-    <div class="security-card" style="opacity: 0.7;">
+    <div class="security-card">
         <div class="security-header" style="margin-bottom: 1.5rem;">
             <i class="fas fa-shield-halved" style="background: #eff6ff; color: #2563eb;"></i>
             <h3>Two-Factor Authentication</h3>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-gray); margin-bottom: 1.5rem;">Add an extra layer of security to your account by enabling 2FA. (Coming Soon)</p>
-        <button disabled style="background: #e2e8f0; color: #94a3b8; padding: 0.75rem 1.5rem; border-radius: 10px; border: none; font-weight: 800; cursor: not-allowed;">Configure 2FA</button>
+        <p style="font-size: 0.85rem; color: var(--text-gray); margin-bottom: 1.5rem;">Require a one-time code sent to your email each time you sign in.</p>
+        <form action="{{ Auth::user()->isStaff() ? route('admin.2fa.update') : route('client.2fa.update') }}" method="POST">
+            @csrf @method('PUT')
+            <label style="display:flex; align-items:center; gap:.65rem; font-weight:700; color:var(--text-dark);">
+                <input type="checkbox" name="two_factor_enabled" value="1" @checked(Auth::user()->two_factor_enabled) onchange="this.form.submit()">
+                Email security code {{ Auth::user()->two_factor_enabled ? '(enabled)' : '(disabled)' }}
+            </label>
+        </form>
     </div>
 </div>
 @endsection

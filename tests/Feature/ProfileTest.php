@@ -18,7 +18,7 @@ class ProfileTest extends TestCase
         $response = $this->actingAs($user)->get('/client/profile');
 
         $response->assertOk();
-        $response->assertSee('My Profile');
+        $response->assertSee('Account');
     }
 
     public function test_profile_information_can_be_updated(): void
